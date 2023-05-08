@@ -73,52 +73,9 @@ def dfConvertToDatetime(df: pd.DataFrame, timestamp = False):
     df['listDate'] = pd.to_datetime(df['listDate'])
     df['soldDate'] = pd.to_datetime(df['soldDate'])
 
-def removeFeatures(df: pd.DataFrame, columns: list):
-    df = df.drop(columns, axis = 1)
-    return df
 
 #Data Augmentation
 
-def countLevels(df: pd.DataFrame, column):
-    series = df[column].value_counts()
-    return series
-
-def augmentCategorical(df, column, percent = 0.04):
-    series = countLevels(df, column)
-    total = np.sum(series.values)
-    percentage = [x/total for x in series.values]
-    
-    for i in range(len(percentage)):
-        if percentage[i] > percent:
-            pass
-        else:
-            df = df.replace(to_replace = {column: series.index[i]}, value = 'Other '+column)
-
-    return df
-
-def augmentType(df, type, columns):
-    for col in columns:
-        df[col] = df[col].astype(df[col].astype(type))
-
-    return df
-
-def augmentNumericals(df):
-    for i in range(len(df.columns)):
-        if (type(df[df.columns[i]].values[0]) == str):
-            numerical = re.search('^[-+]?[0-9]*\.?[0-9]+$', df[df.columns[i]].values[0])
-            if numerical is not None:
-                df[df.columns[i]] = df[df.columns[i]].astype(float)
-    return df
-
-def removeLowLevels(df, column):
-    lst = []
-    for i in range(len(df[column].value_counts().index)):
-        if df[column].value_counts().values[i] < 11:
-            lst.append(df[column].value_counts().index[i])
-
-    for i in range(len(lst)):
-        df = df[df[column] != lst[i]]
-    return df
 
 def removeOutliers(df):
     percentile90 = df['soldPrice'].quantile(0.90)
