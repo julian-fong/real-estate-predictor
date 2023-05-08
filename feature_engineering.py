@@ -5,6 +5,7 @@ import os
 import datetime as dt
 import re
 import ast
+import load_data
 
 pd.set_option('display.max_columns', 999)
 #Helper Functions
@@ -86,17 +87,14 @@ def removeOutliers(df):
     upper_limit = percentile90 + 3 * iqr
     lower_limit = percentile10 - 3 * iqr
 
-    # df[df['soldPrice'] > upper_limit]
-    # df[df['soldPrice'] < lower_limit]
-
     df = df[df['soldPrice'] < upper_limit]
     df = df[df['soldPrice'] > lower_limit]
 
     return df
 
 
-def feature_engineering_lease(save):
-    raw_lease_df = pd.read_csv(os.getcwd()+"\\data\\raw_lease_data.csv")
+def feature_engineering_lease(days = None, type_ = None):
+    raw_lease_df = load_data.import_data(days, type_, os.environ['REPLIERS_KEY'], True)
     
     address = ['area', 'city', 'district', 'neighborhood']
     details = ['numBathrooms','numBedrooms','sqft','style',]
@@ -154,7 +152,4 @@ def feature_engineering_lease(save):
     lease_df_agg_cats = pd.get_dummies(lease_df_agg)
 
     #Save the aggregated dataset if necessary
-    if save:
-        lease_df_agg_cats.to_csv(os.getcwd()+"\\data\\data.csv", index = False)
-    else:
-        return lease_df_agg_cats
+    return lease_df_agg_cats
