@@ -3,6 +3,7 @@ import numpy as np
 import requests
 import os
 import datetime as dt
+
 def get_dates(days):
     date_list = []
     today = dt.datetime.now()
@@ -41,6 +42,7 @@ def get_data(type_, date_list, api_key):
         print(len(raw_df))
 
     return raw_df
+
 def import_data(days_amount, type_, api_key, save = False):
     dates = get_dates(days_amount)
     if not type_:
@@ -59,5 +61,5 @@ def import_data(days_amount, type_, api_key, save = False):
             return raw_data
         
 if __name__ == "__main__":
-    
+
     import_data(1460, None, os.environ['REPLIERS_KEY'], True)
