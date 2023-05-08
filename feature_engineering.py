@@ -95,7 +95,7 @@ def removeOutliers(df):
     return df
 
 
-def feature_engineering(save):
+def feature_engineering_lease(save):
     raw_lease_df = pd.read_csv(os.getcwd()+"\\data\\raw_lease_data.csv")
     
     address = ['area', 'city', 'district', 'neighborhood']
@@ -144,7 +144,7 @@ def feature_engineering(save):
     lease_df_agg = lease_df_agg.join(avg_price_by_city, on = 'city', rsuffix='_by_city')
 
     #drop the remaining unnecessary columns
-    columns_to_drop = ['listDate', 'images', 'address', 'soldDate', 'resource' ,'timestamps', 'type', 'mlsNumber' ,'permissions' ,'details', 'map' ,'lastStatus', 'status', 'boardId' ,'agents']
+    columns_to_drop = ['listDate', 'address', 'soldDate', 'type', 'mlsNumber','details', 'map' ,'lastStatus', 'status', 'raw', 'bathrooms']
     lease_df_agg = lease_df_agg.drop(columns = columns_to_drop, axis = 1)
 
     #Remove any outliers

@@ -20,11 +20,11 @@ def get_dates(days):
     return date_list
 
 def get_data(type_, date_list, api_key):
-    if type_.lower() == 'lease':
+    if type_.lower() == 'sale':
         lastStatus = ""
     else:
         lastStatus = "&lastStatus=Lsd"
-
+    columns = ['rooms','occupancy', 'lot','timestamps','condominium','taxes', 'office', 'nearby', 'updatedOn', 'coopCompensation' ,'daysOnMarket','openHouse', 'permissions' ,'resource', 'images' ,'boardId' ,'agents']
     raw_df = pd.DataFrame()
     for i in range(len(date_list)):
         start_date = date_list[i]
@@ -37,7 +37,9 @@ def get_data(type_, date_list, api_key):
         r = requests.request("GET",url, params=payload, headers=headers)
         data = r.json()
         df = pd.DataFrame(data['listings'])
+        df = df.drop(columns, axis = 1)
         #Raw Dataset
+        
         raw_df = pd.concat([raw_df, df],axis = 0, ignore_index= True)
         print(len(raw_df))
 
