@@ -14,23 +14,6 @@ from sklearn.feature_selection import SelectFromModel
 
 import lightgbm as lgbm
 
-def removeOutliers(df):
-    percentile90 = df['soldPrice'].quantile(0.90)
-    percentile10 = df['soldPrice'].quantile(0.10)
-
-    iqr = percentile90 - percentile10
-
-    upper_limit = percentile90 + 3 * iqr
-    lower_limit = percentile10 - 3 * iqr
-
-    # df[df['soldPrice'] > upper_limit]
-    # df[df['soldPrice'] < lower_limit]
-
-    df = df[df['soldPrice'] < upper_limit]
-    df = df[df['soldPrice'] > lower_limit]
-
-    return df
-
 def create_model():
     data = pd.read_csv(os.getcwd()+"\\data\\data.csv")
 

@@ -93,63 +93,66 @@ def removeOutliers(df):
     return df
 
 
-def feature_engineering_lease(days = None, type_ = None):
-    raw_lease_df = load_data.import_data(days, type_, os.environ['REPLIERS_KEY'], True)
+def feature_engineering(days = None, type_ = None):
+    raw_df = load_data.import_data(days, type_, os.environ['REPLIERS_KEY'], True)
     
     address = ['area', 'city', 'district', 'neighborhood']
     details = ['numBathrooms','numBedrooms','sqft','style',]
     map_ = ['latitude', 'longitude']
 
     #Extract column values off of dictionary
-    lease_df = dfExtractFeatures(raw_lease_df, key = 'address', columns = address)
-    lease_df = dfExtractFeatures(lease_df, key = 'details', columns = details)
-    lease_df = dfExtractFeatures(lease_df, key = 'map', columns = map_)
+    df = dfExtractFeatures(raw_df, key = 'address', columns = address)
+    df = dfExtractFeatures(df, key = 'details', columns = details)
+    df = dfExtractFeatures(df, key = 'map', columns = map_)
     
     #Remove every listing which had a sold price of 0
-    lease_df = lease_df[lease_df['soldPrice'] != 0]
+    df = df[df['soldPrice'] != 0]
 
     #Replace any empty strings or nan values that are not specific to the pandas DataFrame
-    lease_df.replace({"": np.nan}, inplace = True)
-    lease_df.replace({float("nan"): np.nan}, inplace = True)
+    df.replace({"": np.nan}, inplace = True)
+    df.replace({float("nan"): np.nan}, inplace = True)
 
     #Create Days on market variable
-    dfConvertToDatetime(lease_df)
-    createDOM(lease_df)
+    dfConvertToDatetime(df)
+    createDOM(df)
 
     #Create average square feet variable
-    lease_df['avg_sqft'] = [(int(value.split("-")[0])+int(value.split("-")[1]))/2 if not isinstance(value, float) and '-' in value else np.nan for value in lease_df['sqft']]
-    lease_df['avg_sqft']
+    df['avg_sqft'] = [(int(value.split("-")[0])+int(value.split("-")[1]))/2 if not isinstance(value, float) and '-' in value else np.nan for value in df['sqft']]
+    df['avg_sqft']
 
     #Create the price per square feet variable
-    lease_df['ppsqft'] = lease_df['listPrice']/lease_df['avg_sqft']
-    lease_df['ppsqft']
+    df['ppsqft'] = df['listPrice']/df['avg_sqft']
+    df['ppsqft']
 
     #Create the bed to bath ratio
-    lease_df['bathtobed_ratio'] = lease_df['numBathrooms'].astype("Int64")/lease_df['numBedrooms'].astype("Int64")
+    df['bathtobed_ratio'] = df['numBathrooms'].astype("Int64")/df['numBedrooms'].astype("Int64")
 
     #Encode map coordinates as floats
-    lease_df['latitude'] = lease_df['latitude'].astype("float")
-    lease_df['longitude'] = lease_df['longitude'].astype("float")
+    df['latitude'] = df['latitude'].astype("float")
+    df['longitude'] = df['longitude'].astype("float")
 
     #Create the average price by area variable (calculates the average price of every listing in the area in the dataframe)
-    avg_price_by_area = lease_df.groupby('area').agg('mean')['listPrice']
+    avg_price_by_area = df.groupby('area').agg('mean')['listPrice']
 
     #Create the average price by city variable (calculates the average price of every listing in the city in the dataframe)
-    avg_price_by_city = lease_df.groupby('city').agg('mean')['listPrice']
+    avg_price_by_city = df.groupby('city').agg('mean')['listPrice']
 
     #Join in the average price by city and average price by area to the main dataframe
-    lease_df_agg = lease_df.join(avg_price_by_area, on = 'area', rsuffix='_by_area')
-    lease_df_agg = lease_df_agg.join(avg_price_by_city, on = 'city', rsuffix='_by_city')
+    df_agg = df.join(avg_price_by_area, on = 'area', rsuffix='_by_area')
+    df_agg = df_agg.join(avg_price_by_city, on = 'city', rsuffix='_by_city')
 
     #drop the remaining unnecessary columns
     columns_to_drop = ['listDate', 'address', 'soldDate', 'type', 'mlsNumber','details', 'map' ,'lastStatus', 'status', 'raw', 'bathrooms']
-    lease_df_agg = lease_df_agg.drop(columns = columns_to_drop, axis = 1)
+    df_agg = df_agg.drop(columns = columns_to_drop, axis = 1)
 
     #Remove any outliers
-    lease_df_agg = removeOutliers(lease_df_agg)
+    df_agg = removeOutliers(df_agg)
 
     #Encode the categorical variables
-    lease_df_agg_cats = pd.get_dummies(lease_df_agg)
+    df_agg_cats = pd.get_dummies(df_agg)
 
-    #Save the aggregated dataset if necessary
-    return lease_df_agg_cats
+    return df_agg_cats
+
+
+
+#For live data, make sure you are 
