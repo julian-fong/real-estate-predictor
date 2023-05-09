@@ -1,14 +1,13 @@
 import asyncio
 import queue
 import argparse
-
-from pathlib import Path
+from model import main
 
 parser  = argparse.ArgumentParser(description = 'Enter the amount of days to retrieve information from')
 parser.add_argument("days", help='A natural number for the number of days to retrieve information from', metavar='days')
-parser.add_argument("-l", "--lease", action="store_true")
-parser.add_argument("-s", "--sale", action="store_true")
-
+parser.add_argument("-l", "--lease", action="store_true", help='specify if you want to generate a new model specifically for lease data')
+parser.add_argument("-s", "--sale", action="store_true", help='specify if you want to generate a new model specifically for sale data')
+parser.add_argument("--m", "--model", action = "store_true", help='specify if you want to generate a model')
 
 # parser.add_argument('--type', metavar='type', type = str, nargs = 1, help = 'A type (optional) specifying to grab lease or sale data', required = False,)
 
@@ -22,6 +21,7 @@ print(target_dir)
 
 print(args.lease)
 print(args.sale)
+print(args.model)
 
 # target_dir1 = Path(args.sale)
 
