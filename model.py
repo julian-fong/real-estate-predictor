@@ -64,16 +64,16 @@ def create_model(days, type_ = None):
     best_model.set_params(**grid_results_df.sort_values(by=['rank_test_score'])['params'].values[0])
 
     best_model = best_model.fit(train_x, y_train)
-    best_model
-    best_model.booster_.trees_to_dataframe()
+
     y_pred = best_model.predict(test_x)
-    metrics.mean_absolute_error(y_test, y_pred)
-    metrics.r2_score(y_test, y_pred)
+
+    print(f"R^2 Score: {100*metrics.mean_absolute_error(y_test, y_pred)}")
+    print(f"R^2 Score: {100*metrics.r2_score(y_test, y_pred)}")
 
     model_parameters = {"model": best_model, "columns": x_train.columns, "idx": feat_index}
     filename = f"{type_}_model_parameters.sav"
-    with open(os.getcwd()+"\\models", 'wb') as f:
-        pickle.dump(model_parameters, open(filename, 'wb'))
+    with open(os.getcwd()+f"\\models\\{filename}", 'wb') as f:
+        pickle.dump(model_parameters, open(os.getcwd()+f"\\models\\{filename}", 'wb'))
 
 
 def main(days, type_):
