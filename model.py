@@ -13,7 +13,7 @@ import lightgbm as lgbm
 
 from feature_engineering import feature_engineering
 
-def create_model(days, type_ = None):
+def create_model(days, type_):
     data = feature_engineering(days, type_)
 
     x, y = data.drop(['soldPrice'], axis = 1), data['soldPrice']
@@ -71,6 +71,7 @@ def create_model(days, type_ = None):
     print(f"R^2 Score: {100*metrics.r2_score(y_test, y_pred)}")
 
     model_parameters = {"model": best_model, "columns": x_train.columns, "idx": feat_index}
+    
     filename = f"{type_}_model_parameters.sav"
     with open(os.getcwd()+f"\\models\\{filename}", 'wb') as f:
         pickle.dump(model_parameters, open(os.getcwd()+f"\\models\\{filename}", 'wb'))
