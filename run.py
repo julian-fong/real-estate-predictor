@@ -13,16 +13,19 @@ def run_model(days, model, lease, sale):
             if sale:
                 main(days, 'sale')
 
+    else:
+        print("model was not specified")
+
 parser  = argparse.ArgumentParser(description = 'Enter the amount of days to retrieve information from')
+
 parser.add_argument("days", help='A natural number for the number of days to retrieve information from', metavar='days')
 parser.add_argument("-l", "--lease", action="store_true", help='specify if you want to generate a new model specifically for lease data \'-m must be specified\'')
 parser.add_argument("-s", "--sale", action="store_true", help='specify if you want to generate a new model specifically for sale data \'-m must be specified\'')
 parser.add_argument("-m", "--model", action = "store_true", help='specify if you want to generate a model')
 
 args = parser.parse_args()
-print(args)
 
-print(type(args.days))
+print(args.days)
 print(args.lease)
 print(args.sale)
 print(args.model)
