@@ -22,10 +22,10 @@ def create_model(days, type_ = None):
     
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.3, random_state=42)
 
-    print('Shape of x_train: ' + str(x_train.shape))
-    print('Shape of y_train: ' + str(y_train.shape))
-    print('Shape of x_test: ' + str(x_test.shape))
-    print('Shape of y_test: ' + str(y_test.shape))
+    # print('Shape of x_train: ' + str(x_train.shape))
+    # print('Shape of y_train: ' + str(y_train.shape))
+    # print('Shape of x_test: ' + str(x_test.shape))
+    # print('Shape of y_test: ' + str(y_test.shape))
     
     #Define XGBoost parameters tree_method = 'gpu_hist'
     base_regressor = lgbm.LGBMRegressor(learning_rate = 0.3,random_state=0)
@@ -41,12 +41,10 @@ def create_model(days, type_ = None):
     
     #LightGBM parameters
     params = {
-            'colsample_bytree': [0.5, 0.75, 1],
-            'learning_rate': [0.01, 0.1, 0.2],
+            'learning_rate': [0.1, 0.2],
             'subsample': [0.25, 0.5, 1.0],
-            'max_depth': [5, 7, 9, 11],
-            'num_leaves': [15,30,45],
-            'reg_lambda': [0.01, 0.5, 0.1],
+            'max_depth': [5, 7, 9,],
+            'num_leaves': [15, 30, 45],
             'min_child_samples': [10,20,30],
             }
     

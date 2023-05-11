@@ -50,7 +50,7 @@ def dfExtractFeatures(df: pd.DataFrame, key: str, columns: list):
         try:
             serie = df[key].apply(lambda x: ast.literal_eval(str(x)))
             d = pd.DataFrame.from_dict(serie.tolist())
-        except e:
+        except:
             print("String does not match proper conversion methods")
     elif type(df[key].values[0]) == dict:
         serie = pd.Series.to_dict(df[key])
@@ -94,7 +94,7 @@ def removeOutliers(df):
 
 
 def feature_engineering(days = None, type_ = None):
-    raw_df = load_data.import_data(days, type_, os.environ['REPLIERS_KEY'], True)
+    raw_df = load_data.import_data(days, type_, os.environ['REPLIERS_KEY'])
     
     address = ['area', 'city', 'district', 'neighborhood']
     details = ['numBathrooms','numBedrooms','sqft','style',]
@@ -120,12 +120,16 @@ def feature_engineering(days = None, type_ = None):
     df['avg_sqft'] = [(int(value.split("-")[0])+int(value.split("-")[1]))/2 if not isinstance(value, float) and '-' in value else np.nan for value in df['sqft']]
     df['avg_sqft']
 
+    #Encode listPrice and soldPrice as float
+    df['listPrice'] = df['listPrice'].astype("float")
+    df['soldPrice'] = df['soldPrice'].astype("float")
+
     #Create the price per square feet variable
     df['ppsqft'] = df['listPrice']/df['avg_sqft']
     df['ppsqft']
 
     #Create the bed to bath ratio
-    df['bathtobed_ratio'] = df['numBathrooms'].astype("Int64")/df['numBedrooms'].astype("Int64")
+    df['bathtobed_ratio'] = df['numBathrooms'].astype("float")/df['numBedrooms'].astype("float")
 
     #Encode map coordinates as floats
     df['latitude'] = df['latitude'].astype("float")
@@ -148,8 +152,12 @@ def feature_engineering(days = None, type_ = None):
     #Remove any outliers
     df_agg = removeOutliers(df_agg)
 
+    print(df_agg.columns)
+
     #Encode the categorical variables
     df_agg_cats = pd.get_dummies(df_agg)
+
+    print(f"Feature engineering complete. Dataset for type {type_} has size {df_agg_cats.shape}")
 
     return df_agg_cats
 

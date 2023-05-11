@@ -45,23 +45,16 @@ def get_data(type_, date_list, api_key):
 
     return raw_df
 
-def import_data(days_amount, type_, api_key, save = False):
+def import_data(days_amount, type_, api_key):
     dates = get_dates(days_amount)
     if not type_:
         raw_lease_data = get_data('lease', dates, api_key)
         raw_sale_data = get_data('sale', dates, api_key)
-        if save:
-            raw_lease_data.to_csv(os.getcwd()+"\\data\\raw_lease_data.csv", index = False)
-            raw_sale_data.to_csv(os.getcwd()+"\\data\\raw_sale_data.csv", index = False)
-        else:
-            return raw_lease_data, raw_sale_data
+
+        print("Loading data complete")
+        return raw_lease_data, raw_sale_data
     else:
         raw_data = get_data(type_, dates, api_key)
-        if save:
-            raw_data.to_csv(os.getcwd()+f"\\data\\raw_{type_}_data.csv", index = False)
-        else:
-            return raw_data
-        
-if __name__ == "__main__":
 
-    import_data(1460, None, os.environ['REPLIERS_KEY'], True)
+        print(f"Loading data complete. Raw data with type {type_} has size {raw_data.shape}")
+        return raw_data
