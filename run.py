@@ -32,8 +32,8 @@ print(args.model)
 
 
 try:
-    int(args.days)
+    days = int(args.days)
 except:
     print("This cannot be converted into an int, please enter a different value")
 
-run_model(args.days, args.model, args.lease, args.sale)
+run_model(days, args.model, args.lease, args.sale)
