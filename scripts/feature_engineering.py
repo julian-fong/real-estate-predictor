@@ -126,10 +126,10 @@ def feature_engineering(days = None, type_ = None):
     #Encode listPrice and soldPrice as float
     df['listPrice'] = df['listPrice'].astype("float")
     df['soldPrice'] = df['soldPrice'].astype("float")
+    df['originalPrice'] = df['originalPrice'].astype("float")
 
     #Create the price per square feet variable
     df['ppsqft'] = df['listPrice']/df['avg_sqft']
-    df['ppsqft']
 
     #Create the bed to bath ratio
     df['bathtobed_ratio'] = df['numBathrooms'].astype("float")/df['numBedrooms'].astype("float")

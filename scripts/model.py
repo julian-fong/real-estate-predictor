@@ -13,15 +13,18 @@ import lightgbm as lgbm
 
 from scripts.feature_engineering import feature_engineering
 
-print(os.getcwd())
-
 def create_model(days, type_ = None):
     data = feature_engineering(days, type_)
 
     x, y = data.drop(['soldPrice'], axis = 1), data['soldPrice']
 
     x = x.rename(columns = lambda z: re.sub('[^A-Za-z0-9_]+', '', z))
-    
+
+    #In the case we have duplicate columns, just remove them both
+    if list(x.columns) != set(x.columns):
+        col_to_drop = set([col for col in x if list(x.columns).count(col) > 1])
+        x = x.drop(col_to_drop, axis = 1)
+
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.3, random_state=42)
 
     # print('Shape of x_train: ' + str(x_train.shape))
@@ -75,10 +78,16 @@ def create_model(days, type_ = None):
     mae = 100*metrics.mean_absolute_error(y_test, y_pred)
 
     #Save the best model along with the feature engineered columns and the indexes of our top features
-    model_parameters = {"model": best_model, "columns": x_train.columns, "idx": feat_index}
-    filename = f"{type_}_model_parameters.sav"
-    with open(os.getcwd()+f"\\models\\{filename}", 'wb') as f:
-        pickle.dump(model_parameters, open(os.getcwd()+f"\\models\\{filename}", 'wb'))
+    try:
+        print("Saving best model parameters...")
+        model_parameters = {"model": best_model, "columns": x_train.columns, "idx": feat_index}
+        filename = f"{type_}_model_parameters.sav"
+        with open(os.getcwd()+f"\\models\\{filename}", 'wb') as f:
+            pickle.dump(model_parameters, open(os.getcwd()+f"\\models\\{filename}", 'wb'))
+        
+        print(f"Best model paramters for type {type_} successful")
+    except:
+        print("best model did not save successfully")
 
     return r2, mae
 
