@@ -5,7 +5,7 @@ import os
 import datetime as dt
 import re
 import ast
-import load_data
+from scripts import load_data
 
 pd.set_option('display.max_columns', 999)
 #Helper Functions
@@ -96,6 +96,9 @@ def removeOutliers(df):
 def feature_engineering(days = None, type_ = None):
     raw_df = load_data.import_data(days, type_, os.environ['REPLIERS_KEY'])
     
+    if raw_df.empty:
+        print("Specified days range does not retrieve any data for specific type")
+    
     address = ['area', 'city', 'district', 'neighborhood']
     details = ['numBathrooms','numBedrooms','sqft','style',]
     map_ = ['latitude', 'longitude']
@@ -146,14 +149,13 @@ def feature_engineering(days = None, type_ = None):
     df_agg = df_agg.join(avg_price_by_city, on = 'city', rsuffix='_by_city')
 
     #drop the remaining unnecessary columns
-    columns_to_drop = ['listDate', 'address', 'soldDate', 'type', 'mlsNumber','details', 'map' ,'lastStatus', 'status', 'raw', 'bathrooms']
+    columns_to_keep = ['originalPrice', 'soldPrice', 'class', 'listPrice', 'area', 'city', 'district', 'neighborhood', 'numBathrooms', 'numBedrooms', 'sqft', 'style', 'latitude', 'longitude', 'DOM', 'avg_sqft', 'ppsqft', 'bathtobed_ratio', 'listPrice_by_area', 'listPrice_by_city']
+    columns_to_drop = [col for col in df_agg.columns if col not in columns_to_keep]
     df_agg = df_agg.drop(columns = columns_to_drop, axis = 1)
 
     #Remove any outliers
     df_agg = removeOutliers(df_agg)
-
-    print(df_agg.columns)
-
+    
     #Encode the categorical variables
     df_agg_cats = pd.get_dummies(df_agg)
 
@@ -161,6 +163,3 @@ def feature_engineering(days = None, type_ = None):
 
     return df_agg_cats
 
-
-
-#For live data, make sure you are 

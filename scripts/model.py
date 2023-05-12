@@ -11,7 +11,9 @@ from sklearn import metrics
 from sklearn.feature_selection import SelectFromModel
 import lightgbm as lgbm
 
-from feature_engineering import feature_engineering
+from scripts.feature_engineering import feature_engineering
+
+print(os.getcwd())
 
 def create_model(days, type_ = None):
     data = feature_engineering(days, type_)
@@ -42,10 +44,10 @@ def create_model(days, type_ = None):
     #LightGBM parameters
     params = {
             'learning_rate': [0.1, 0.2],
-            'subsample': [0.25, 0.5, 1.0],
-            'max_depth': [5, 7, 9,],
-            'num_leaves': [15, 30, 45],
-            'min_child_samples': [10,20,30],
+            #'subsample': [0.25, 0.5, 1.0],
+            #'max_depth': [5, 7, 9,],
+            #'num_leaves': [15, 30, 45],
+            #'min_child_samples': [10,20,30],
             }
     
     #Define XGBoost base model 
@@ -65,18 +67,34 @@ def create_model(days, type_ = None):
 
     y_pred = best_model.predict(test_x)
 
-    print(f"R^2 Score: {100*metrics.mean_absolute_error(y_test, y_pred)}")
-    print(f"R^2 Score: {100*metrics.r2_score(y_test, y_pred)}")
+    r2 = 100*metrics.r2_score(y_test, y_pred)
+    mae = 100*metrics.mean_absolute_error(y_test, y_pred)
 
     model_parameters = {"model": best_model, "columns": x_train.columns, "idx": feat_index}
     filename = f"{type_}_model_parameters.sav"
     with open(os.getcwd()+f"\\models\\{filename}", 'wb') as f:
         pickle.dump(model_parameters, open(os.getcwd()+f"\\models\\{filename}", 'wb'))
 
+    return r2, mae
+
 
 def main(days, type_):
     if type_:
-        create_model(days, type_)
+        print(f"Creating {type_} model...")
+        r2, mae = create_model(days, type_)
+
+        print(f"R^2 Score for type {type_}: {r2}")
+        print(f"MAE Score for type {type_}: {mae}")
     else:
-        create_model(days, 'sale')
-        create_model(days, 'lease')
+        print("Creating sale model...")
+        sale_r2, sale_mae = create_model(days, 'sale')
+
+        print("Creating lease model...")
+        lease_r2, lease_mae = create_model(days, 'lease')
+
+        print(f"R^2 Score for type sale: {sale_r2}")
+        print(f"MAE Score for type sale: {sale_mae}")
+
+        print(f"R^2 Score for type lease: {lease_r2}")
+        print(f"MAE Score for type lease: {lease_mae}")
+
