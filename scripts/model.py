@@ -53,23 +53,28 @@ def create_model(days, type_ = None):
     #Define XGBoost base model 
     lgbm_model = lgbm.LGBMRegressor(n_estimators=100, device = 'gpu')
 
+    #Obtain the best set of parameters
     grid_search = GridSearchCV(lgbm_model, params, cv=5,verbose=3)
     grid_search.fit(train_x, y_train)
+
+
     #Get results of gridsearch 
     grid_results_df = pd.DataFrame(grid_search.cv_results_)
-    #Save to csv
-
     grid_results_df.sort_values(by=['rank_test_score']).head()
+
+    #Apply the best parameters as our best model
     best_model = lgbm.LGBMRegressor(n_estimators=100, device = 'gpu')
     best_model.set_params(**grid_results_df.sort_values(by=['rank_test_score'])['params'].values[0])
-
     best_model = best_model.fit(train_x, y_train)
 
+    #Predict the test set values
     y_pred = best_model.predict(test_x)
 
+    #Calculate our performance metrics
     r2 = 100*metrics.r2_score(y_test, y_pred)
     mae = 100*metrics.mean_absolute_error(y_test, y_pred)
 
+    #Save the best model along with the feature engineered columns and the indexes of our top features
     model_parameters = {"model": best_model, "columns": x_train.columns, "idx": feat_index}
     filename = f"{type_}_model_parameters.sav"
     with open(os.getcwd()+f"\\models\\{filename}", 'wb') as f:
