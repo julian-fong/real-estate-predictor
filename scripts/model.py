@@ -70,8 +70,11 @@ def create_model(days, type_ = None):
     best_model.set_params(**grid_results_df.sort_values(by=['rank_test_score'])['params'].values[0])
     best_model = best_model.fit(train_x, y_train)
 
+    print(grid_results_df.sort_values(by=['rank_test_score'])['params'].values[0])
     #Predict the test set values
     y_pred = best_model.predict(test_x)
+
+    print(y_pred)
 
     #Calculate our performance metrics
     r2 = 100*metrics.r2_score(y_test, y_pred)

@@ -30,11 +30,12 @@ def get_data(type_, date_list, api_key):
         start_date = date_list[i]
         end_date = dt.datetime.strptime(start_date, '%Y-%m-%d') + dt.timedelta(days = 6)
         end_date = dt.datetime.strftime(end_date, '%Y-%m-%d')
-        url = f'https://api.repliers.io/listings?resultsPerPage=10000&minSoldDate={start_date}&maxSoldDate={end_date}&status=U'+lastStatus+f"&type={type_}"
+        url = f'https://api.repliers.io/listings?resultsPerPage=1000&minSoldDate={start_date}&maxSoldDate={end_date}&status=U'+lastStatus+f"&type={type_}"
 
         payload = {}
         headers = {'repliers-api-key': api_key}
         r = requests.request("GET",url, params=payload, headers=headers)
+        print(r.url)
         data = r.json()
         df = pd.DataFrame(data['listings'])
         df = df.drop(columns, axis = 1)

@@ -25,12 +25,6 @@ parser.add_argument("-m", "--model", action = "store_true", help='specify if you
 
 args = parser.parse_args()
 
-print(args.days)
-print(args.lease)
-print(args.sale)
-print(args.model)
-
-
 try:
     days = int(args.days)
 except:

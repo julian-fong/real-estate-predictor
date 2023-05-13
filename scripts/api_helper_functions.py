@@ -5,9 +5,6 @@ import requests
 import os
 import datetime as dt
 
-def createDOM():
-    pass
-
 def dfExtractFeatures(df: pd.DataFrame, key: str, columns: list):
     if type(df[key].values[0]) == str:
         try:
@@ -44,9 +41,18 @@ def grab_average_city(df):
     df_city = pd.DataFrame(data['listings'])
     columns = [col for col in df_city.columns if col != 'listPrice']
     df_city = df_city.drop(columns, axis = 1)
-    df['listPrice_by_city'] = np.mean(df_city['listPrice'].astype("float").values)  
+    df['listPrice_by_city'] = np.mean(df_city['listPrice'].astype("float").values) 
+
 
 def feature_engineer_single_listing(df, model_columns, model_idx):
+
+    address = ['area', 'city', 'district', 'neighborhood']
+    details = ['numBathrooms','numBedrooms','sqft','style',]
+    map_ = ['latitude', 'longitude']
+
+    df = dfExtractFeatures(df, key = 'address', columns = address)
+    df = dfExtractFeatures(df, key = 'details', columns = details)
+    df = dfExtractFeatures(df, key = 'map', columns = map_)
     #Replace any empty strings or nan values that are not specific to the pandas DataFrame
     df.replace({"": np.nan}, inplace = True)
     df.replace({float("nan"): np.nan}, inplace = True)
@@ -116,3 +122,16 @@ def feature_engineer_single_listing(df, model_columns, model_idx):
 
     return df_listing
 
+def get_listing(mlsNumber):
+    url = f"https://api.repliers.io/listings/{mlsNumber}"
+    payload = {}
+    headers = {'repliers-api-key': os.environ['REPLIERS_KEY']}
+    r = requests.request("GET",url, params=payload, headers=headers)
+    data = r.json()
+    df = pd.DataFrame.from_dict(data, orient = 'index')
+    df = df.transpose()
+
+    assert 'listPrice' in df.columns, "something went wrong when transforming the listing into a pandas dataframe"
+    type_ = df['type'].values[0]
+
+    return df, type_
