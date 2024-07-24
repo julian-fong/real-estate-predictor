@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "real-estate-predictor2.0"
+version = "0.1.0"
+description = "A small project with a predictive model for housing prices"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+
+# Optional but recommended fields
+authors = [
+    { name="Julian Fong", email="julian.fong@landpower.ca"},
+]
+
+
+# Classifiers from the PyPI Trove classifier list
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: Microsoft :: Windows",
+]
+
+keywords = [
+    "data-science",
+    "machine-learning",
+    "xgboost-model",
+    "regression-analysis",
+    "feature-engineering",
+    "predictive-analysis",
+    ]
+
+dependencies = [
+    "numpy >= 1.18.0",
+    "pandas >= 1.1.0",
+    "scikit-learn >= 1.1.5",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "black",
+    "flake8",
+]
+
+Homepage = "https://github.com/julian-fong/real-estate-predictor-2.0"
+Issues = "https://github.com/julian-fong/real-estate-predictor-2.0/issues"

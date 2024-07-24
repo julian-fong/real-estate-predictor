@@ -1,0 +1,25 @@
+include README.md
+include LICENSE
+include *.txt
+include *.md
+include *.json
+
+include *.yaml
+include *.yml
+
+
+include *.ini
+
+include *.cfg
+
+include real-estate-predictor/model/*.pkl
+
+recursive-include real-estate-predictor/config *.json *.xml
+
+# Exclude any .pyc files
+global-exclude *.pyc
+
+# Exclude any __pycache__ directories
+global-exclude __pycache__
+
+global-exclude real-estate-predictor/datasets
