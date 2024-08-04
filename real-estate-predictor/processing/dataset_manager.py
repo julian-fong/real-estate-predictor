@@ -2,10 +2,10 @@ import requests
 import pandas as pd
 import datetime as dt
 import os
-
+from ..utils.generate_dataset import extract_raw_data
 key = os.environ['REPLIERS_KEY']
 #GLOBAL VARIABLES
-today = dt.date.today()
+today = dt.date.today().strftime("%d/%m/%Y")
 
 month = today.month
 year = today.year
@@ -26,7 +26,6 @@ def generate_dataset():
         data = r.json()
         numPages = data['numPages']
         print(numPages)
-
         
         for i in range(1, numPages+1):
             url = f"https://api.repliers.io/listings?resultsPerPage=100&type=lease&type=sale&fields=soldDate,address.city,address.area,address.district,address.neighborhood,address.zip,details.numBathrooms,details.numBedrooms,details.style,listPrice,listDate,details.sqft,details.propertyType,details.numParkingSpace,details.numGarageSpaces,details.numKitchens,details.numDrivewaySpaces,details.description,details.numParkingSpaces,details.extras,details.numRooms,condominium.ammenities,condominium.fees,nearby.ammenities,type,class,map,soldPrice&pageNum={i}&minSoldDate={start_date}&maxSoldDate={end_date}&class=condo&class=residential&status=U&lastStatus=Lsd&lastStatus=Sld"
@@ -43,45 +42,7 @@ def generate_dataset():
                 data = r.json()
 
                 df = pd.DataFrame(data['listings'])
-
-                details_df = pd.DataFrame.from_records(df['details'])
-                address_df = pd.DataFrame.from_records(df['address'])
-                condo_df = pd.DataFrame.from_records(df['condominium'])
-                nearby_df = pd.DataFrame.from_records(df['nearby'])
-                map_df = pd.DataFrame.from_records(df['map'])
-
-                df['city'] = address_df['city']
-                df['area'] = address_df['area']
-                df['district'] = address_df['district']
-                df['neighborhood'] = address_df['neighborhood']
-                df['zip'] = address_df['zip']
-
-                df['latitude'] = map_df['latitude']
-                df['longitude'] = map_df['longitude']
-
-                df['fees'] = condo_df['fees']
-                df['condo_ammenities'] = condo_df['ammenities']
-
-                df['ammenities'] = nearby_df['ammenities']
-
-                df['numBathrooms'] = details_df['numBathrooms']
-                df['numBedrooms'] = details_df['numBedrooms']
-                df['style'] = details_df['style']
-                df['numKitchens'] = details_df['numKitchens']
-                df['numRooms'] = details_df['numRooms']
-                df['numParkingSpaces'] = details_df['numParkingSpaces']
-                df['sqft'] = details_df['sqft']
-
-                df['description'] = details_df['description']
-                df['extras'] = details_df['extras']
-                df['propertyType'] = details_df['propertyType']
-                df['numGarageSpaces'] = details_df['numGarageSpaces']
-                df['numDrivewaySpaces'] = details_df['numDrivewaySpaces']
-
-
-                df = df.drop(columns=['details', 'address','condominium','map','nearby'])
-                df = df.map(str)
-                
+                df = extract_raw_data(df)
                 raw_df = pd.concat([raw_df, df], axis = 0)
                 
             except:
@@ -91,6 +52,6 @@ def generate_dataset():
             if i % 10 == 0:
                 time.sleep(5)
 
-def save_dataset():
+def save_dataset(df):
     pass
 
