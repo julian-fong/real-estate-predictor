@@ -1,5 +1,7 @@
 extra
 dist
 real_estate_predictor2.0.egg-info
-real-estate-predictor/datasets/
-real-estate-predictor/processing/Untitled-1.ipynb
+real_estate_predictor/datasets/*
+real_estate_predictor/processing/Untitled-1.ipynb
+
+!real_estate_predictor/datasets/.gitkeep
