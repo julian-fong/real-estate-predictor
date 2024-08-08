@@ -11,7 +11,7 @@ month = today.month
 year = today.year
 years_behind = 2
 
-def generate_dataset():
+def generate_listings_dataset():
     import time
     raw_df = pd.DataFrame()
     for year_ in range(1, years_behind+1):
@@ -51,6 +51,11 @@ def generate_dataset():
 
             if i % 10 == 0:
                 time.sleep(5)
+
+def generate_neighbourhoods_dataset():
+    start_date = dt.date(year-years_behind, 1, 1)
+    end_date = dt.date(year-years_behind, 12, 31)    
+    pass
 
 def save_dataset(df):
     pass

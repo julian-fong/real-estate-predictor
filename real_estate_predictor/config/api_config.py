@@ -13,6 +13,14 @@ listings_parameters = {
     "status": "U",
     "lastStatus": ["Lsd","Sld"]
 }
+"https://api.repliers.io/listings?type={type}&listings=false&neighborhood={location}&status=U&lastStatus={lastStatus}&statistics=grp-mth,avg-listPrice,avg-soldPrice,cnt-available,cnt-closed,med-daysOnMarket,avg-daysOnMarket,med-soldPrice,med-listPrice&minBeds={bed}&maxBeds={bed}&minSoldDate=2021-01-01&maxSoldDate=2023-12-31&minListDate=2021-01-01&maxListDate=2023-12-31"
+neighbourhoods_parameters = {
+    "listings": "false",
+    "status": "U",
+    "statistics": "grp-mth,avg-listPrice,"
+                  "avg-soldPrice,cnt-available,cnt-closed,"
+                  "med-daysOnMarket,avg-daysOnMarket,med-soldPrice,med-listPrice"
+}
 
 
 
