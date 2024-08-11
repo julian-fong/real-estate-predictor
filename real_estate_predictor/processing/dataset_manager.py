@@ -4,12 +4,17 @@ import datetime as dt
 import os
 from ..utils.generate_dataset import extract_raw_data
 key = os.environ['REPLIERS_KEY']
+
 #GLOBAL VARIABLES
 today = dt.date.today().strftime("%d/%m/%Y")
-
 month = today.month
 year = today.year
 years_behind = 2
+
+neighbourhood_minSoldDate = "2021-01-01"
+neighbourhood_maxSoldDate = "2023-12-31"
+neighbourhood_minListDate = "2021-01-01"
+neighbourhood_maxListDate = "2023-12-31"
 
 def generate_listings_dataset():
     import time

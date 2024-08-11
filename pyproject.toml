@@ -3,7 +3,7 @@ requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "real-estate-predictor2.0"
+name = "real_estate_predictor"
 version = "0.1.0"
 description = "A small project with a predictive model for housing prices"
 readme = "README.md"
@@ -50,7 +50,10 @@ dev = [
     "pytest",
     "black",
     "flake8",
+    "pytest",
+    "pytest-cov",
+    "pytest-randomly",
+    "pytest-timeout",
+    "pytest-xdist",
+    "wheel",
 ]
-
-Homepage = "https://github.com/julian-fong/real-estate-predictor-2.0"
-Issues = "https://github.com/julian-fong/real-estate-predictor-2.0/issues"

@@ -1,7 +1,7 @@
 #Global api config for Repliers
 # https://api.repliers.io/listings?resultsPerPage=100&type=lease&type=sale&fields=soldDate,address.city,address.area,address.district,address.neighborhood,address.zip,details.numBathrooms,details.numBedrooms,details.style,listPrice,listDate,details.sqft,details.propertyType,details.numParkingSpace,details.numGarageSpaces,details.numKitchens,details.numDrivewaySpaces,details.description,details.numParkingSpaces,details.extras,details.numRooms,condominium.ammenities,condominium.fees,nearby.ammenities,type,class,map,soldPrice&pageNum={i}&minSoldDate={start_date}&maxSoldDate={end_date}&class=condo&class=residential&status=U&lastStatus=Lsd&lastStatus=Sld"
 listings_parameters = {
-    "resultsPerPage": 100,
+    "resultsPerPage": "100",
     "type": ["lease","sale"],
     "fields" : "soldDate,address.city,address.area,address.district,address.neighborhood"
                 ",address.zip,details.numBathrooms,details.numBedrooms,details.style,listPrice,"
@@ -13,7 +13,7 @@ listings_parameters = {
     "status": "U",
     "lastStatus": ["Lsd","Sld"]
 }
-"https://api.repliers.io/listings?type={type}&listings=false&neighborhood={location}&status=U&lastStatus={lastStatus}&statistics=grp-mth,avg-listPrice,avg-soldPrice,cnt-available,cnt-closed,med-daysOnMarket,avg-daysOnMarket,med-soldPrice,med-listPrice&minBeds={bed}&maxBeds={bed}&minSoldDate=2021-01-01&maxSoldDate=2023-12-31&minListDate=2021-01-01&maxListDate=2023-12-31"
+#"https://api.repliers.io/listings?type={type}&listings=false&neighborhood={location}&status=U&lastStatus={lastStatus}&statistics=grp-mth,avg-listPrice,avg-soldPrice,cnt-available,cnt-closed,med-daysOnMarket,avg-daysOnMarket,med-soldPrice,med-listPrice&minBeds={bed}&maxBeds={bed}&minSoldDate=2021-01-01&maxSoldDate=2023-12-31&minListDate=2021-01-01&maxListDate=2023-12-31"
 neighbourhoods_parameters = {
     "listings": "false",
     "status": "U",
