@@ -1,20 +1,21 @@
 import os
 import requests
-import urllib.parse
 key = os.environ['REPLIERS_KEY']
 
 import pandas as pd
 
-def retrieve_repliers_listing_request(start_date: str, end_date: str, page_num: int, fields: dict):
+def retrieve_repliers_listing_request(start_date: str, end_date: str, page_num: int, fields: dict, include_listings = True):
     print(f"the start date is: {start_date} and the end date is: {end_date}")
-    url = f"https://api.repliers.io/listings?resultsPerPage=100&type=lease&type=sale&fields=soldDate,address.city,address.area,address.district,address.neighborhood,details.numBathrooms,details.numBedrooms,details.style,listPrice,listDate,daysOnMarket,details.sqft,details.propertyType,type,class,map,soldPrice&pageNum=1&minSoldDate={start_date}&maxSoldDate={end_date}&class=condo&class=residential&status=U&lastStatus=Lsd&lastStatus=Sld&listings=false&page=2"
+    url = f"https://api.repliers.io/listings?&pageNum={page_num}&minSoldDate={start_date}&maxSoldDate={end_date}"
+    if not include_listings:
+        url += "&listings=False"
     payload = fields
     headers = {'repliers-api-key': key}
     r = requests.request("GET",url, params=payload, headers=headers)
-    print(r)
     data = r.json()
     numPages = data['numPages']
     numPages 
+    return r, numPages, data
 
 def retrieve_repliers_neighbourhood_request(start_date: str, end_date: str, fields: dict):
     print(f"the start date is: {start_date} and the end date is: {end_date}")
