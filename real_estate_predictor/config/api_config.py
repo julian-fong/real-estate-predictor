@@ -22,7 +22,7 @@ neighbourhoods_parameters = {
                   "med-daysOnMarket,avg-daysOnMarket,med-soldPrice,med-listPrice"
 }
 
-
+neighbourhoods_keys = ["soldPrice", "listPrice", "available", "daysOnMarket", "closed"]
 
 neighbourhoods = [
     'Waterfront Communities C1',
