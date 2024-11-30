@@ -1,134 +1,86 @@
 import os
+import time
 import requests
 key = os.environ['REPLIERS_KEY']
 
 import pandas as pd
 
 #for function subtract_months
-from datetime import datetime, timedelta
+import datetime as dt
 from dateutil.relativedelta import relativedelta
 
-def retrieve_repliers_listing_request(start_date: str, end_date: str, page_num: int, fields: dict, include_listings = True):
-    print(f"the start date is: {start_date} and the end date is: {end_date}")
+
+def retrieve_repliers_listing_request(
+    start_date: str, 
+    end_date: str, 
+    page_num: int, 
+    payload: dict, 
+    include_listings = True, 
+    verbose = False
+    ):
+    
+    if verbose:
+        print(f"the start date is: {start_date} and the end date is: {end_date}")
+        start_time = time.time()
     url = f"https://api.repliers.io/listings?&pageNum={page_num}&minSoldDate={start_date}&maxSoldDate={end_date}"
     if not include_listings:
         url += "&listings=False"
-    payload = fields
+    payload = payload
     headers = {'repliers-api-key': key}
     r = requests.request("GET",url, params=payload, headers=headers)
     data = r.json()
     numPages = data['numPages']
-    numPages 
+    if verbose:
+        end_time = time.time()
+        print(f"index {page_num} took {end_time - start_time} seconds with a response of {r}")
     return r, numPages, data
 
-def retrieve_repliers_neighbourhood_request(start_date: str, end_date: str, fields: dict):
-    print(f"the start date is: {start_date} and the end date is: {end_date}")
-    url = f"https://api.repliers.io/listings?resultsPerPage=100&type=lease&type=sale&fields=soldDate,address.city,address.area,address.district,address.neighborhood,details.numBathrooms,details.numBedrooms,details.style,listPrice,listDate,daysOnMarket,details.sqft,details.propertyType,type,class,map,soldPrice&pageNum=1&minSoldDate={start_date}&maxSoldDate={end_date}&class=condo&class=residential&status=U&lastStatus=Lsd&lastStatus=Sld&listings=false&page=2"
-    payload = fields
+def retrieve_repliers_neighbourhood_request(
+    start_date: str, 
+    end_date: str, 
+    page_num: int, 
+    payload: dict,
+    type: str,
+    neighbourhood: str,
+    numBedroom: int,
+    verbose = False
+    ):
+    if type == "lease":
+        lastStatus = "Lsd"
+    else:
+        lastStatus = "Sld"
+    if verbose:
+        print(f"the start date is: {start_date} and the end date is: {end_date}")
+        start_time = time.time()
+        
+    url = (
+        f"https://api.repliers.io/listings?pageNum={page_num}&minSoldDate={start_date}&maxSoldDate={end_date}"
+        f"&listings=False&minBeds={numBedroom}&maxBeds={numBedroom}&minSoldDate={start_date}&maxSoldDate={end_date}"
+        f"&minListDate={start_date}&maxListDate={end_date}type={type}"
+        f"&listings=false&neighborhood={neighbourhood}&lastStatus={lastStatus}"
+    )
+    payload = payload
     headers = {'repliers-api-key': key}
     r = requests.request("GET",url, params=payload, headers=headers)
     print(r)
     data = r.json()
     numPages = data['numPages']
-    numPages     
+    if verbose:
+        end_time = time.time()
+        print(f"index {page_num} took {end_time - start_time} seconds with a response of {r}")
+    return r, numPages, data
 
-def extract_raw_data_listings(df: pd.DataFrame) -> pd.DataFrame:
-    """Extracts relevant data from the raw dataframe.
-    Parameters
-    ----------
-    
-    df : pd.DataFrame
-        Incoming raw dataframe containing listings from a specific
-        period. Assumes the following columns exists
-        - details
-        - address
-        - condominium
-        - nearby
-        - map
-    
-    Returns
-    -------
-    df : pd.DataFrame
-        Extracted data
-    
-    """
-    
-    keys = ['details', 'address', 'condominium', 'nearby','map']
-    
-    for key in keys:
-        if key not in df.columns:
-            raise ValueError(f"missing key {key} in dataframe columns")
+def save_dataset(df: pd.DataFrame, format: str, listings = False):
+    if listings:
+        type = "listing"
+    else:
+        type = "neighbourhood"
         
-    details_df = pd.DataFrame.from_records(df['details'])
-    address_df = pd.DataFrame.from_records(df['address'])
-    condo_df = pd.DataFrame.from_records(df['condominium'])
-    nearby_df = pd.DataFrame.from_records(df['nearby'])
-    map_df = pd.DataFrame.from_records(df['map'])
-
-    df['city'] = address_df['city']
-    df['area'] = address_df['area']
-    df['district'] = address_df['district']
-    df['neighborhood'] = address_df['neighborhood']
-    df['zip'] = address_df['zip']
-
-    df['latitude'] = map_df['latitude']
-    df['longitude'] = map_df['longitude']
-
-    df['fees'] = condo_df['fees']
-    df['condo_ammenities'] = condo_df['ammenities']
-
-    df['ammenities'] = nearby_df['ammenities']
-
-    df['numBathrooms'] = details_df['numBathrooms']
-    df['numBedrooms'] = details_df['numBedrooms']
-    df['style'] = details_df['style']
-    df['numKitchens'] = details_df['numKitchens']
-    df['numRooms'] = details_df['numRooms']
-    df['numParkingSpaces'] = details_df['numParkingSpaces']
-    df['sqft'] = details_df['sqft']
-
-    df['description'] = details_df['description']
-    df['extras'] = details_df['extras']
-    df['propertyType'] = details_df['propertyType']
-    df['numGarageSpaces'] = details_df['numGarageSpaces']
-    df['numDrivewaySpaces'] = details_df['numDrivewaySpaces']
-
-
-    df = df.drop(columns=['details', 'address','condominium','map','nearby'])
-    df = df.map(str)
+    date = dt.date.today().strftime("%Y-%m-%dT%H:%M:%S")
+    file_name = f"{type}_dataset_{date}"
     
-    return df
-
-
-def manipulate_df(df, metric):
-    df = df.rename_axis('key').reset_index()
-    df = df.melt(id_vars = ["key"], var_name="Date",value_name="value")
-    # Extract the metric from the 'key' column
-    # print(df['key'].values[0])
-    df['index'] = df['key'].str.split("_").str[1] +"_"+ df['key'].str.split("_").str[2] +"_"+ df['key'].str.split("_").str[3]
-    df['new_index'] = df['index']+"_"+df['Date']
-    df['metric'] = df['key'].str.split("_").str[0]
-    metric_columns = ['key'] + [f'{agg}_{metric}_current' for agg in sorted(set(df['metric'].values))]
-    df = df.drop(columns = ["key"])
-    # Pivot the DataFrame
-    df = df.pivot(index=['new_index'], columns=['metric'], values='value')
-
-    # Reset the index to make 'Date' a column again
-    df.reset_index(inplace=True)
-    # Rename the columns for better clarity
-    df.columns.name = None  # Remove the column name generated by pivot
-    # df.columns = ['key',f'avg_value_{metric}', f'count_value_{metric}', f'med_value_{metric}']
-    df.columns = metric_columns
-    return df
-
-def subtract_months(col, num_months = 1):
-    date_str = col.split("_")[-1]
-    # Convert the input date string to a datetime object
-    date_obj = datetime.strptime(date_str, '%Y-%m')
-
-    # Subtract the specified number of months
-    new_date_obj = date_obj - relativedelta(months=num_months)
-    new_date_obj = new_date_obj.strftime('%Y-%m')
-    new_date = col.replace(date_str, new_date_obj)
-    # Format the result as "YYYY-MM" and return
-    return new_date
+    df.reset_index(drop = True)
+    if format == "json":
+        df.to_json(file_name, index = False)
+    elif format == "csv":
+        df.to_csv(file_name, index=False)

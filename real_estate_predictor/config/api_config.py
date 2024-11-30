@@ -1,6 +1,9 @@
+
+#Configuration parameters for generate_dataset
+
 #Global api config for Repliers
 # https://api.repliers.io/listings?resultsPerPage=100&type=lease&type=sale&fields=soldDate,address.city,address.area,address.district,address.neighborhood,address.zip,details.numBathrooms,details.numBedrooms,details.style,listPrice,listDate,details.sqft,details.propertyType,details.numParkingSpace,details.numGarageSpaces,details.numKitchens,details.numDrivewaySpaces,details.description,details.numParkingSpaces,details.extras,details.numRooms,condominium.ammenities,condominium.fees,nearby.ammenities,type,class,map,soldPrice&pageNum={i}&minSoldDate={start_date}&maxSoldDate={end_date}&class=condo&class=residential&status=U&lastStatus=Lsd&lastStatus=Sld"
-listings_parameters = {
+LISTING_PARAMETERS = {
     "resultsPerPage": "100",
     "type": ["lease","sale"],
     "fields" : "soldDate,address.city,address.area,address.district,address.neighborhood"
@@ -13,8 +16,11 @@ listings_parameters = {
     "status": "U",
     "lastStatus": ["Lsd","Sld"]
 }
+
+#neighbourhood configuration parameters
+
 #"https://api.repliers.io/listings?type={type}&listings=false&neighborhood={location}&status=U&lastStatus={lastStatus}&statistics=grp-mth,avg-listPrice,avg-soldPrice,cnt-available,cnt-closed,med-daysOnMarket,avg-daysOnMarket,med-soldPrice,med-listPrice&minBeds={bed}&maxBeds={bed}&minSoldDate=2021-01-01&maxSoldDate=2023-12-31&minListDate=2021-01-01&maxListDate=2023-12-31"
-neighbourhoods_parameters = {
+NEIGHBOURHOOD_PARAMETERS = {
     "listings": "false",
     "status": "U",
     "statistics": "grp-mth,avg-listPrice,"
@@ -22,9 +28,13 @@ neighbourhoods_parameters = {
                   "med-daysOnMarket,avg-daysOnMarket,med-soldPrice,med-listPrice"
 }
 
-neighbourhoods_keys = ["soldPrice", "listPrice", "available", "daysOnMarket", "closed"]
+NEIGHBOURHOOD_KEYS = ["soldPrice", "listPrice", "available", "daysOnMarket", "closed"]
 
-neighbourhoods = [
+NEIGHBOURHOOD_TYPES = ["sale","lease"]
+
+NEIGHBOURHOOD_NUMBEDROOMS = [1,2,3,4]
+
+NEIGHBOURHOODS = [
     'Waterfront Communities C1',
     'Church-Yonge Corridor',
     'Bay Street Corridor',
@@ -526,3 +536,7 @@ neighbourhoods = [
     'Sarnia',
     'South D'
 ]
+
+
+#Configuration parameters for manipulate_dataset
+
