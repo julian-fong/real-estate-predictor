@@ -8,8 +8,8 @@ real_estate_predictor.egg-info
 !real_estate_predictor/datasets/.gitkeep
 **/__pycache__/
 
-# ignore all .a files
+# ignore all .csv files
 *.csv
 
-# ignore all .a files
+# ignore all .json files
 *.json
