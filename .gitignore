@@ -1,3 +1,11 @@
+
+# Ignore all JSON and CSV files in the datasets directory
+real_estate_predictor/storage/datasets/*.json
+real_estate_predictor/storage/datasets/*.csv
+
+# Do not ignore the datasets directory itself
+!real_estate_predictor/storage/datasets/
+
 extra
 dist
 real_estate_predictor2.0.egg-info
@@ -7,9 +15,3 @@ real_estate_ocr
 real_estate_predictor.egg-info
 !real_estate_predictor/datasets/.gitkeep
 **/__pycache__/
-
-# ignore all .csv files
-*.csv
-
-# ignore all .json files
-*.json
