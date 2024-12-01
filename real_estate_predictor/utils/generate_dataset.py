@@ -38,7 +38,6 @@ def retrieve_repliers_listing_request(
 def retrieve_repliers_neighbourhood_request(
     start_date: str, 
     end_date: str, 
-    page_num: int, 
     payload: dict,
     type: str,
     neighbourhood: str,
@@ -54,7 +53,7 @@ def retrieve_repliers_neighbourhood_request(
         start_time = time.time()
         
     url = (
-        f"https://api.repliers.io/listings?pageNum={page_num}&minSoldDate={start_date}&maxSoldDate={end_date}"
+        f"https://api.repliers.io/listings?minSoldDate={start_date}&maxSoldDate={end_date}"
         f"&listings=False&minBeds={numBedroom}&maxBeds={numBedroom}&minSoldDate={start_date}&maxSoldDate={end_date}"
         f"&minListDate={start_date}&maxListDate={end_date}type={type}"
         f"&listings=false&neighborhood={neighbourhood}&lastStatus={lastStatus}"
@@ -67,10 +66,10 @@ def retrieve_repliers_neighbourhood_request(
     numPages = data['numPages']
     if verbose:
         end_time = time.time()
-        print(f"index {page_num} took {end_time - start_time} seconds with a response of {r}")
+        
     return r, numPages, data
 
-def save_dataset(df: pd.DataFrame, format: str, listings = False):
+def save_dataset(df: pd.DataFrame, format: str, listings = True):
     if listings:
         type = "listing"
     else:
@@ -84,3 +83,5 @@ def save_dataset(df: pd.DataFrame, format: str, listings = False):
         df.to_json(file_name, index = False)
     elif format == "csv":
         df.to_csv(file_name, index=False)
+    else:
+        raise ValueError(f"Unknown format {format}")
