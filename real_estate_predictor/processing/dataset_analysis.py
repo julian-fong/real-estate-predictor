@@ -184,12 +184,29 @@ def kde_plots(df, cols):
 
 ## Removing Duplicates
 
-def remove_duplicates(df: pd.DataFrame):
-    pass
+def remove_duplicates(df: pd.DataFrame, columns = None, inplace = False, ignore_index = False):
+    """
+    Make sure to assign this to a new variable if inplace = False
+    """
+    if inplace:
+        df = df.drop_duplicates(subset=columns, inplace = inplace, ignore_index = ignore_index)
+        return df
+    else:
+        df = df.drop_duplicates(subset=columns, inplace = inplace, ignore_index = ignore_index)
 
 ## Handling Missing Values
 
-def remove_na_values(df: pd.DataFrame):
+def remove_na_values(df: pd.DataFrame, strategy, subset = None, columns = None):
+    if strategy == "columns":
+        if not columns:
+            raise ValueError(f"missing columns, got {columns}")
+        df = df.drop(columns = columns, axis = 1)
+    elif strategy == "rows":
+        df = df.dropna(subset=subset, ignore_index=True)
+        
+    return df
+
+def impute_na_values(df, strategy, columns):
     pass
 
 ## Standardizing Text
