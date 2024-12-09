@@ -11,4 +11,5 @@ jobs:
             ls ${{ github.workspace }}  
         - name: Run Make Commands
           run: | 
+            make install
             make quality
