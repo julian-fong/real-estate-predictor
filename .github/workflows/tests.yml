@@ -9,6 +9,10 @@ jobs:
         - name: List files in the repository
           run: |
             ls ${{ github.workspace }}
+            - name: List directories in the root folder
+        - name: List directories in the repository
+          run: |
+            ls -d */
         - name: Set up Python
           uses: actions/setup-python@v4
           with:
