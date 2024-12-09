@@ -6,7 +6,7 @@ from pathlib import Path
 from setuptools import find_packages, setup
 
 # Package meta-data.
-NAME = 'real-estate-predictor'
+NAME = "real-estate-predictor"
 DESCRIPTION = "Regression Model package for real estate predictions."
 URL = "https://github.com/julian-fong/real-estate-predictor-2.0"
 EMAIL = "julian.fong@landpower.ca"
@@ -19,13 +19,14 @@ long_description = DESCRIPTION
 about = {}
 ROOT_DIR = Path(__file__).resolve().parent
 REQUIREMENTS_DIR = ROOT_DIR
-PACKAGE_DIR = ROOT_DIR / 'real-estate-predictor'
+PACKAGE_DIR = ROOT_DIR / "real-estate-predictor"
 
 
 # What packages are required for this module to be executed?
 def list_reqs(fname="requirements.txt"):
-    with open(REQUIREMENTS_DIR / fname) as fd:
+    with open(REQUIREMENTS_DIR / fname, encoding="UTF-8") as fd:
         return fd.read().splitlines()
+
 
 setup(
     name=NAME,

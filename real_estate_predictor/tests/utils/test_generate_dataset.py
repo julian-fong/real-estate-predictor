@@ -5,7 +5,7 @@ import pandas as pd
 import datetime as dt
 from real_estate_predictor.utils.generate_dataset import retrieve_repliers_listing_request, retrieve_repliers_neighbourhood_request
 from real_estate_predictor.config.api_config import LISTING_PARAMETERS, NEIGHBOURHOOD_PARAMETERS, NEIGHBOURHOOD_KEYS, NEIGHBOURHOODS, NEIGHBOURHOOD_NUMBEDROOMS, NEIGHBOURHOOD_TYPES
-key = os.environ['REPLIERS_KEY']
+key = os.getenv("REPLIERS_KEY")
 
 @pytest.fixture
 def repliers_request():

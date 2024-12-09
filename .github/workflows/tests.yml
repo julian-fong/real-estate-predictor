@@ -1,0 +1,13 @@
+name: tests
+on: [push]
+jobs:
+  check_code_quality:
+    runs-on: ubuntu-latest
+    steps:
+        - name: Check out code
+          uses: actions/checkout@v3
+  
+        - name: Run Make Commands
+          run: |
+            make install    
+            make quality

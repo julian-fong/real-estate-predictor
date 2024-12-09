@@ -194,7 +194,7 @@ def remove_duplicates(df: pd.DataFrame, columns = None, inplace = False, ignore_
     else:
         df = df.drop_duplicates(subset=columns, inplace = inplace, ignore_index = ignore_index)
 
-## Handling Missing Values
+## Handling Missing/Bad Values
 
 def remove_na_values(df: pd.DataFrame, strategy, subset = None, columns = None):
     if strategy == "columns":
@@ -206,7 +206,10 @@ def remove_na_values(df: pd.DataFrame, strategy, subset = None, columns = None):
         
     return df
 
-def impute_na_values(df, strategy, columns):
+def impute_na_values(df: pd.DataFrame, strategy: str, columns: list):
+    pass
+
+def replace_values(df: pd.DataFrame, column: str):
     pass
 
 ## Standardizing Text
