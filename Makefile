@@ -4,8 +4,11 @@ install:
 
 quality:
 	pylint --disable=R,C *.py
-	black *.py
-	isort *py
+	black --check *.py
+	isort --check-only *py
 	flake8 *py
+
+tests:
+	python -m pytest -vv ./tests/
 
 all: install quality 
