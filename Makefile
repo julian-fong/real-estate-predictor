@@ -9,6 +9,6 @@ quality:
 	flake8 *py
 
 predictor_tests:
-	python -m pytest -vv ./tests/
+	python -m pytest -vv .real_estate_predictor/tests/
 
 all: install quality 
