@@ -30,7 +30,7 @@ jobs:
             python-version: 3.11
         - name: Run tests
           env:
-            REPLIERS_KEY: ${{ secrets.REPLIERS_KEY}}
+            REPLIERS_KEY: ${{ secrets.REPLIERS_KEY }}
           run: |
             make install
             make predictor_tests

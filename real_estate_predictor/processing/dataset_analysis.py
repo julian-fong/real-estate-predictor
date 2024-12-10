@@ -196,7 +196,42 @@ def remove_duplicates(df: pd.DataFrame, columns = None, inplace = False, ignore_
 
 ## Handling Missing/Bad Values
 
-def remove_na_values(df: pd.DataFrame, strategy, subset = None, columns = None):
+def handle_missing_values(df: pd.DataFrame, strategy = "remove", columns = None):
+    """
+    Main method to handle missing values inside a dataframe
+    
+    Parameters
+    ----------
+    
+    df : pd.DataFrame
+        pandas Dataframe that is to be inputted
+    
+    strategy : str
+        Possible values:
+        
+    
+    """
+    pass
+
+def remove_na_values_by_col(df: pd.DataFrame, strategy, subset = None, columns = None):
+    """
+    Removes na values by column
+    
+    Parameters
+    ----------
+    
+    df : pd.DataFrame
+        input pandas dataframe
+        
+    strategy : str
+        Available parameters:
+            columns - will completely drop whatever column is inside the `columns` parameter
+            rows - will drop rows if there are any missing values in the passed columns
+            
+    columns : list
+        default = None
+        list of columns used to drop missing values
+    """
     if strategy == "columns":
         if not columns:
             raise ValueError(f"missing columns, got {columns}")
@@ -205,9 +240,6 @@ def remove_na_values(df: pd.DataFrame, strategy, subset = None, columns = None):
         df = df.dropna(subset=subset, ignore_index=True)
         
     return df
-
-def impute_na_values(df: pd.DataFrame, strategy: str, columns: list):
-    pass
 
 def replace_values(df: pd.DataFrame, column: str):
     pass
