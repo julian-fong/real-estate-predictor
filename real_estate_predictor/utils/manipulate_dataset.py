@@ -2,7 +2,7 @@ import datetime as dt
 import pandas as pd
 from dateutil.relativedelta import relativedelta
 
-def extract_raw_data_listings(df: pd.DataFrame) -> pd.DataFrame:
+def extract_raw_data_listings(raw_df: pd.DataFrame, inplace = True) -> pd.DataFrame:
     """Extracts relevant data from the raw dataframe.
     Parameters
     ----------
@@ -22,7 +22,10 @@ def extract_raw_data_listings(df: pd.DataFrame) -> pd.DataFrame:
         Extracted data
     
     """
-    
+    if inplace:
+        df = raw_df
+    else:
+        df = raw_df.copy(deep = True)
     keys = ['details', 'address', 'condominium', 'nearby','map']
     
     for key in keys:

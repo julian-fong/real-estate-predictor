@@ -2,11 +2,9 @@ import datetime as dt
 import requests
 import pandas as pd
 import os
-
+import re
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
-
-import re
 
 import matplotlib.pyplot as plt
 from matplotlib.dates import MonthLocator, DateFormatter
@@ -30,7 +28,7 @@ def show_missing_values(df):
         na = df[col].isna().sum()
         total = len(df[col])
 
-        na_dict[col] = f"{round(100*na/total,2)}%"
+        na_dict[col] = f"Column {col} has a total of {na} missing values out of {total} with a percentage of {round(100*na/total,2)}%"
 
     print(pd.Series(na_dict).sort_values(ascending = False))
 
@@ -58,8 +56,8 @@ def show_cat_col_values(df, cols = None):
         for col in cats:
             ratios = []
             values = pd.DataFrame(df[col].value_counts())
-            for value in values[col].values:
-                total = np.sum(values[col].values)
+            for value in values['count'].values:
+                total = np.sum(values['count'].values)
                 ratios.append(value/total)
 
             values['Ratio'] = ratios
@@ -67,6 +65,20 @@ def show_cat_col_values(df, cols = None):
             print(values.sort_values(by = 'Ratio', ascending = False))
             print("\n")
 
+def show_unique_values(df, path = None, columns = None):
+    new_df = pd.DataFrame()
+    if not columns:
+        columns = df.select_dtypes(include = ['object']).columns
+        
+    for col in columns:
+        new_column = pd.DataFrame(df[col].value_counts().index)
+        
+        new_df = pd.concat([new_df, new_column], axis = 1)
+        
+    if path:
+        new_df.to_csv(path, index = False)
+        
+    return new_df
 
 def show_corr(df):
     f = plt.figure(figsize=(106, 106))
@@ -246,20 +258,74 @@ def replace_values(df: pd.DataFrame, column: str):
 
 ## Standardizing Text
 
-def remove_special_characters(df: pd.DataFrame):
-    pass
+def replace_special_text(text, keep_hyphens=False, space_mode="underscore"):
+    """
+    Cleans a given text by replacing special characters and optionally modifying spaces.
+    
+    Parameters:
+        text (str): The input text to clean.
+        keep_hyphens (bool): If True, hyphens are not removed.
+        space_mode (str): How to handle spaces. Options are:
+                          - "underscore": Replace spaces with underscores.
+                          - "remove": Remove spaces entirely.
+                          - "keep": Keep spaces unchanged.
+    
+    Returns:
+        str: The cleaned text.
+    """
+    if not keep_hyphens:
+        text = re.sub(r"[^a-zA-Z0-9\s]", "", text)  # Remove special characters, keep spaces
+    else:
+        text = re.sub(r"[^a-zA-Z0-9\s\-]", "", text)  # Remove special characters but keep hyphens
 
-def standardize_text(df: pd.DataFrame):
-    pass
+    if space_mode == "underscore":
+        text = re.sub(r"\s+", "_", text)  # Replace spaces with underscores
+    elif space_mode == "remove":
+        text = re.sub(r"\s+", "", text)  # Remove spaces entirely
+
+    return text
+
+def clean_string(text, keep_hyphens=False, space_mode="underscore"):
+    """
+    Cleans a given text by replacing special characters and optionally modifying spaces.
+    
+    Parameters:
+        text (str): The input text to clean.
+        keep_hyphens (bool): If True, hyphens are not removed.
+        space_mode (str): How to handle spaces. Options are:
+                          - "underscore": Replace spaces with underscores.
+                          - "remove": Remove spaces entirely.
+                          - "keep": Keep spaces unchanged.
+    
+    Returns:
+        str: The cleaned text.
+    """
+    text = replace_special_text(text, keep_hyphens=keep_hyphens, space_mode=space_mode)
+    text = text.strip().lower()
+
+    return text
 
 #Data Transformation
 
-def convert_col_dtype(df: pd.DataFrame, columns: list, convert_to_type: str):
+def convert_col_dtype(df: pd.DataFrame, columns: list, convert_to_type: str, errors: str = "coerce"):
     """
     Eligible types:
         numeric: pd.to_numerical
         datetime: pd.to_datetime
         str: series.as_type(str)
+    
+    Parameters
+    ----------
+    
+    df : pd.DataFrame
+    
+    columns : list
+    
+    errors : str
+        how to handle errors in. Possible values
+            'raise': If ‘raise’, then invalid parsing will raise an exception.
+            'coerce': If ‘coerce’, then invalid parsing will be set as NaN or NaT
+            'ignore': If ‘ignore’, then invalid parsing will return the input.
     
     """
     if convert_to_type == "str":
@@ -267,10 +333,23 @@ def convert_col_dtype(df: pd.DataFrame, columns: list, convert_to_type: str):
             df[col] = df[col].as_type("str")
     elif convert_to_type == "numeric":
         for col in columns:
-            df[col] = pd.to_numeric(df[col])
+            df[col] = pd.to_numeric(df[col], errors = errors)
     elif convert_to_type == "datetime":
         for col in columns:
-            df[col] = pd.to_datetime(df[col])      
+            df[col] = pd.to_datetime(df[col], errors = errors)      
     else:
         raise ValueError(f"Unexpected convert_to_type {convert_to_type}"
                      "available types are ['numeric','datetime','str']")
+        
+# Individual Predictors
+
+## Postal Code
+
+def standardize_postal_code(x: str):
+    #convert from ### ### to ######
+    x = x.replace(" ", "")
+    if len(x) != 6:
+        x = np.nan
+        
+    return x
+    
