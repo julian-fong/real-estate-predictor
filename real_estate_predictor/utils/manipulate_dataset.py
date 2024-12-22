@@ -1,15 +1,27 @@
 import datetime as dt
 import pandas as pd
 from dateutil.relativedelta import relativedelta
+import numpy as np
+import ast
 
-def extract_raw_data_listings(raw_df: pd.DataFrame, inplace = True) -> pd.DataFrame:
+from real_estate_predictor.config.api_config import COLUMN_TO_DTYPE_MAPPING, EXPECTED_COLUMNS
+
+
+MISSING_VALUES = [
+        '', ' ','nan', 'NaN', 'NA', 'na', 'N/A', 'n/a',
+        'null', 'NULL', 'none', 'None', 'missing',
+        'Missing', 'MISSING', 'unknown', 'Unknown',
+        '?', '-', '--', '---', 'None', None, 'NAN'
+    ]
+
+def extract_raw_data_listings(raw_df: pd.DataFrame, inplace = True, verbose = False) -> pd.DataFrame:
     """Extracts relevant data from the raw dataframe.
     Parameters
     ----------
     
     df : pd.DataFrame
         Incoming raw dataframe containing listings from a specific
-        period. Assumes the following columns exists
+        period. Assumes the following columns exist
         - details
         - address
         - condominium
@@ -47,7 +59,7 @@ def extract_raw_data_listings(raw_df: pd.DataFrame, inplace = True) -> pd.DataFr
     df['latitude'] = map_df['latitude']
     df['longitude'] = map_df['longitude']
 
-    df['fees'] = condo_df['fees']
+    #df['fees'] = condo_df['fees']
     df['condo_ammenities'] = condo_df['ammenities']
 
     df['ammenities'] = nearby_df['ammenities']
@@ -70,6 +82,33 @@ def extract_raw_data_listings(raw_df: pd.DataFrame, inplace = True) -> pd.DataFr
     df = df.drop(columns=['details', 'address','condominium','map','nearby'])
     df = df.map(str)
     
+    #try to standardize the missing values in the dataframe
+    df = df.replace(MISSING_VALUES, np.nan)
+    
+    EXPECTED_COLUMNS.remove('fees')
+    
+    assert [col for col in df.columns] == EXPECTED_COLUMNS
+    
+    datetime_cols = [col for col in COLUMN_TO_DTYPE_MAPPING.keys() if COLUMN_TO_DTYPE_MAPPING[col] == np.datetime64]
+    numerical_cols = [col for col in COLUMN_TO_DTYPE_MAPPING.keys() if COLUMN_TO_DTYPE_MAPPING[col] == float]
+    list_cols = [col for col in COLUMN_TO_DTYPE_MAPPING.keys() if COLUMN_TO_DTYPE_MAPPING[col] == list]
+    #dict_cols = [col for col in COLUMN_TO_DTYPE_MAPPING.keys() if COLUMN_TO_DTYPE_MAPPING[col] == dict]
+    
+    convert_col_dtype(df, datetime_cols, "datetime")
+    convert_col_dtype(df, numerical_cols, "numeric")
+    convert_col_dtype(df, list_cols, "list")
+    if verbose:
+        for col in df.columns:
+            unique_types = set(type(value) for value in df[col].values)
+            #print(f"Column '{col}' contains the following data types: {unique_types}")
+            # Count occurrences of each type
+            type_counts = df[col].apply(type).value_counts(normalize=True)
+            
+            # Print the unique types and their ratios
+            print(f"Column '{col}' contains the following data types: {unique_types} and ratios:")
+            for dtype, ratio in type_counts.items():
+                print(f"  - {dtype.__name__}: {ratio:.2%}")
+                
     return df
 
 
@@ -105,3 +144,49 @@ def subtract_months(col, num_months = 1):
     new_date = col.replace(date_str, new_date_obj)
     # Format the result as "YYYY-MM" and return
     return new_date
+
+## Helper functions
+
+def convert_col_dtype(df: pd.DataFrame, columns: list, convert_to_type: str, errors: str = "coerce"):
+    """
+    Eligible values for convert_to_type are:
+        numeric: pd.to_numerical
+        datetime: pd.to_datetime
+        str: series.as_type(str)
+        list: ast.literal_eval
+        dict: ast.literal_eval
+    
+    Parameters
+    ----------
+    
+    df : pd.DataFrame
+    
+    columns : list
+    
+    errors : str
+        how to handle errors in. Possible values
+            'raise': If `raise`, then invalid parsing will raise an exception.
+            'coerce': If `coerce`, then invalid parsing will be set as NaN or NaT
+            'ignore': If `ignore`, then invalid parsing will return the input.
+            
+        Only applicable currently to numeric and datetime types
+    
+    """
+    if convert_to_type == "str":
+        for col in columns:
+            df[col] = df[col].as_type("str")
+    elif convert_to_type == "numeric":
+        for col in columns:
+            df[col] = pd.to_numeric(df[col], errors = errors)
+    elif convert_to_type == "datetime":
+        for col in columns:
+            df[col] = pd.to_datetime(df[col], errors = errors)      
+    elif convert_to_type == "list":
+        for col in columns:
+            df[col] = df[col].apply(lambda x: ast.literal_eval(x))
+    elif convert_to_type == "dict":
+        for col in columns:
+            df[col] = df[col].apply(lambda x: ast.literal_eval(x))
+    else:
+        raise ValueError(f"Unexpected convert_to_type {convert_to_type}"
+                     "available types are ['numeric','datetime','str']")

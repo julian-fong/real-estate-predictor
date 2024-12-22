@@ -1,4 +1,4 @@
-
+import numpy as np
 #Configuration parameters for generate_dataset
 
 #Global api config for Repliers
@@ -540,3 +540,40 @@ NEIGHBOURHOODS = [
 
 #Configuration parameters for manipulate_dataset
 
+EXPECTED_COLUMNS = ['class', 'type', 'listPrice', 'listDate', 'soldPrice', 'soldDate',
+    'city', 'area', 'district', 'neighborhood', 'zip', 'latitude',
+    'longitude', 'fees', 'condo_ammenities', 'ammenities', 'numBathrooms',
+    'numBedrooms', 'style', 'numKitchens', 'numRooms', 'numParkingSpaces',
+    'sqft', 'description', 'extras', 'propertyType', 'numGarageSpaces',
+    'numDrivewaySpaces']
+
+COLUMN_TO_DTYPE_MAPPING = {
+    "class": str,
+    "type": str,
+    "listPrice": float,
+    "listDate": np.datetime64,
+    "soldPrice": float,
+    "soldDate": np.datetime64,
+    "city": str,
+    "area": str,
+    "district": str,
+    "neighborhood": str,
+    "zip": str,
+    "latitude": float,
+    "longitude": float,
+    "fees": dict,
+    "condo_ammenities": list,
+    "ammenities": list,
+    "numBathrooms": float,
+    "numBedrooms": float,
+    "style": str,
+    "numKitchens": float,
+    "numRooms": float,
+    "numParkingSpaces": float,
+    "sqft": str,
+    "description": str,
+    "extras": str,
+    "propertyType": str,
+    "numGarageSpaces": float,
+    "numDrivewaySpaces": float,
+}

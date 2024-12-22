@@ -79,7 +79,7 @@ CONDO_AMMENITIES = ['Concierge',
 
 ## Sqft
 
-def helper_calculate_avg_sqft(x):
+def helper_create_avg_sqft(x):
     try:
         if x is not None and x != '':
             if "-" in x:
@@ -92,23 +92,30 @@ def helper_calculate_avg_sqft(x):
     except:
         return np.nan
     
-def calculate_sqft(df):
-    df['sqft_avg'] = df['sqft'].apply(helper_calculate_avg_sqft)
+def create_sqft_avg_column(df):
+    """
+    Assumes the existence of a column named `sqft` in the dataframe.
+    """
+    df['sqft_avg'] = df['sqft'].apply(helper_create_avg_sqft)
 
     return df
 
-def calculate_ppsqft(df):
+def create_ppsqft_column(df):
+    """
+    Assumes the existence of a column named `listPrice` and `sqft_avg` in the dataframe.
+    """
     df['ppsqft'] = df['listPrice']/df['sqft_avg']
     return df
 
 ## Bed and Bath
 
-def calculate_bbratio(df):
+def create_bedbathRatio_column(df):
+    """
+    Assumes the existence of the columns `numBedrooms` and `numBathrooms` in the dataframe of type float.
+    """
     #bed bath ratio
     #change dtype of numBed and numBath to numeric while filling errors with np.NaN, divide them and fill any errors with NaN
-    df['numBedrooms'] = pd.to_numeric(df['numBedrooms'], errors = 'coerce')
-    df['numBathrooms'] = pd.to_numeric(df['numBathrooms'], errors = 'coerce')
-    df['bedbathRatio'] = pd.to_numeric(df['numBedrooms'], errors = 'coerce').div(pd.to_numeric(df['numBathrooms'], errors = 'coerce'), fill_value=np.NaN)
+    df['bedbathRatio'] = df['numBedrooms'].div(df['numBathrooms'])
     return df
 
 ## Ammenities and Condo Ammenities
@@ -156,6 +163,8 @@ def create_ammenities_flag_columns(df, ammenities, list_of_ammenities = None):
     Then the dataframe will contain new columns `hasPark` and `hasSchool`
     
     ammenities: one of `ammenities` or `condo_ammenities`
+    
+    Assumes the columns `ammenities` and `condo_ammenities` are already present in the dataframe.
     """
     if not list_of_ammenities:
         list_of_ammenities = AMMENITIES
@@ -176,6 +185,9 @@ def helper_calculate_num_ammenities(x):
 
 
 def create_num_ammenities_column(df):
+    """
+    Assumes the existence of columns `ammenities` and `condo_ammenities` in the dataframe.
+    """
     #numAmmenities
     df['numAmmenities'] = df['ammenities'].apply(helper_calculate_num_ammenities)
     df['numCondoAmmenities'] = df['condo_ammenities'].apply(helper_calculate_num_ammenities)
@@ -184,9 +196,9 @@ def create_num_ammenities_column(df):
 
 ## Postal Code
 
-def calculate_split_postalcode(df, int = 2):
+def create_split_postalcode_column(df, int = 2):
     """
-    Assumes existance of a column named postal_code
+    Assumes existance of a column named zip
     """
     if int != 3 or int != 2:
         raise ValueError("invalid int passed, can only be 2 or 3")
@@ -195,10 +207,13 @@ def calculate_split_postalcode(df, int = 2):
 
 ## Datetime
 
-def calculate_dom(df):
+def create_dom_column(df):
+    """
+    Assumes the columns `soldDate` and `listDate` are present in the dataframe of pandas datetime formatting.
+    """
     #calculate DOM
-    df['soldDate_pd'] = pd.to_datetime(df['soldDate'])
-    df['listDate_pd'] = pd.to_datetime(df['listDate'])
+    # df['soldDate_pd'] = pd.to_datetime(df['soldDate'])
+    # df['listDate_pd'] = pd.to_datetime(df['listDate'])
     df['daysOnMarket'] = df['soldDate_pd'] - df['listDate_pd']
     df['daysOnMarket'] = df['daysOnMarket'] / np.timedelta64(1, 'D')
 
@@ -228,6 +243,14 @@ def removeOutliers(df):
 ## neighbourhoods dataset
 
 def calculate_previous_month_ppsqft(df):
+    """
+    Assumes the existence of columns: 
+        `avg_soldPrice_currentL*M` where * = 1, 3, 6
+        `med_soldPrice_currentL*M` where * = 1, 3, 6
+        `avg_listPrice_currentL*M` where * = 1, 3, 6
+        `med_listPrice_currentL*M` where * = 1, 3, 6 
+        `sqft_avg` in the dataframe
+    """
     df['avg_soldPrice_ppsqft_currentL1M'] = df['avg_soldPrice_currentL1M']/df['sqft_avg']
     df['med_soldPrice_ppsqft_currentL1M'] = df['med_soldPrice_currentL1M']/df['sqft_avg']
     df['avg_listPrice_ppsqft_currentL1M'] = df['avg_listPrice_currentL1M']/df['sqft_avg']
@@ -246,37 +269,49 @@ def calculate_previous_month_ppsqft(df):
     return df
 
 def calculate_difference_bymonth(df):
-    df['avg_soldPrice_difference_13M'] = df['avg_soldPrice_currentL1M'] - df['avg_soldPrice_currentL3M']
-    df['avg_soldPrice_difference_36M'] = df['avg_soldPrice_currentL3M'] - df['avg_soldPrice_currentL6M']
-    df['avg_listPrice_difference_13M'] = df['avg_soldPrice_currentL1M'] - df['avg_soldPrice_currentL3M']
-    df['avg_listPrice_difference_36M'] = df['avg_soldPrice_currentL3M'] - df['avg_soldPrice_currentL6M']
+    """
+    Assumes the existence of columns: 
+        `avg_soldPrice_currentL*M` where * = 1, 3, 6
+        `avg_listPrice_currentL*M` where * = 1, 3, 6
+        `sqft_avg` in the dataframe 
+    """
+    df['avg_soldPrice_difference_1M_3M'] = df['avg_soldPrice_currentL1M'] - df['avg_soldPrice_currentL3M']
+    df['avg_soldPrice_difference_3M_6M'] = df['avg_soldPrice_currentL3M'] - df['avg_soldPrice_currentL6M']
+    df['avg_listPrice_difference_1M_3M'] = df['avg_listPrice_currentL1M'] - df['avg_listPrice_currentL3M']
+    df['avg_listPrice_difference_3M_6M'] = df['avg_listPrice_currentL3M'] - df['avg_listPrice_currentL6M']
 
-    df['med_soldPrice_difference_13M'] = df['med_soldPrice_currentL1M'] - df['med_soldPrice_currentL3M']
-    df['med_soldPrice_difference_36M'] = df['med_soldPrice_currentL3M'] - df['med_soldPrice_currentL6M']
-    df['med_listPrice_difference_13M'] = df['med_soldPrice_currentL1M'] - df['med_soldPrice_currentL3M']
-    df['med_listPrice_difference_36M'] = df['med_soldPrice_currentL3M'] - df['med_soldPrice_currentL6M']
+    df['med_soldPrice_difference_1M_3M'] = df['med_soldPrice_currentL1M'] - df['med_soldPrice_currentL3M']
+    df['med_soldPrice_difference_3M_6M'] = df['med_soldPrice_currentL3M'] - df['med_soldPrice_currentL6M']
+    df['med_listPrice_difference_1M_3M'] = df['med_listPrice_currentL1M'] - df['med_listPrice_currentL3M']
+    df['med_listPrice_difference_3M_6M'] = df['med_listPrice_currentL3M'] - df['med_listPrice_currentL6M']
 
-    df['count_soldPrice_difference_13M'] = df['count_soldPrice_currentL1M'] - df['count_soldPrice_currentL3M']
-    df['count_soldPrice_difference_36M'] = df['count_soldPrice_currentL3M'] - df['count_soldPrice_currentL6M']
-    df['count_listPrice_difference_13M'] = df['count_soldPrice_currentL1M'] - df['count_soldPrice_currentL3M']
-    df['count_listPrice_difference_36M'] = df['count_soldPrice_currentL3M'] - df['count_soldPrice_currentL6M']
+    df['count_soldPrice_difference_1M_3M'] = df['count_soldPrice_currentL1M'] - df['count_soldPrice_currentL3M']
+    df['count_soldPrice_difference_3M_6M'] = df['count_soldPrice_currentL3M'] - df['count_soldPrice_currentL6M']
+    df['count_listPrice_difference_1M_3M'] = df['count_listPrice_currentL1M'] - df['count_listPrice_currentL3M']
+    df['count_listPrice_difference_3M_6M'] = df['count_listPrice_currentL3M'] - df['count_listPrice_currentL6M']
 
     return df
 
 def calculate_ratio_bymonth(df):
-    df['avg_soldPrice_ratio_13M'] = df['avg_soldPrice_currentL1M'].div(df['avg_soldPrice_currentL3M'], fill_value = np.NaN)
-    df['avg_soldPrice_ratio_36M'] = df['avg_soldPrice_currentL3M'].div(df['avg_soldPrice_currentL6M'], fill_value = np.NaN)
-    df['avg_listPrice_ratio_13M'] = df['avg_soldPrice_currentL1M'].div(df['avg_soldPrice_currentL3M'], fill_value = np.NaN)
-    df['avg_listPrice_ratio_36M'] = df['avg_soldPrice_currentL3M'].div(df['avg_soldPrice_currentL6M'], fill_value = np.NaN)
+    """
+    Assumes the existence of columns: 
+        `avg_soldPrice_currentL*M` where * = 1, 3, 6
+        `avg_listPrice_currentL*M` where * = 1, 3, 6
+        `sqft_avg` in the dataframe 
+    """
+    df['avg_soldPrice_ratio_1M_3M'] = df['avg_soldPrice_currentL1M'].div(df['avg_soldPrice_currentL3M'], fill_value = np.NaN)
+    df['avg_soldPrice_ratio_3M_6M'] = df['avg_soldPrice_currentL3M'].div(df['avg_soldPrice_currentL6M'], fill_value = np.NaN)
+    df['avg_listPrice_ratio_1M_3M'] = df['avg_listPrice_currentL1M'].div(df['avg_soldPrice_currentL3M'], fill_value = np.NaN)
+    df['avg_listPrice_ratio_3M_6M'] = df['avg_listPrice_currentL3M'].div(df['avg_soldPrice_currentL6M'], fill_value = np.NaN)
 
-    df['med_soldPrice_ratio_13M'] = df['med_soldPrice_currentL1M'].div(df['med_soldPrice_currentL3M'], fill_value = np.NaN)
-    df['med_soldPrice_ratio_36M'] = df['med_soldPrice_currentL3M'].div(df['med_soldPrice_currentL6M'], fill_value = np.NaN)
-    df['med_listPrice_ratio_13M'] = df['med_soldPrice_currentL1M'].div(df['med_soldPrice_currentL3M'], fill_value = np.NaN)
-    df['med_listPrice_ratio_36M'] = df['med_soldPrice_currentL3M'].div(df['med_soldPrice_currentL6M'], fill_value = np.NaN)
+    df['med_soldPrice_ratio_1M_3M'] = df['med_soldPrice_currentL1M'].div(df['med_soldPrice_currentL3M'], fill_value = np.NaN)
+    df['med_soldPrice_ratio_3M_6M'] = df['med_soldPrice_currentL3M'].div(df['med_soldPrice_currentL6M'], fill_value = np.NaN)
+    df['med_listPrice_ratio_1M_3M'] = df['med_listPrice_currentL1M'].div(df['med_listPrice_currentL3M'], fill_value = np.NaN)
+    df['med_listPrice_ratio_3M_6M'] = df['med_listPrice_currentL3M'].div(df['med_listPrice_currentL6M'], fill_value = np.NaN)
 
-    df['count_soldPrice_ratio_13M'] = df['count_soldPrice_currentL1M'].div(df['count_soldPrice_currentL3M'], fill_value = np.NaN)
-    df['count_soldPrice_ratio_36M'] = df['count_soldPrice_currentL3M'].div(df['count_soldPrice_currentL6M'], fill_value = np.NaN)
-    df['count_listPrice_ratio_13M'] = df['count_soldPrice_currentL1M'].div(df['count_soldPrice_currentL3M'], fill_value = np.NaN)
-    df['count_listPrice_ratio_36M'] = df['count_soldPrice_currentL3M'].div(df['count_soldPrice_currentL6M'], fill_value = np.NaN)
+    df['count_soldPrice_ratio_1M_3M'] = df['count_soldPrice_currentL1M'].div(df['count_soldPrice_currentL3M'], fill_value = np.NaN)
+    df['count_soldPrice_ratio_3M_6M'] = df['count_soldPrice_currentL3M'].div(df['count_soldPrice_currentL6M'], fill_value = np.NaN)
+    df['count_listPrice_ratio_1M_3M'] = df['count_listPrice_currentL1M'].div(df['count_listPrice_currentL3M'], fill_value = np.NaN)
+    df['count_listPrice_ratio_3M_6M'] = df['count_listPrice_currentL3M'].div(df['count_listPrice_currentL6M'], fill_value = np.NaN)
 
     return df
