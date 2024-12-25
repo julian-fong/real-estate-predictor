@@ -10,73 +10,6 @@ import ast
 
 #Feature Engineering
 
-## Ammenities / Condo Ammenities Global Variables
-
-AMMENITIES = ['School',
-                'Library',
-                'Public Transit',
-                'Clear View',
-                'Park',
-                'Golf',
-                'Arts Centre',
-                'Hospital',
-                'Place Of Worship',
-                'Cul De Sac',
-                'Ravine',
-                'Fenced Yard',
-                'Rec Centre',
-                'School Bus Route',
-                'Beach',
-                'Lake/Pond',
-                'Skiing',
-                'Waterfront',
-                'Electric Car Charger',
-                'Grnbelt/Conserv',
-                'Campground',
-                'Marina',
-                'Other',
-                'Level',
-                'Wooded/Treed',
-                'Lake Access',
-                'River/Stream',
-                'Island',
-                'Terraced',
-                'Rolling',
-                'Part Cleared',
-                'Sloping',
-                'Lake Backlot',
-                'Tiled',
-                'Lake/Pond/River',
-                'Tiled/Drainage',
-                'Electric Car Charg'
-            ]
-
-
-CONDO_AMMENITIES = ['Concierge',
-        'Exercise Room',
-        'Party/Meeting Room',
-        'Recreation Room',
-        'Rooftop Deck/Garden',
-        'Visitor Parking',
-        'Gym',
-        'Security Guard',
-        'Guest Suites',
-        'Outdoor Pool',
-        'Sauna',
-        'Security System',
-        'Car Wash',
-        'Games Room',
-        'Indoor Pool',
-        'Media Room',
-        'Bbqs Allowed',
-        'Bus Ctr (Wifi Bldg)',
-        'Bike Storage',
-        'Tennis Court',
-        'Squash/Racquet Court',
-        'Lap Pool',
-        'Satellite Dish'
-        ]
-
 ## Sqft
 
 def helper_create_avg_sqft(x):
@@ -133,7 +66,7 @@ def helper_get_unique_ammenities(df, column):
     
     """
     ammenities = []
-    if column !=  "condo_ammenities" or column != "ammenities":
+    if column !=  "condo_ammenities" and column != "ammenities":
         raise ValueError("incorrect column name, expected condo_ammenities or ammenities")
 
     for i in range(len(df)):
@@ -141,6 +74,8 @@ def helper_get_unique_ammenities(df, column):
             for item in df[column].values[i]:
                 if item not in ammenities:
                     ammenities.append(item)
+                    
+    return ammenities
 
 def helper_find_existence_of_ammenity(x: list, value, errors = 'coerce'):
     """
@@ -166,11 +101,13 @@ def create_ammenities_flag_columns(df, ammenities, list_of_ammenities = None):
     
     Assumes the columns `ammenities` and `condo_ammenities` are already present in the dataframe.
     """
-    if not list_of_ammenities:
-        list_of_ammenities = AMMENITIES
+    
+    list_of_ammenities = helper_get_unique_ammenities(df, ammenities)
         
     for ammenity in list_of_ammenities:
         df[f"has{ammenity.capitalize()}"] = df[ammenities].apply(helper_find_existence_of_ammenity, args = (ammenity,))
+        
+    return df
     
 
 def helper_calculate_num_ammenities(x):
@@ -196,14 +133,25 @@ def create_num_ammenities_column(df):
 
 ## Postal Code
 
-def create_split_postalcode_column(df, int = 2):
+def helper_split_postal_code(x, num_chars = 2):
+    
+    try:
+        x = x[:num_chars]
+    except:
+        return np.nan
+    
+    return x
+
+def create_split_postalcode_column(df, num_chars = 2):
     """
     Assumes existance of a column named zip
     """
-    if int != 3 or int != 2:
+    if num_chars != 3 and num_chars != 2:
         raise ValueError("invalid int passed, can only be 2 or 3")
     
-    df[f"postal_code_split_{int}"] = df["zip"].apply(lambda x: x[:int])
+    df[f"postal_code_split_{num_chars}"] = df["zip"].apply(lambda x: helper_split_postal_code(x, num_chars))
+    
+    return df
 
 ## Datetime
 
@@ -214,7 +162,7 @@ def create_dom_column(df):
     #calculate DOM
     # df['soldDate_pd'] = pd.to_datetime(df['soldDate'])
     # df['listDate_pd'] = pd.to_datetime(df['listDate'])
-    df['daysOnMarket'] = df['soldDate_pd'] - df['listDate_pd']
+    df['daysOnMarket'] = df['soldDate'] - df['listDate']
     df['daysOnMarket'] = df['daysOnMarket'] / np.timedelta64(1, 'D')
 
     return df

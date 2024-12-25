@@ -65,7 +65,11 @@ def show_cat_col_values(df, cols = None):
             print(values.sort_values(by = 'Ratio', ascending = False))
             print("\n")
 
-def show_unique_values(df, path = None, columns = None):
+def show_unique_values_per_column(df, path = None, columns = None):
+    """
+    Creates an entirely new dataframe which contains all unique values for each column
+    
+    """
     new_df = pd.DataFrame()
     if not columns:
         columns = df.select_dtypes(include = ['object']).columns
@@ -200,7 +204,7 @@ def remove_duplicates(df: pd.DataFrame, columns = None, inplace = False, ignore_
     """
     Make sure to assign this to a new variable if inplace = False
     """
-    if inplace:
+    if not inplace:
         df = df.drop_duplicates(subset=columns, inplace = inplace, ignore_index = ignore_index)
         return df
     else:
@@ -285,23 +289,40 @@ def replace_special_text(text, keep_hyphens=False, space_mode="underscore"):
 
     return text
 
-def clean_string(text, keep_hyphens=False, space_mode="underscore"):
+def clean_string(text, keep_hyphens=False, space_mode="underscore", errors = "raise"):
     """
     Cleans a given text by replacing special characters and optionally modifying spaces.
     
-    Parameters:
-        text (str): The input text to clean.
-        keep_hyphens (bool): If True, hyphens are not removed.
-        space_mode (str): How to handle spaces. Options are:
-                          - "underscore": Replace spaces with underscores.
-                          - "remove": Remove spaces entirely.
-                          - "keep": Keep spaces unchanged.
+    Parameters
+    ----------
     
-    Returns:
-        str: The cleaned text.
+    text (str): The input text to clean.
+    keep_hyphens (bool): If True, hyphens are not removed.
+    space_mode (str): How to handle spaces. Options are:
+                        - "underscore": Replace spaces with underscores.
+                        - "remove": Remove spaces entirely.
+                        - "keep": Keep spaces unchanged.
+    errors : str
+        how to handle encountered errors. Possible values:
+            'raise': If `raise`, then invalid parsing will raise an exception.
+            'coerce': If `coerce`, then invalid parsing will be set as np.NaN
+            'ignore': If `ignore`, then invalid parsing will return the input.
+    
+    Returns
+    -------
+        str: The cleaned text or the original text if an error is encountered with errors = 'ignore'.
+        np.nan: If the input text is invalid.
     """
-    text = replace_special_text(text, keep_hyphens=keep_hyphens, space_mode=space_mode)
-    text = text.strip().lower()
+    try:
+        text = text.strip().lower()
+        text = replace_special_text(text, keep_hyphens=keep_hyphens, space_mode=space_mode)
+    except Exception as e:
+        if errors == "ignore":
+            return text
+        elif errors == "coerce":
+            return np.nan
+        elif errors == "raise":
+            raise e
 
     return text
 
@@ -345,11 +366,97 @@ def convert_col_dtype(df: pd.DataFrame, columns: list, convert_to_type: str, err
 
 ## Postal Code
 
-def standardize_postal_code(x: str):
+def helper_standardize_postal_code(x: str):
     #convert from ### ### to ######
-    x = x.replace(" ", "")
+    try:
+        x = x.replace(" ", "")
+    except:
+        x = np.nan
+        return x
+
     if len(x) != 6:
         x = np.nan
         
     return x
     
+def standardize_postal_code(df: pd.DataFrame, col: str = "zip"):
+    """
+    Standardizes a postal code column by removing spaces and ensuring it is 6 characters long.
+    
+    Assumes the column name zip is in the columns
+    
+    Parameters:
+        df (pd.DataFrame): The input DataFrame.
+        col (str): The name of the postal code column to standardize.
+    
+    Returns:
+        pd.Series: The standardized postal code column.
+    """
+    df[col] =  df[col].apply(helper_standardize_postal_code)
+    
+    return df
+
+## Ammenities / Condo Ammenities
+
+def helper_clean_ammenities_list(x: list):
+    """
+    Assumes that the input x is a list of strings
+    """
+    cleaned_ammenities_list = []
+    if not x:
+        return []
+    
+    for value in x:
+        value = clean_string(value, keep_hyphens=False, space_mode="underscore", errors = "coerce")
+        cleaned_ammenities_list.append(value)
+    
+    return cleaned_ammenities_list
+
+def standardize_ammenities_text(df):
+    """
+    Removes special characters and spaces between categories
+    
+    Assumes the columns `ammenities` and `condo_ammenities` are in the dataframe
+    """
+    
+    df['ammenities'] = df['ammenities'].apply(lambda x: helper_clean_ammenities_list(x))
+    df['condo_ammenities'] = df['condo_ammenities'].apply(lambda x: helper_clean_ammenities_list(x))
+
+    return df
+
+def standardize_locations_text(df):
+    """
+    Removes any special characters between categories for locations and standardizes the text
+    
+    Assumes the columns `area`, `city`, and `neighborhood` are in the dataframe
+    """
+    
+    df['area'] = df['area'].apply(lambda x: clean_string(x, keep_hyphens=True, space_mode="keep", errors = "coerce"))
+    df['city'] = df['city'].apply(lambda x: clean_string(x, keep_hyphens=True, space_mode="keep", errors = "coerce"))
+    df['district'] = df['district'].apply(lambda x: clean_string(x, keep_hyphens=True, space_mode="keep", errors = "coerce"))
+    df['neighborhood'] = df['neighborhood'].apply(lambda x: clean_string(x, keep_hyphens=True, space_mode="keep", errors = "coerce"))
+    
+    return df
+    
+def standardize_style_text(df):
+    """
+    Removes any special characters between categories for style and standardizes the text
+    
+    Assumes the columns `style` is in the dataframe
+    """
+    
+    df['style'] = df['style'].apply(lambda x: clean_string(x, keep_hyphens=True, space_mode="keep", errors = "coerce"))
+    
+    return df
+    
+    
+def standardize_propertyType_text(df):
+    """
+    Removes any special characters between categories for style and standardizes the text
+    
+    Assumes the columns `propertyType` is in the dataframe
+    """
+    
+    df['propertyType'] = df['propertyType'].apply(lambda x: clean_string(x, keep_hyphens=True, space_mode="keep", errors = "coerce"))
+    
+    return df
