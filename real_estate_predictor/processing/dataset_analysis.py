@@ -12,7 +12,7 @@ from matplotlib.pyplot import legend
 import seaborn as sns
 import numpy as np
 
-#Data exploration
+#Data Exploration / Analysis
 
 def show_dtypes(df):
     print(df.dtypes)
@@ -459,4 +459,28 @@ def standardize_propertyType_text(df):
     
     df['propertyType'] = df['propertyType'].apply(lambda x: clean_string(x, keep_hyphens=True, space_mode="keep", errors = "coerce"))
     
+    return df
+
+
+## Data Analysis
+
+## Outliers
+
+def removeOutliers(df):
+    for col in df.select_dtypes(include=['number']).columns:
+        if col == "soldPrice" or col == "listPrice":
+            percentile90 = df[col].quantile(0.95)
+            percentile10 = df[col].quantile(0.05)
+
+            iqr = percentile90 - percentile10
+
+            upper_limit = percentile90 + 3 * iqr
+            lower_limit = percentile10 - 3 * iqr
+
+            if lower_limit != upper_limit:
+                df = df[df[col] < upper_limit]
+                df = df[df[col] > lower_limit]
+
+            print(col, len(df))
+
     return df

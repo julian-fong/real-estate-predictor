@@ -13,6 +13,8 @@ from real_estate_predictor.config.api_config import (
     NEIGHBOURHOOD_TYPES
     )
 
+from real_estate_predictor.processing.extract_dataset import extract_neighbourhood_df, subtract_months
+
 class Dataset():
     def __init__(self):
         pass
@@ -42,6 +44,70 @@ class Dataset():
         self.neighbourhood_start_date = start_date
         self.neighbourhood_end_date = end_date
         
+        df_stats = pd.DataFrame()
+        import time
+        for bed in NEIGHBOURHOOD_NUMBEDROOMS:
+            for type in NEIGHBOURHOOD_TYPES:
+                for location in NEIGHBOURHOODS:
+                    r, data = retrieve_repliers_neighbourhood_request(
+                        self.neighbourhood_start_date,
+                        self.neighbourhood_end_date,
+                        NEIGHBOURHOOD_PARAMETERS,
+                        type,
+                        location,
+                        bed,
+                        False,
+                    )
+                    
+                    time.sleep(1)
+                    a = data['statistics']['soldPrice']['mth'] #gives avg, count and med
+                    b = data['statistics']['listPrice']['mth'] #gives avg, count and med
+                    c = data['statistics']['available']['mth'] #gives count 
+                    d = data['statistics']['daysOnMarket']['mth'] #gives avg, count and med
+                    e = data['statistics']['closed']['mth']
+
+                    a_df = pd.DataFrame(a)
+                    b_df = pd.DataFrame(b)
+                    c_df = pd.DataFrame([c], index = ['count'])
+                    d_df = pd.DataFrame(d)
+                    e_df = pd.DataFrame(e)
+
+                    for index in a_df.index:
+                        a_df = a_df.rename(index = {index: f'{index}_{bed}_{type}_{location}'})
+                        b_df = b_df.rename(index = {index: f'{index}_{bed}_{type}_{location}'})
+                        d_df = d_df.rename(index = {index: f'{index}_{bed}_{type}_{location}_'})
+                        
+                    c_df = c_df.rename(index = {"count": f'count_{bed}_{type}_{location}'})
+
+                    try:
+                        a_df = extract_neighbourhood_df(a_df, "soldPrice")
+                        b_df = extract_neighbourhood_df(b_df, "listPrice")
+                        c_df = extract_neighbourhood_df(c_df, "available")
+                        d_df = extract_neighbourhood_df(d_df, "daysOnMarket")
+
+                        merged_inital_df = a_df.merge(b_df, on='key').merge(c_df, on='key').merge(d_df, on='key')
+
+                        merged_inital_df['Date_1M'] = merged_inital_df['key'].apply(lambda x: subtract_months(x, 1))
+                        date_1m_df = merged_inital_df.merge(left_on = "Date_1M", right_on = "key", suffixes=[None, "L1M"], right = merged_inital_df, how = "left").drop(columns = ['keyL1M','Date_1ML1M','Date_1M'] + [col for col in merged_inital_df.columns if "current" in col])
+                        merged_inital_df['Date_3M'] = merged_inital_df['key'].apply(lambda x: subtract_months(x, 3))
+                        date_3m_df = merged_inital_df.merge(left_on = "Date_3M", right_on = "key", suffixes=[None, "L3M"], right = merged_inital_df, how = "left").drop(columns = ['keyL3M','Date_1ML3M', 'Date_3ML3M','Date_1M','Date_3M'] + [col for col in merged_inital_df.columns if "current" in col])
+                        merged_inital_df['Date_6M'] = merged_inital_df['key'].apply(lambda x: subtract_months(x, 6))
+                        date_6m_df = merged_inital_df.merge(left_on = "Date_6M", right_on = "key", suffixes=[None, "L6M"], right = merged_inital_df, how = "left").drop(columns = ['keyL6M','Date_1ML6M', 'Date_3ML6M', 'Date_6ML6M','Date_1M','Date_3M','Date_6M'] + [col for col in merged_inital_df.columns if "current" in col])
+
+                        merged_final_df = date_1m_df.merge(date_3m_df, on='key').merge(date_6m_df, on='key')
+                        
+                        df_stats = pd.concat([df_stats, merged_final_df], axis = 0)
+                    
+                    except:
+                        print(f"unable to get data for {(location, bed, type)}")
+                        continue
+                        
+
+                    print(len(df_stats))
+
+        df_stats = df_stats.reset_index()
+        
+        return df_stats
         
     
     def save_dataset(self, df, format, is_listings_dataset):

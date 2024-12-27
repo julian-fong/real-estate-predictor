@@ -167,28 +167,43 @@ def create_dom_column(df):
 
     return df
 
-## Outliers
+## neighbourhoods dataset
 
-def removeOutliers(df):
-    for col in df.select_dtypes(include=['number']).columns:
-        if col == "soldPrice" or col == "listPrice":
-            percentile90 = df[col].quantile(0.95)
-            percentile10 = df[col].quantile(0.05)
-
-            iqr = percentile90 - percentile10
-
-            upper_limit = percentile90 + 3 * iqr
-            lower_limit = percentile10 - 3 * iqr
-
-            if lower_limit != upper_limit:
-                df = df[df[col] < upper_limit]
-                df = df[df[col] > lower_limit]
-
-            print(col, len(df))
-
+def create_neighbourhood_key_column(df):
+    """
+    Assumes the existence of the keys `numBedroom`, `type`, `neighborhood`, `listDate` in the dataframe.
+    """
+    
+    year_month_series = df['listDate'].astype(str).apply(lambda x: x.split('T')[0][:7])
+    bedrooms_series = df['numBathrooms'].astype(str, errors = "ignore").apply(lambda x: x[:1])
+    df["key"] = bedrooms_series + "_" + df['type'].apply(lambda x: x.lower()) + "_" + df['neighborhood'] + "_" + year_month_series
+    
     return df
 
-## neighbourhoods dataset
+
+def create_previous_month_columns(df, other_df, key, drop_key_after = True):
+    """
+    Assumes the existence of a column named `key` in the dataframe, containing values of formatting
+        `numBedroom_type_neighborhood_year-month`.
+        eg: "1_sale_Waterfront Communities C1_2022-01"
+    
+    Parameters
+    ----------
+    
+    df : pd.DataFrame
+        The dataframe to which the columns will be added.
+    other_df : pd.DataFrame
+        The dataframe from which the columns will be taken.
+    key : str
+        The key on which to join the two dataframes.
+    """
+    
+    df = df.merge(other_df, on = key, how = "left")
+    
+    if drop_key_after:
+        df = df.drop(columns = [key], axis = 1)
+    
+    return df
 
 def calculate_previous_month_ppsqft(df):
     """

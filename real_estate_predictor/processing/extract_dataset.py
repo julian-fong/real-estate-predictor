@@ -112,7 +112,7 @@ def extract_raw_data_listings(raw_df: pd.DataFrame, inplace = True, verbose = Fa
     return df
 
 
-def manipulate_df(df, metric):
+def extract_neighbourhood_df(df, metric):
     df = df.rename_axis('key').reset_index()
     df = df.melt(id_vars = ["key"], var_name="Date",value_name="value")
     # Extract the metric from the 'key' column

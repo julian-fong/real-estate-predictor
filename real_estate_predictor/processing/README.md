@@ -1,5 +1,45 @@
-## Some Notes on the raw data
+# Data Cleaning
 
+## Correct datatypes
+
+### Cleaning Text
+
+standardize_postal_code
+standardize_ammenities_text
+standardize_locations_text
+standardize_style_text
+standardize_propertyType_text
+
+### Removing Outliers
+
+
+
+## Feature Engineering
+
+### Creating features with `ammenities`
+
+create_ammenities_flag_columns - ammenities
+create_ammenities_flag_columns - condo_ammenities
+create_num_ammenities_column
+
+### Creating features with `sqft`
+
+create_sqft_avg_column
+create_ppsqft_column
+
+### Creating features with `listDate` and `soldDate`
+
+create_dom_column
+
+### Creating features with `numBedrooms` and `numBathrooms`
+
+create_bedbathRatio_column
+
+### Creating features with `zip`
+
+create_split_postalcode_column
+
+## Some Notes on the raw data
 
 Fields:
 - Zip Code:
