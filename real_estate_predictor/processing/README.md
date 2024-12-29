@@ -12,7 +12,7 @@ standardize_propertyType_text
 
 ### Removing Outliers
 
-
+removeOutliers
 
 ## Feature Engineering
 
@@ -38,6 +38,12 @@ create_bedbathRatio_column
 ### Creating features with `zip`
 
 create_split_postalcode_column
+
+### Creating features with the neighbourhoods dataset
+
+create_ratio_bymonth
+create_difference_bymonth
+create_previous_month_ppsqft
 
 ## Some Notes on the raw data
 

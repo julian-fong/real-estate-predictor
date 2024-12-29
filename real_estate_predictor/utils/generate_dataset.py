@@ -1,5 +1,6 @@
 import os
 import time
+import pathlib
 import requests
 key = os.environ['REPLIERS_KEY']
 
@@ -21,7 +22,6 @@ def retrieve_repliers_listing_request(
     ):
     
     if verbose:
-        print(f"the start date is: {start_date} and the end date is: {end_date}")
         start_time = time.time()
     url = f"https://api.repliers.io/listings?&pageNum={page_num}&minSoldDate={start_date}&maxSoldDate={end_date}"
     if not include_listings:
@@ -29,14 +29,14 @@ def retrieve_repliers_listing_request(
     payload = payload
     headers = {'repliers-api-key': key}
     r = requests.request("GET",url, params=payload, headers=headers)
+    if r.status_code != 200:
+        print(f"{r.status_code} error returned from repliers: {r.json()[0]["msg"]}")
     data = r.json()
     numPages = data['numPages']
     if verbose:
         end_time = time.time()
         print(f"url: {r.url}")
         print(f"index {page_num} took {end_time - start_time} seconds with a response of {r}")
-        if r.status_code != 200:
-                    print(r.json())
     return r, numPages, data
 
 def retrieve_repliers_neighbourhood_request(
@@ -65,7 +65,6 @@ def retrieve_repliers_neighbourhood_request(
     payload = payload
     headers = {'repliers-api-key': key}
     r = requests.request("GET",url, params=payload, headers=headers)
-    print(r)
     data = r.json()
     if verbose:
         end_time = time.time()
@@ -73,28 +72,39 @@ def retrieve_repliers_neighbourhood_request(
         print(f"data of {neighbourhood, numBedroom, type} took {end_time - start_time} seconds with a response of {r}")
         if r.status_code != 200:
             print(r.json())
+            
     return r, data
 
 def save_dataset(
     df: pd.DataFrame,
-    path: str,
-    format: str, 
-    listings = True, 
+    format: str,
+    path: str = None, 
+    is_listings_dataset = True, 
     ):
     df.reset_index(drop = True)
-    if listings:
+    if is_listings_dataset:
         type = "listing"
     else:
         type = "neighbourhood"
         
-    date = dt.date.today().strftime("%Y-%m-%dT%H:%M:%S")
+    #if path is not specified, put it in the storage/datasets folder
+    if not path:
+        path = pathlib.Path(__file__).parent.parent.absolute().joinpath('storage', 'datasets')
+    else:
+        path = Path(path)
+    path = str(path).replace("\\\\", "\\")+"\\"
+    
+    #create the file name
+    date = dt.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
     file_name = f"{type}_dataset_{date}"
-    path = Path(path)
+    
     if format == "json":
         file_name+=".json"
-        df.to_json(path/file_name, index = False)
+        full_path = path+file_name
+        df.to_json(full_path, index = False)
     elif format == "csv":
         file_name+=".csv"
-        df.to_csv(path/file_name, index=False)
+        full_path = path+file_name
+        df.to_csv(full_path, index=False)
     else:
         raise ValueError(f"Unknown format {format}")

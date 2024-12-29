@@ -1,4 +1,6 @@
 import numpy as np
+from real_estate_predictor.processing.dataset_analysis import *
+from real_estate_predictor.processing.feature_engineering import *
 #Configuration parameters for generate_dataset
 
 #Global api config for Repliers
@@ -540,14 +542,14 @@ NEIGHBOURHOODS = [
 
 #Configuration parameters for manipulate_dataset
 
-EXPECTED_COLUMNS = ['class', 'type', 'listPrice', 'listDate', 'soldPrice', 'soldDate',
+LISTING_EXPECTED_COLUMNS = ['class', 'type', 'listPrice', 'listDate', 'soldPrice', 'soldDate',
     'city', 'area', 'district', 'neighborhood', 'zip', 'latitude',
     'longitude', 'fees', 'condo_ammenities', 'ammenities', 'numBathrooms',
     'numBedrooms', 'style', 'numKitchens', 'numRooms', 'numParkingSpaces',
     'sqft', 'description', 'extras', 'propertyType', 'numGarageSpaces',
     'numDrivewaySpaces']
 
-COLUMN_TO_DTYPE_MAPPING = {
+LISTING_COLUMN_TO_DTYPE_MAPPING = {
     "class": str,
     "type": str,
     "listPrice": float,
@@ -577,3 +579,80 @@ COLUMN_TO_DTYPE_MAPPING = {
     "numGarageSpaces": float,
     "numDrivewaySpaces": float,
 }
+
+##
+
+#Configuration parameters for Processor
+
+## Each key in the dictionary is a column name and the value is a list of functions to apply to the column
+
+## col : [func1, func2, func3]
+
+PREPROCESSING_PARAMETERS = {
+    "ammenities": [standardize_ammenities_text],
+    "condo_ammenities": [standardize_ammenities_text],
+    "zip": [standardize_postal_code],
+    "area": [standardize_locations_text],
+    "district": [standardize_locations_text],
+    "neighborhood": [standardize_locations_text],
+    "city": [standardize_locations_text],
+    "style": [standardize_style_text],
+    "propertyType": [standardize_propertyType_text],
+}
+
+#Configuration parameters for FeatureEngineering
+
+## Each key in the dictionary is a new feature name and the value is a tuple containing a pre-requisite set of features that need to be in the column to generate the new feature, along with that function name
+
+## new_feature_col : ([col1, col2, col3], feature_engineering_func)
+
+FEATURE_ENGINEERING_PARAMETERS = {
+    "sqft_avg": (["sqft"], create_sqft_avg_column),
+    "ppsqft": (["listPrice", "sqft_avg"], create_ppsqft_column),
+    "bedbathRatio": (["numBedrooms", "numBathrooms"], create_bedbathRatio_column),
+    "has_ammenities_flags": (["ammenities"], create_ammenities_flag_columns),
+    "has_condo_ammenities_flags": (["condo_ammenities"], create_ammenities_flag_columns),
+    "numAmmenities": (["ammenities"], create_num_ammenities_column),
+    "numCondoAmmenities": (["condo_ammenities"], create_num_ammenities_column),
+    "postal_code_split_2": (["zip"], create_split_postalcode_column),
+    "postal_code_split_3": (["zip"], create_split_postalcode_column),
+    "daysOnMarket": (["listDate", "soldDate"], create_dom_column),
+    "avg_soldPrice_ppsqft_currentL1M": (["avg_soldPrice_currentL1M", "sqft_avg"], create_previous_month_ppsqft),
+    "med_soldPrice_ppsqft_currentL1M": (["med_soldPrice_currentL1M", "sqft_avg"], create_previous_month_ppsqft),
+    "avg_listPrice_ppsqft_currentL1M": (["avg_listPrice_currentL1M", "sqft_avg"], create_previous_month_ppsqft),
+    "med_listPrice_ppsqft_currentL1M": (["med_listPrice_currentL1M", "sqft_avg"], create_previous_month_ppsqft),
+    "avg_soldPrice_ppsqft_currentL3M": (["avg_soldPrice_currentL3M", "sqft_avg"], create_previous_month_ppsqft),
+    "med_soldPrice_ppsqft_currentL3M": (["med_soldPrice_currentL3M", "sqft_avg"], create_previous_month_ppsqft),
+    "avg_listPrice_ppsqft_currentL3M": (["avg_listPrice_currentL3M", "sqft_avg"], create_previous_month_ppsqft),
+    "med_listPrice_ppsqft_currentL3M": (["med_listPrice_currentL3M", "sqft_avg"], create_previous_month_ppsqft),
+    "avg_soldPrice_ppsqft_currentL6M": (["avg_soldPrice_currentL6M", "sqft_avg"], create_previous_month_ppsqft),
+    "med_soldPrice_ppsqft_currentL6M": (["avg_soldPrice_currentL6M", "sqft_avg"], create_previous_month_ppsqft),
+    "avg_listPrice_ppsqft_currentL6M": (["avg_listPrice_currentL6M", "sqft_avg"], create_previous_month_ppsqft),
+    "med_listPrice_ppsqft_currentL6M": (["avg_listPrice_currentL6M", "sqft_avg"], create_previous_month_ppsqft),
+    "avg_soldPrice_difference_1M_3M": (["avg_soldPrice_currentL1M", "avg_soldPrice_currentL3M"], create_difference_bymonth),
+    "avg_soldPrice_difference_3M_6M": (["avg_soldPrice_currentL3M", "avg_soldPrice_currentL6M"], create_difference_bymonth),
+    "avg_listPrice_difference_1M_3M": (["avg_listPrice_currentL1M", "avg_listPrice_currentL3M"], create_difference_bymonth),
+    "avg_listPrice_difference_3M_6M": (["avg_listPrice_currentL3M", "avg_listPrice_currentL6M"], create_difference_bymonth),
+    "med_soldPrice_difference_1M_3M": (["med_soldPrice_currentL1M", "med_soldPrice_currentL3M"], create_difference_bymonth),
+    "med_soldPrice_difference_3M_6M": (["med_soldPrice_currentL3M", "med_soldPrice_currentL6M"], create_difference_bymonth),
+    "med_listPrice_difference_1M_3M": (["med_listPrice_currentL1M", "med_listPrice_currentL3M"], create_difference_bymonth),
+    "med_listPrice_difference_3M_6M": (["med_listPrice_currentL3M", "med_listPrice_currentL6M"], create_difference_bymonth),
+    "count_soldPrice_difference_1M_3M": (["count_soldPrice_currentL1M", "count_soldPrice_currentL3M"], create_difference_bymonth),
+    "count_soldPrice_difference_3M_6M": (["count_soldPrice_currentL3M", "count_soldPrice_currentL6M"], create_difference_bymonth),
+    "count_listPrice_difference_1M_3M": (["count_listPrice_currentL1M", "count_listPrice_currentL3M"], create_difference_bymonth),
+    "count_listPrice_difference_3M_6M": (["count_listPrice_currentL3M", "count_listPrice_currentL6M"], create_difference_bymonth),
+    "avg_soldPrice_ratio_1M_3M": (["avg_soldPrice_currentL1M"], create_ratio_bymonth),
+    "avg_soldPrice_ratio_3M_6M": (["avg_soldPrice_currentL3M"], create_ratio_bymonth),
+    "avg_listPrice_ratio_1M_3M": (["avg_listPrice_currentL1M"], create_ratio_bymonth),
+    "avg_listPrice_ratio_3M_6M": (["avg_listPrice_currentL3M"], create_ratio_bymonth),
+    "med_soldPrice_ratio_1M_3M": (["med_soldPrice_currentL1M"], create_ratio_bymonth),
+    "med_soldPrice_ratio_3M_6M": (["med_soldPrice_currentL3M"], create_ratio_bymonth),
+    "med_listPrice_ratio_1M_3M": (["med_listPrice_currentL1M"], create_ratio_bymonth),
+    "med_listPrice_ratio_3M_6M": (["med_listPrice_currentL3M"], create_ratio_bymonth),
+    "count_soldPrice_ratio_1M_3M": (["count_soldPrice_currentL1M"], create_ratio_bymonth),
+    "count_soldPrice_ratio_3M_6M": (["count_soldPrice_currentL3M"], create_ratio_bymonth),
+    "count_listPrice_ratio_1M_3M": (["count_listPrice_currentL1M"], create_ratio_bymonth),
+    "count_listPrice_ratio_3M_6M": (["count_listPrice_currentL3M"], create_ratio_bymonth),
+} 
+
+

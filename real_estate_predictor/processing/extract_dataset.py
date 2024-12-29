@@ -1,10 +1,10 @@
-import datetime as dt
+from datetime import datetime as dt
 import pandas as pd
 from dateutil.relativedelta import relativedelta
 import numpy as np
 import ast
 
-from real_estate_predictor.config.api_config import COLUMN_TO_DTYPE_MAPPING, EXPECTED_COLUMNS
+from real_estate_predictor.config.config import LISTING_COLUMN_TO_DTYPE_MAPPING, LISTING_EXPECTED_COLUMNS
 
 
 MISSING_VALUES = [
@@ -85,14 +85,14 @@ def extract_raw_data_listings(raw_df: pd.DataFrame, inplace = True, verbose = Fa
     #try to standardize the missing values in the dataframe
     df = df.replace(MISSING_VALUES, np.nan)
     
-    EXPECTED_COLUMNS.remove('fees')
+    LISTING_EXPECTED_COLUMNS.remove('fees')
     
-    assert [col for col in df.columns] == EXPECTED_COLUMNS
+    assert [col for col in df.columns] == LISTING_EXPECTED_COLUMNS
     
-    datetime_cols = [col for col in COLUMN_TO_DTYPE_MAPPING.keys() if COLUMN_TO_DTYPE_MAPPING[col] == np.datetime64]
-    numerical_cols = [col for col in COLUMN_TO_DTYPE_MAPPING.keys() if COLUMN_TO_DTYPE_MAPPING[col] == float]
-    list_cols = [col for col in COLUMN_TO_DTYPE_MAPPING.keys() if COLUMN_TO_DTYPE_MAPPING[col] == list]
-    #dict_cols = [col for col in COLUMN_TO_DTYPE_MAPPING.keys() if COLUMN_TO_DTYPE_MAPPING[col] == dict]
+    datetime_cols = [col for col in LISTING_COLUMN_TO_DTYPE_MAPPING.keys() if LISTING_COLUMN_TO_DTYPE_MAPPING[col] == np.datetime64]
+    numerical_cols = [col for col in LISTING_COLUMN_TO_DTYPE_MAPPING.keys() if LISTING_COLUMN_TO_DTYPE_MAPPING[col] == float]
+    list_cols = [col for col in LISTING_COLUMN_TO_DTYPE_MAPPING.keys() if LISTING_COLUMN_TO_DTYPE_MAPPING[col] == list]
+    #dict_cols = [col for col in LISTING_COLUMN_TO_DTYPE_MAPPING.keys() if LISTING_COLUMN_TO_DTYPE_MAPPING[col] == dict]
     
     convert_col_dtype(df, datetime_cols, "datetime")
     convert_col_dtype(df, numerical_cols, "numeric")
@@ -135,6 +135,7 @@ def extract_neighbourhood_df(df, metric):
 
 def subtract_months(col, num_months = 1):
     date_str = col.split("_")[-1]
+    
     # Convert the input date string to a datetime object
     date_obj = dt.strptime(date_str, '%Y-%m')
 

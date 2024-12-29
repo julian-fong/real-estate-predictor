@@ -99,6 +99,8 @@ def create_ammenities_flag_columns(df, ammenities, list_of_ammenities = None):
     
     ammenities: one of `ammenities` or `condo_ammenities`
     
+    Correspondings to `has_ammenities_flags` and `has_condo_ammenities_flags` in the config.
+    
     Assumes the columns `ammenities` and `condo_ammenities` are already present in the dataframe.
     """
     
@@ -125,7 +127,7 @@ def create_num_ammenities_column(df):
     """
     Assumes the existence of columns `ammenities` and `condo_ammenities` in the dataframe.
     """
-    #numAmmenities
+
     df['numAmmenities'] = df['ammenities'].apply(helper_calculate_num_ammenities)
     df['numCondoAmmenities'] = df['condo_ammenities'].apply(helper_calculate_num_ammenities)
 
@@ -176,14 +178,14 @@ def create_neighbourhood_key_column(df):
     
     year_month_series = df['listDate'].astype(str).apply(lambda x: x.split('T')[0][:7])
     bedrooms_series = df['numBathrooms'].astype(str, errors = "ignore").apply(lambda x: x[:1])
-    df["key"] = bedrooms_series + "_" + df['type'].apply(lambda x: x.lower()) + "_" + df['neighborhood'] + "_" + year_month_series
+    df["neighborhood_key"] = bedrooms_series + "_" + df['type'].apply(lambda x: x.lower()) + "_" + df['neighborhood'] + "_" + year_month_series
     
     return df
 
 
-def create_previous_month_columns(df, other_df, key, drop_key_after = True):
+def create_previous_month_columns(df, other_df, key = "neighborhood_key", drop_key_after = True):
     """
-    Assumes the existence of a column named `key` in the dataframe, containing values of formatting
+    Assumes the existence of a column named `neighborhood_key` in the dataframe, containing values of formatting
         `numBedroom_type_neighborhood_year-month`.
         eg: "1_sale_Waterfront Communities C1_2022-01"
     
@@ -196,6 +198,8 @@ def create_previous_month_columns(df, other_df, key, drop_key_after = True):
         The dataframe from which the columns will be taken.
     key : str
         The key on which to join the two dataframes.
+    drop_key_after : bool
+        If True, the key column will be dropped from the resulting dataframe.
     """
     
     df = df.merge(other_df, on = key, how = "left")
@@ -205,7 +209,7 @@ def create_previous_month_columns(df, other_df, key, drop_key_after = True):
     
     return df
 
-def calculate_previous_month_ppsqft(df):
+def create_previous_month_ppsqft(df):
     """
     Assumes the existence of columns: 
         `avg_soldPrice_currentL*M` where * = 1, 3, 6
@@ -231,12 +235,16 @@ def calculate_previous_month_ppsqft(df):
 
     return df
 
-def calculate_difference_bymonth(df):
+def create_difference_bymonth(df):
     """
+    Assumes the existence of columns: 
     Assumes the existence of columns: 
         `avg_soldPrice_currentL*M` where * = 1, 3, 6
         `avg_listPrice_currentL*M` where * = 1, 3, 6
-        `sqft_avg` in the dataframe 
+        `med_soldPrice_currentL*M` where * = 1, 3, 6
+        `med_listPrice_currentL*M` where * = 1, 3, 6
+        `count_soldPrice_currentL*M` where * = 1, 3, 6
+        `count_listPrice_currentL*M` where * = 1, 3, 6
     """
     df['avg_soldPrice_difference_1M_3M'] = df['avg_soldPrice_currentL1M'] - df['avg_soldPrice_currentL3M']
     df['avg_soldPrice_difference_3M_6M'] = df['avg_soldPrice_currentL3M'] - df['avg_soldPrice_currentL6M']
@@ -255,12 +263,15 @@ def calculate_difference_bymonth(df):
 
     return df
 
-def calculate_ratio_bymonth(df):
+def create_ratio_bymonth(df):
     """
     Assumes the existence of columns: 
         `avg_soldPrice_currentL*M` where * = 1, 3, 6
         `avg_listPrice_currentL*M` where * = 1, 3, 6
-        `sqft_avg` in the dataframe 
+        `med_soldPrice_currentL*M` where * = 1, 3, 6
+        `med_listPrice_currentL*M` where * = 1, 3, 6
+        `count_soldPrice_currentL*M` where * = 1, 3, 6
+        `count_listPrice_currentL*M` where * = 1, 3, 6
     """
     df['avg_soldPrice_ratio_1M_3M'] = df['avg_soldPrice_currentL1M'].div(df['avg_soldPrice_currentL3M'], fill_value = np.NaN)
     df['avg_soldPrice_ratio_3M_6M'] = df['avg_soldPrice_currentL3M'].div(df['avg_soldPrice_currentL6M'], fill_value = np.NaN)
