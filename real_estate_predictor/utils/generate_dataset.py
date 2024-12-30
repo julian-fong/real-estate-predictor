@@ -30,7 +30,7 @@ def retrieve_repliers_listing_request(
     headers = {'repliers-api-key': key}
     r = requests.request("GET",url, params=payload, headers=headers)
     if r.status_code != 200:
-        print(f"{r.status_code} error returned from repliers: {r.json()[0]["msg"]}")
+        print(f"{r.status_code} error returned from repliers: {r.json()[0]['msg']}")
     data = r.json()
     numPages = data['numPages']
     if verbose:
@@ -75,7 +75,7 @@ def retrieve_repliers_neighbourhood_request(
             
     return r, data
 
-def save_dataset(
+def save_raw_dataset(
     df: pd.DataFrame,
     format: str,
     path: str = None, 
@@ -97,6 +97,39 @@ def save_dataset(
     #create the file name
     date = dt.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
     file_name = f"{type}_dataset_{date}"
+    
+    if format == "json":
+        file_name+=".json"
+        full_path = path+file_name
+        df.to_json(full_path, index = False)
+    elif format == "csv":
+        file_name+=".csv"
+        full_path = path+file_name
+        df.to_csv(full_path, index=False)
+    else:
+        raise ValueError(f"Unknown format {format}")
+    
+    
+def save_dataset(
+    df: pd.DataFrame,
+    format: str,
+    path: str = None,
+    file_name: str = None,
+    ):
+        
+    #if path is not specified, put it in the storage/datasets folder
+    if not path:
+        path = pathlib.Path(__file__).parent.parent.absolute().joinpath('storage', 'datasets')
+    else:
+        path = Path(path)
+    path = str(path).replace("\\\\", "\\")+"\\"
+    
+    #create the file name
+    date = dt.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
+    if file_name:
+        file_name += f"_{date}"
+    else:
+        file_name = f"dataset_{date}"
     
     if format == "json":
         file_name+=".json"

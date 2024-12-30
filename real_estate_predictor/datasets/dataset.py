@@ -18,6 +18,20 @@ from real_estate_predictor.config.config import (
 from real_estate_predictor.processing.extract_dataset import extract_neighbourhood_df, subtract_months
 
 class Dataset():
+    """
+    Main class to construct the data pipeline for the datasets.
+    
+    Functionality:
+        - Obtain raw listing and neighborhood datasets and save them into storage
+        - Load listing and neighborhood datasets from storage or local paths
+        - Merge the datasets into a single dataset for further processing
+        - Select columns from the merged dataset to be used for training
+        - Prepare the dataset using the Processor class
+        - Create new features using the FeatureEngineering class
+        - Save the final dataset into storage
+        
+        
+    """
     def __init__(self):
         pass
         
@@ -126,5 +140,5 @@ class Dataset():
         return self.neighborhoods_df
         
     
-    def save_df(self, df, format, path = None, is_listings_dataset = True):
+    def save_raw_df(self, df, format, path = None, is_listings_dataset = True):
         save_dataset(df, format, path, is_listings_dataset)

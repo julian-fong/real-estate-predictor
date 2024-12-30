@@ -171,45 +171,7 @@ def create_dom_column(df):
 
 ## neighbourhoods dataset
 
-def create_neighbourhood_key_column(df):
-    """
-    Assumes the existence of the keys `numBedroom`, `type`, `neighborhood`, `listDate` in the dataframe.
-    """
-    
-    year_month_series = df['listDate'].astype(str).apply(lambda x: x.split('T')[0][:7])
-    bedrooms_series = df['numBathrooms'].astype(str, errors = "ignore").apply(lambda x: x[:1])
-    df["neighborhood_key"] = bedrooms_series + "_" + df['type'].apply(lambda x: x.lower()) + "_" + df['neighborhood'] + "_" + year_month_series
-    
-    return df
-
-
-def create_previous_month_columns(df, other_df, key = "neighborhood_key", drop_key_after = True):
-    """
-    Assumes the existence of a column named `neighborhood_key` in the dataframe, containing values of formatting
-        `numBedroom_type_neighborhood_year-month`.
-        eg: "1_sale_Waterfront Communities C1_2022-01"
-    
-    Parameters
-    ----------
-    
-    df : pd.DataFrame
-        The dataframe to which the columns will be added.
-    other_df : pd.DataFrame
-        The dataframe from which the columns will be taken.
-    key : str
-        The key on which to join the two dataframes.
-    drop_key_after : bool
-        If True, the key column will be dropped from the resulting dataframe.
-    """
-    
-    df = df.merge(other_df, on = key, how = "left")
-    
-    if drop_key_after:
-        df = df.drop(columns = [key], axis = 1)
-    
-    return df
-
-def create_previous_month_ppsqft(df):
+def create_previous_month_ppsqft_columns(df):
     """
     Assumes the existence of columns: 
         `avg_soldPrice_currentL*M` where * = 1, 3, 6
@@ -235,7 +197,7 @@ def create_previous_month_ppsqft(df):
 
     return df
 
-def create_difference_bymonth(df):
+def create_difference_bymonth_columns(df):
     """
     Assumes the existence of columns: 
     Assumes the existence of columns: 
@@ -263,7 +225,7 @@ def create_difference_bymonth(df):
 
     return df
 
-def create_ratio_bymonth(df):
+def create_ratio_bymonth_columns(df):
     """
     Assumes the existence of columns: 
         `avg_soldPrice_currentL*M` where * = 1, 3, 6
