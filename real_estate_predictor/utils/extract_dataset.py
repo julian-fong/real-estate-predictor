@@ -111,6 +111,53 @@ def extract_raw_data_listings(raw_df: pd.DataFrame, inplace = True, verbose = Fa
                 
     return df
 
+### Neighborhood dataset
+
+def extract_neighborhood_data(data: dict, location, bed, type, verbose = False):
+    
+    soldPrice_mth_stats = data['statistics']['soldPrice']['mth'] #gives avg, count and med
+    listPrice_mth_stats = data['statistics']['listPrice']['mth'] #gives avg, count and med
+    available_mth_stats = data['statistics']['available']['mth'] #gives count 
+    daysOnMarket_mth_stats = data['statistics']['daysOnMarket']['mth'] #gives avg, count and med
+    closed_mth_stats = data['statistics']['closed']['mth']
+
+    soldPrice_mth_stats_df = pd.DataFrame(soldPrice_mth_stats)
+    listPrice_mth_stats_df = pd.DataFrame(listPrice_mth_stats)
+    available_mth_stats_df = pd.DataFrame([available_mth_stats], index = ['count'])
+    daysOnMarket_mth_stats_df = pd.DataFrame(daysOnMarket_mth_stats)
+    closed_mth_stats_df = pd.DataFrame(closed_mth_stats)
+
+    for index in soldPrice_mth_stats_df.index:
+        soldPrice_mth_stats_df = soldPrice_mth_stats_df.rename(index = {index: f'{index}_{bed}_{type}_{location}'})
+        listPrice_mth_stats_df = listPrice_mth_stats_df.rename(index = {index: f'{index}_{bed}_{type}_{location}'})
+        daysOnMarket_mth_stats_df = daysOnMarket_mth_stats_df.rename(index = {index: f'{index}_{bed}_{type}_{location}_'})
+        
+    available_mth_stats_df = available_mth_stats_df.rename(index = {"count": f'count_{bed}_{type}_{location}'})
+
+    try:
+        soldPrice_mth_stats_df = extract_neighbourhood_df(soldPrice_mth_stats_df, "soldPrice")
+        listPrice_mth_stats_df = extract_neighbourhood_df(listPrice_mth_stats_df, "listPrice")
+        available_mth_stats_df = extract_neighbourhood_df(available_mth_stats_df, "available")
+        daysOnMarket_mth_stats_df = extract_neighbourhood_df(daysOnMarket_mth_stats_df, "daysOnMarket")
+
+        merged_inital_df = soldPrice_mth_stats_df.merge(listPrice_mth_stats_df, on='key').merge(available_mth_stats_df, on='key').merge(daysOnMarket_mth_stats_df, on='key')
+
+        merged_inital_df['Date_1M'] = merged_inital_df['key'].apply(lambda x: subtract_months(x, 1))
+        date_1m_df = merged_inital_df.merge(left_on = "Date_1M", right_on = "key", suffixes=[None, "L1M"], right = merged_inital_df, how = "left").drop(columns = ['keyL1M','Date_1ML1M','Date_1M'] + [col for col in merged_inital_df.columns if "current" in col])
+        merged_inital_df['Date_3M'] = merged_inital_df['key'].apply(lambda x: subtract_months(x, 3))
+        date_3m_df = merged_inital_df.merge(left_on = "Date_3M", right_on = "key", suffixes=[None, "L3M"], right = merged_inital_df, how = "left").drop(columns = ['keyL3M','Date_1ML3M', 'Date_3ML3M','Date_1M','Date_3M'] + [col for col in merged_inital_df.columns if "current" in col])
+        merged_inital_df['Date_6M'] = merged_inital_df['key'].apply(lambda x: subtract_months(x, 6))
+        date_6m_df = merged_inital_df.merge(left_on = "Date_6M", right_on = "key", suffixes=[None, "L6M"], right = merged_inital_df, how = "left").drop(columns = ['keyL6M','Date_1ML6M', 'Date_3ML6M', 'Date_6ML6M','Date_1M','Date_3M','Date_6M'] + [col for col in merged_inital_df.columns if "current" in col])
+
+        merged_final_df = date_1m_df.merge(date_3m_df, on='key').merge(date_6m_df, on='key')
+        
+        return merged_final_df
+    except:
+        if verbose:
+            print(f"unable to get data for {(location, bed, type)}")
+        return None
+    
+    
 
 def extract_neighbourhood_df(df, metric):
     df = df.rename_axis('key').reset_index()

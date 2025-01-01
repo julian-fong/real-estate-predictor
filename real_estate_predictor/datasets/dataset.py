@@ -4,7 +4,8 @@ import time
 from real_estate_predictor.utils.generate_dataset import (
     retrieve_repliers_listing_request, 
     retrieve_repliers_neighbourhood_request,
-    save_dataset
+    save_dataset,
+    save_raw_dataset,
     )
 from real_estate_predictor.config.config import (
     LISTING_PARAMETERS, 
@@ -15,20 +16,21 @@ from real_estate_predictor.config.config import (
     NEIGHBOURHOOD_TYPES
     )
 
-from real_estate_predictor.processing.extract_dataset import extract_neighbourhood_df, subtract_months
+from real_estate_predictor.utils.extract_dataset import extract_neighborhood_data
 
 class Dataset():
     """
     Main class to construct the data pipeline for the datasets.
     
-    Functionality:
-        - Obtain raw listing and neighborhood datasets and save them into storage
-        - Load listing and neighborhood datasets from storage or local paths
+    Available Functionality:
+        - Get raw listing and neighborhood datasets and save them into storage
+        - Load raw or transformed listing and neighborhood datasets from storage or local paths
+        - Extract key columns from the raw datasets into a transformed state, and merge if necessary
         - Merge the datasets into a single dataset for further processing
         - Select columns from the merged dataset to be used for training
         - Prepare the dataset using the Processor class
         - Create new features using the FeatureEngineering class
-        - Save the final dataset into storage
+        - Save any transformed/final dataset into storage
         
         
     """
@@ -87,48 +89,12 @@ class Dataset():
                     )
                     #sleep for 1 second after every request to avoid rate limiting
                     time.sleep(1)
-                    a = data['statistics']['soldPrice']['mth'] #gives avg, count and med
-                    b = data['statistics']['listPrice']['mth'] #gives avg, count and med
-                    c = data['statistics']['available']['mth'] #gives count 
-                    d = data['statistics']['daysOnMarket']['mth'] #gives avg, count and med
-                    e = data['statistics']['closed']['mth']
-
-                    a_df = pd.DataFrame(a)
-                    b_df = pd.DataFrame(b)
-                    c_df = pd.DataFrame([c], index = ['count'])
-                    d_df = pd.DataFrame(d)
-                    e_df = pd.DataFrame(e)
-
-                    for index in a_df.index:
-                        a_df = a_df.rename(index = {index: f'{index}_{bed}_{type}_{location}'})
-                        b_df = b_df.rename(index = {index: f'{index}_{bed}_{type}_{location}'})
-                        d_df = d_df.rename(index = {index: f'{index}_{bed}_{type}_{location}_'})
-                        
-                    c_df = c_df.rename(index = {"count": f'count_{bed}_{type}_{location}'})
-
-                    try:
-                        a_df = extract_neighbourhood_df(a_df, "soldPrice")
-                        b_df = extract_neighbourhood_df(b_df, "listPrice")
-                        c_df = extract_neighbourhood_df(c_df, "available")
-                        d_df = extract_neighbourhood_df(d_df, "daysOnMarket")
-
-                        merged_inital_df = a_df.merge(b_df, on='key').merge(c_df, on='key').merge(d_df, on='key')
-
-                        merged_inital_df['Date_1M'] = merged_inital_df['key'].apply(lambda x: subtract_months(x, 1))
-                        date_1m_df = merged_inital_df.merge(left_on = "Date_1M", right_on = "key", suffixes=[None, "L1M"], right = merged_inital_df, how = "left").drop(columns = ['keyL1M','Date_1ML1M','Date_1M'] + [col for col in merged_inital_df.columns if "current" in col])
-                        merged_inital_df['Date_3M'] = merged_inital_df['key'].apply(lambda x: subtract_months(x, 3))
-                        date_3m_df = merged_inital_df.merge(left_on = "Date_3M", right_on = "key", suffixes=[None, "L3M"], right = merged_inital_df, how = "left").drop(columns = ['keyL3M','Date_1ML3M', 'Date_3ML3M','Date_1M','Date_3M'] + [col for col in merged_inital_df.columns if "current" in col])
-                        merged_inital_df['Date_6M'] = merged_inital_df['key'].apply(lambda x: subtract_months(x, 6))
-                        date_6m_df = merged_inital_df.merge(left_on = "Date_6M", right_on = "key", suffixes=[None, "L6M"], right = merged_inital_df, how = "left").drop(columns = ['keyL6M','Date_1ML6M', 'Date_3ML6M', 'Date_6ML6M','Date_1M','Date_3M','Date_6M'] + [col for col in merged_inital_df.columns if "current" in col])
-
-                        merged_final_df = date_1m_df.merge(date_3m_df, on='key').merge(date_6m_df, on='key')
-                        
-                        df_stats = pd.concat([df_stats, merged_final_df], axis = 0)
                     
-                    except:
-                        if verbose:
-                            print(f"unable to get data for {(location, bed, type)}")
-                        continue
+                    neighborhood_data = extract_neighborhood_data(data, location, bed, type, verbose)
+                    
+                    if isinstance(neighborhood_data, pd.DataFrame) and len(neighborhood_data) > 0:
+                        df_stats = pd.concat([df_stats, neighborhood_data], axis = 0)
+                    
                         
                     if verbose:
                         print(f"Length of the stats dataset is: {len(df_stats)}")
@@ -141,4 +107,22 @@ class Dataset():
         
     
     def save_raw_df(self, df, format, path = None, is_listings_dataset = True):
-        save_dataset(df, format, path, is_listings_dataset)
+        save_raw_dataset(df, format, path, is_listings_dataset)
+        
+    def save_df(self, df, format, path = None, file_name = None):
+        save_dataset(df, format, path, file_name)
+        
+    def extract_and_merge_df(self, listing_df, neighborhood_df):
+        pass
+    
+    def select_columns(self, df, columns):
+        pass 
+    
+    def preprocess_dataset(self, df, columns):
+        pass
+    
+    def feature_engineering(self, df, columns):
+        pass
+    
+    def merge_datasets(self, listing_df, neighborhood_df):
+        pass

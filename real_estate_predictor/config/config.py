@@ -1,6 +1,6 @@
 import numpy as np
-from real_estate_predictor.processing.dataset_analysis import *
-from real_estate_predictor.processing.feature_engineering import *
+from real_estate_predictor.utils.dataset_analysis import *
+from real_estate_predictor.utils.feature_engineering import *
 #Configuration parameters for generate_dataset
 
 #Global api config for Repliers

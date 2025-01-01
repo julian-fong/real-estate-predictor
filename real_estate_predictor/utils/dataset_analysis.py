@@ -1,3 +1,5 @@
+"""Main Module for methods to handle data cleaning, data analysis, and data transformation"""
+
 import datetime as dt 
 import requests
 import pandas as pd
@@ -200,7 +202,7 @@ def kde_plots(df, cols):
 
 ## Removing Duplicates
 
-def remove_duplicates(df: pd.DataFrame, columns = None, inplace = False, ignore_index = False):
+def remove_duplicates(df: pd.DataFrame, columns = None, inplace = False, ignore_index = True):
     """
     Make sure to assign this to a new variable if inplace = False
     """
@@ -229,7 +231,27 @@ def handle_missing_values(df: pd.DataFrame, strategy = "remove", columns = None)
     """
     pass
 
-def remove_na_values_by_col(df: pd.DataFrame, strategy, subset = None, columns = None):
+def helper_calculate_missing_values_percentage_by_col(df: pd.DataFrame, column):
+    """
+    Calculates the missing values percentage by column
+    
+    Parameters
+    ----------
+    
+    df : pd.DataFrame
+        input pandas dataframe
+        
+    column : str
+        column name to calculate missing values percentage
+        
+    Returns
+    -------
+    float
+        missing values percentage
+    """
+    return round(100*df[column].isna().sum()/len(df[column]), 2)
+
+def remove_na_values_by_col(df: pd.DataFrame, strategy, columns = None, threshold = None):
     """
     Removes na values by column
     
@@ -243,18 +265,36 @@ def remove_na_values_by_col(df: pd.DataFrame, strategy, subset = None, columns =
         Available parameters:
             columns - will completely drop whatever column is inside the `columns` parameter
             rows - will drop rows if there are any missing values in the passed columns
+            columns_threshold - will completely drop the column if the number of missing values exceed the passed threshold
             
     columns : list
         default = None
         list of columns used to drop missing values
+        
+    threshold : float
+        default = None
+        threshold used to drop columns if the missing values exceed the threshold. Between 0 and 1
     """
     if strategy == "columns":
         if not columns:
             raise ValueError(f"missing columns, got {columns}")
         df = df.drop(columns = columns, axis = 1)
     elif strategy == "rows":
-        df = df.dropna(subset=subset, ignore_index=True)
+        df = df.dropna(subset=columns, ignore_index=True)
+    elif strategy == "columns_threshold":
+        if not columns:
+            raise ValueError(f"missing columns, got {columns}")
+        if not threshold:
+            raise ValueError(f"missing mandatory field threshold, got {threshold}")
+        elif threshold < 0 or threshold > 1:
+            raise ValueError(f"threshold must be between 0 and 1, got {threshold}")
         
+        for col in columns:
+            missing_values_percentage = helper_calculate_missing_values_percentage_by_col(df, col)
+            if missing_values_percentage > threshold:
+                df = df.drop(columns = col, axis = 1)
+    else:
+        raise ValueError(f"unexpected strategy {strategy}, available strategies are ['columns', 'rows', 'columns_threshold']")
     return df
 
 def replace_values(df: pd.DataFrame, column: str):
@@ -466,9 +506,25 @@ def standardize_propertyType_text(df):
 
 ## Outliers
 
-def removeOutliers(df):
-    for col in df.select_dtypes(include=['number']).columns:
-        if col == "soldPrice" or col == "listPrice":
+def removeOutliers(df, strategy = "all", columns = None):
+    """
+    Removes outliers from the dataframe based on a 95% and 5% quantile
+    
+    Parameters
+    ----------
+    df : pd.DataFrame
+    
+    strategy : str
+        Default = "all"
+        Available strategies:
+            all - removes outliers from all numerical columns
+            columns - removes outliers from the specified columns in the columns parameter
+    
+    columns : list
+        List of columns to apply outlier removal from
+    """
+    if strategy == "all":
+        for col in df.select_dtypes(include=['number']).columns:
             percentile90 = df[col].quantile(0.95)
             percentile10 = df[col].quantile(0.05)
 
@@ -481,6 +537,18 @@ def removeOutliers(df):
                 df = df[df[col] < upper_limit]
                 df = df[df[col] > lower_limit]
 
-            print(col, len(df))
+    elif strategy == "columns":
+        for col in columns:
+            percentile90 = df[col].quantile(0.95)
+            percentile10 = df[col].quantile(0.05)
+
+            iqr = percentile90 - percentile10
+
+            upper_limit = percentile90 + 3 * iqr
+            lower_limit = percentile10 - 3 * iqr
+
+            if lower_limit != upper_limit:
+                df = df[df[col] < upper_limit]
+                df = df[df[col] > lower_limit]
 
     return df
