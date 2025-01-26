@@ -443,7 +443,7 @@ class Processor():
             if not self._check_if_subset(categorical_encoder["columns"], seen_columns):
                 transformer = Pipeline(steps = [])
                 transformer.steps.append(
-                    (f"categorical_encoder_{str(categorical_encoder['columns'])}", categorical_encoder["pipeline"])
+                    ("categorical_encoder", categorical_encoder["pipeline"])
                 )
                 self.transformers.append((f"transformer_{len(self.transformers)+1}", transformer, categorical_encoder["columns"]))
     
