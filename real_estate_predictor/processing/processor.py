@@ -472,7 +472,7 @@ class Processor():
                     feature_names += self.preprocessor.named_transformers_[processor].feature_names_in_.tolist()
             else:
                 feature_names += self.preprocessor.named_transformers_[processor].feature_names_in_.tolist()
-        print(feature_names)
+        
         X_transformed = self.preprocessor.transform(X)
         X_transformed.columns = feature_names
         
@@ -494,9 +494,7 @@ class Processor():
                 else:
                     feature_names += self.preprocessor.named_transformers_[processor].feature_names_in_.tolist()
             else:
-                feature_names += self.preprocessor.named_transformers_[processor].feature_names_in_.tolist()
-        print(feature_names)
-        print(len(feature_names))                
+                feature_names += self.preprocessor.named_transformers_[processor].feature_names_in_.tolist()                
         X_transformed.columns = feature_names
 
         return X_transformed
