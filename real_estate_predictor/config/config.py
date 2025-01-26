@@ -607,6 +607,7 @@ PREPROCESSING_PARAMETERS = {
 ## new_feature_col : ([col1, col2, col3], feature_engineering_func)
 
 FEATURE_ENGINEERING_PARAMETERS = {
+    "sqft" : ([], None),
     "sqft_avg": (["sqft"], create_sqft_avg_column),
     "ppsqft": (["listPrice", "sqft_avg"], create_ppsqft_column),
     "bedbathRatio": (["numBedrooms", "numBathrooms"], create_bedbathRatio_column),
@@ -686,3 +687,21 @@ FEATURE_ENGINEERING_PARAMETERS = {
     "count_listPrice_ratio_3M_6M": (["count_listPrice_currentL3M"], create_ratio_bymonth_columns),
 } 
 
+TEST_FEATURE_ENGINEERING_PARAMETERS_1= {
+    "listPrice": ([], None),
+    "sqft" : ([], None),
+    "ppsqft": (["listPrice", "sqft_avg"], create_ppsqft_column),
+    "sqft_avg": (["sqft"], create_sqft_avg_column),
+}
+
+TEST_FEATURE_ENGINEERING_PARAMETERS_2= {
+    "sqft" : ([], None),
+    "ppsqft": (["listPrice", "sqft_avg"], create_ppsqft_column),
+    "sqft_avg": (["sqft"], create_sqft_avg_column),
+}
+
+## Configuration Parameters for Pipeline
+
+CONFIGURATION_PARAMETERS = {
+    
+}

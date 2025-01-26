@@ -10,8 +10,12 @@ extra
 dist
 real_estate_predictor2.0.egg-info
 real_estate_predictor/processing/Untitled-1.ipynb
+real_estate_predictor/tests/Untitled-1.ipynb
+real_estate_predictor/tests/Untitled-2.ipynb
 real_estate_ocr
 .vscode/
 real_estate_predictor.egg-info
 !real_estate_predictor/datasets/.gitkeep
 **/__pycache__/
+config.yaml
+example_module.py
