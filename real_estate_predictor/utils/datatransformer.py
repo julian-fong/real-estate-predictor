@@ -1,29 +1,3 @@
-from sklearn.base import BaseEstimator
-
-class Imputer(BaseEstimator):
-    """
-    Class for imputation strategies
-    
-    
-    """
-    pass
-
-
-class Encoder(BaseEstimator):
-    """
-    Class for encoding strategies
-    
-    
-    """
-    pass
-
-class NumericalTransformer(BaseEstimator):
-    """
-    Class for numerical transformation strategies
-    
-    
-    """
-    pass
 
 #iterating through al nodes in the graph
 
