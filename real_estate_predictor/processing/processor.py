@@ -413,7 +413,7 @@ class Processor():
             if not self._check_if_subset(numerical_transformer["columns"], seen_columns):
                 transformer = Pipeline(steps = [])
                 transformer.steps.append(
-                    (f"numerical_transformer_{str(numerical_transformer["columns"])}", numerical_transformer["pipeline"])
+                    (f"numerical_transformer_{str(numerical_transformer['columns'])}", numerical_transformer["pipeline"])
                 )
                 self.transformers.append((f"transformer_{len(self.transformers)+1}", transformer, numerical_transformer["columns"]))
     
@@ -443,7 +443,7 @@ class Processor():
             if not self._check_if_subset(categorical_encoder["columns"], seen_columns):
                 transformer = Pipeline(steps = [])
                 transformer.steps.append(
-                    ("categorical_encoder", categorical_encoder["pipeline"])
+                    (f"categorical_encoder_{str(categorical_encoder['columns'])}", categorical_encoder["pipeline"])
                 )
                 self.transformers.append((f"transformer_{len(self.transformers)+1}", transformer, categorical_encoder["columns"]))
     
