@@ -539,6 +539,47 @@ NEIGHBOURHOODS = [
     'South D'
 ]
 
+LISTING_HIERARCHY = {
+    "class": None,
+    "type": None,
+    "listPrice": None,
+    "listDate": None,
+    "soldPrice": None,
+    "soldDate": None,
+    "address": {
+        "area": None,
+        "city": None,
+        "district": None,
+        "neighborhood": None,
+        "zip": None
+    },
+    "details": {
+        "numBathrooms": None,
+        "numBedrooms": None,
+        "style": None,
+        "numKitchens": None,
+        "numRooms": None,
+        "numParkingSpaces": None,
+        "sqft": None,
+        "propertyType": None,
+        "numGarageSpaces": None,
+        "numDrivewaySpaces": None,
+        "description": None,
+        "extras": None,
+        "numParkingSpaces": None
+    },
+    "condominium": {
+        "ammenities": None,
+        "fees": None
+    },
+    "nearby": {
+        "ammenities": None
+    },
+    "map": {
+        "latitude": None,
+        "longitude": None,
+    },
+}
 
 #Configuration parameters for manipulate_dataset
 

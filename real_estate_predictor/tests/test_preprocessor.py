@@ -11,16 +11,12 @@ from sklearn.pipeline import Pipeline
 
 import numpy as np
 
-# Example arrays
-array1 = np.array([1.0, np.nan, 3.0])
-array2 = np.array([1.0, np.nan, 3.0])
-
-# Check if arrays are equal ignoring np.nan
+# need this function to compare arrays with nans since nans are not equal to themselves
+# check if arrays are equal ignoring np.nan
 def arrays_equal_ignore_nan(arr1, arr2):
-    # Check shape first
     if arr1.shape != arr2.shape:
         return False
-    # Compare elements, treating NaNs as equal
+    # Compare elements, treating nans as equal
     return np.all((arr1 == arr2) | (pd.isna(arr1) & pd.isna(arr2)))
 
 data = {
@@ -78,7 +74,7 @@ def test_apply_transformer():
     process.encode_categorical(columns = feature_encode_categorical1, strategy = "onehot")
     process.encode_categorical(columns = feature_impute_encode_categorical1, strategy = "onehot")
     process.impute_categorical(columns = feature_impute_encode_categorical1, f = SimpleImputer(strategy = "most_frequent"))
-    process.apply_column_transformer()
+    process.apply_transformer()
 
     test_numerical_transformer1 = Pipeline(
         steps=[("imputer", SimpleImputer(strategy="mean")), ("scaler", StandardScaler())]

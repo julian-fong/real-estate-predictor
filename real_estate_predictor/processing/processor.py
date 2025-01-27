@@ -5,6 +5,7 @@ from real_estate_predictor.config.config import PREPROCESSING_PARAMETERS, FEATUR
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
+import pickle
 class DataCleaner():
     """
     Class to clean the data
@@ -14,10 +15,19 @@ class DataCleaner():
         - Handle missing values
         - Remove rows with outliers
         - Standardize text inside categorical columns
+        
+    Parameters
+    ----------
+    
+    df : pd.DataFrame or string
+        The dataframe to clean or a path to the source file of the dataframe.
+        Only a path to the source file will enable saving of the DataCleaner object
+        to avoid saving the entire dataframe into an object.
     """
     
     def __init__(self, df):
         self.df = df
+        self.transformers = []
         
     def remove_duplicates(self, columns, ignore_index = True, strategy = "subset"):
         """
@@ -116,6 +126,35 @@ class DataCleaner():
             if col in PREPROCESSING_PARAMETERS.keys():
                 for f in PREPROCESSING_PARAMETERS[col]:
                     self.df = f(self.df)
+                    
+    def apply_transformer(self):
+        pass
+                    
+    def save(self, path):
+        """
+        Save the DataCleaner object to a path
+        
+        Parameters
+        ----------
+        
+        path : str
+            The path to save the DataCleaner object
+        """
+        with open(path, "wb") as f:
+            pickle.dump(self, f)
+            
+    def load(self, path):
+        """
+        Load the DataCleaner object from a path
+        
+        Parameters
+        ----------
+        
+        path : str
+            The path to load the DataCleaner object
+        """
+        with open(path, "rb") as f:
+            return pickle.load(f)
 
 class Processor():
     """
@@ -382,7 +421,7 @@ class Processor():
             "columns": columns
             })
         
-    def apply_column_transformer(self):
+    def apply_transformer(self):
         self._construct_numerical_pipeline()
         self._construct_categorical_pipeline()
         self.preprocessor = ColumnTransformer(transformers = self.transformers, remainder = "passthrough")
@@ -514,6 +553,7 @@ class FeatureEngineering():
         self.df = df
         self.features_applied = []
         self.column_cache = {}
+        self.transformer = []
     
     def create_features_old(self, columns = None, ignore_features = None):
         if not columns:
@@ -570,6 +610,8 @@ class FeatureEngineering():
         # TODO: Figure out a way to attempt to create missing column dependencies if the dependency is missing
         # and is inside the FEATURE_ENGINEERING_PARAMETERS dictionary
                         
+    def apply_transformer(self):
+        pass
 class Trainer():
     """
     Class to train the model
