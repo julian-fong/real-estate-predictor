@@ -15,6 +15,14 @@ class DataCleaner():
         - Handle missing values
         - Remove rows with outliers
         - Standardize text inside categorical columns
+        - Filters out rows that are smaller or equal to a certain threshold via le
+        - Filters out rows that are larger or equal to a certain threshold via ge
+        - Filters out rows that are smaller than a certain threshold via lt
+        - Filters out rows that are larger than a certain threshold via gt
+        - Filters out rows that are equal to a certain value via eq
+        - Filters out rows that are not equal to a certain value via ne
+        - Filters out rows that are in a list of values via in
+        - Filters out rows that are not in a list of values via nin
         
     Parameters
     ----------
@@ -37,6 +45,8 @@ class DataCleaner():
         ----------
             strategy: str (default = "subset")
                 The strategy to use when removing duplicates, available values are "all" and "subset"
+                    If the strategy is set to all, it will remove all duplicates in the dataframe.
+                    If the strategy is set to subset, it will only remove duplicates in the columns specified in the columns parameter.
             columns: list
                 The columns to consider when removing duplicates, only used when strategy is "subset"
             ignore_index: bool
@@ -52,7 +62,7 @@ class DataCleaner():
         
     def handle_missing_values(self, strategy, columns = None, threshold = None):
         """
-        Removes msising values
+        Removes missing values
         
         Parameters
         ----------
@@ -64,6 +74,7 @@ class DataCleaner():
                 columns - will completely drop whatever column is inside the `columns` parameter
                 rows - will drop rows if there are any missing values in the passed columns
                 columns_threshold - will completely drop the column if the number of missing values exceed the passed threshold
+                    requires the threshold parameter to be passed
                 
         columns : list
             default = None
@@ -82,7 +93,7 @@ class DataCleaner():
             
         return self.df
     
-    def remove_outliers(self, strategy, columns):
+    def remove_outliers(self, strategy = "all", columns = None, threshold = None, multiplier = None):
         """
         Remove outliers from the dataframe based on the targeted strategy
         
@@ -104,7 +115,8 @@ class DataCleaner():
         self.df : pd.DataFrame
         
         """
-        self.df = removeOutliers(self.df, strategy, columns)
+            
+        self.df = removeOutliers(self.df, strategy, columns, threshold, multiplier)
         
         return self.df
 
@@ -127,6 +139,132 @@ class DataCleaner():
                 for f in PREPROCESSING_PARAMETERS[col]:
                     self.df = f(self.df)
                     
+    def filter_rows_by_threshold(self, columns, strategy, threshold, df = None):
+        """
+        Filters out rows that meet the criteria of the threshold based on the strategy
+            Available strategies:
+                le - less than or equal to the threshold
+                ge - greater than or equal to the threshold
+                lt - less than the threshold
+                gt - greater than the threshold
+                
+        Should be used to remove certain values that cannot be reached by standard methods
+        """
+        if not df:
+            df = self.df
+            
+        if isinstance(columns, str):
+            columns = [columns]
+            
+        elif not isinstance(threshold, (int, float)):
+            raise ValueError("Threshold parameter must be an integer or a float")
+    
+        for column in columns:
+            if strategy == "le":
+                df = df[df[column] <= threshold]
+            elif strategy == "ge":
+                df = df[df[column] >= threshold]
+            elif strategy == "lt":
+                df = df[df[column] < threshold]
+            elif strategy == "gt":
+                df = df[df[column] > threshold]
+            else:
+                raise ValueError(f"Invalid strategy, found {strategy}")
+            
+        return df
+
+    def filter_rows_by_value(self, df, columns, value, strategy):
+        """
+        Filters out rows that meet the criteria of the value based on the strategy
+            Available strategies:
+                eq - equal to the value
+                ne - not equal to the value
+                in - in the list of values
+                nin - not in the list of values
+        
+        Parameters
+        ----------
+        
+        df : pd.DataFrame
+        
+        columns : list or str
+            The columns to filter the values from
+            
+        value : int, float, str, list
+            The value to filter the rows by
+        
+        strategy : str
+            The strategy to use when filtering the rows
+        
+        Should be used to remove certain values that cannot be reached by standard methods
+        """
+        if not df:
+            df = self.df
+        
+        if isinstance(columns, str):
+            columns = [columns]
+        
+        for column in columns:
+            if strategy == "eq":
+                df = df[df[column] == value]
+            elif strategy == "ne":
+                df = df[df[column] != value]
+            elif strategy == "in":
+                df = df[df[column].isin(value)]
+            elif strategy == "nin":
+                df = df[~df[column].isin(value)]
+            else:
+                raise ValueError(f"Invalid strategy, found {strategy}")
+        
+        return df
+    
+    def replace_values_via_mask(self, columns, strategy, threshold, replacement = np.nan, df = None):
+        """
+        Replaces values with `replacement` that meet the criteria of the threshold based on the strategy
+            Available strategies:
+                le - less than or equal to the threshold
+                ge - greater than or equal to the threshold
+                lt - less than the threshold
+                gt - greater than the threshold
+                
+        Should be used to remove certain values that cannot be reached by standard methods
+        """
+        if not df:
+            df = self.df
+            
+        if isinstance(columns, str):
+            columns = [columns]
+            
+        elif not isinstance(threshold, (int, float)):
+            raise ValueError("Threshold parameter must be an integer or a float")
+            
+        if not columns:
+            raise ValueError("Column parameter must be passed")
+        
+        for column in columns:
+            if strategy == "le":
+                df[column] = df[column].mask(df[column] <= threshold, replacement)
+            elif strategy == "ge":
+                df[column] = df[column].mask(df[column] >= threshold, replacement)
+            elif strategy == "lt":
+                df[column] = df[column].mask(df[column] < threshold, replacement)
+            elif strategy == "gt":
+                df[column] = df[column].mask(df[column] > threshold, replacement)
+            else:
+                raise ValueError(f"Invalid strategy, found {strategy}")
+        
+        return df
+    
+    def replace_value(df: pd.DataFrame, columns, value, replacement = np.nan):
+        
+        if isinstance(columns, str):
+            columns = [columns]
+            
+        for column in columns:
+            df = replace_values(df, column, value, replacement = replacement)
+            
+        return df        
+           
     def apply_transformer(self):
         pass
                     
@@ -177,9 +315,9 @@ class Processor():
         - Transform numerical variables using a specific algorithm
     """
     
-    def __init__(self, df, target_column = None):
+    def __init__(self, df, target = None):
         self.df = df
-        self.target_column = target_column
+        self.target_column = target
         self.numerical_imputer = []
         self.numerical_transformer = []
         self.categorical_imputer = []
@@ -201,7 +339,7 @@ class Processor():
             If not passed, will use the initialized dataframe
         """
         if not target:
-            target = self.target_column
+            target = self.target
             
         if not df:
             df = self.df
@@ -348,6 +486,7 @@ class Processor():
             Default = most_frequent
             Available strategies:
                 most_frequent - impute the categorical columns via sklearn.SimpleImputer with strategy most_frequent
+                knn - impute the categorical columns via sklearn.KNNImputer
         
         """
         if not columns:
@@ -365,6 +504,9 @@ class Processor():
             if strategy == "most_frequent":
                 from sklearn.impute import SimpleImputer
                 f = SimpleImputer(strategy = "most_frequent")
+            if strategy == "knn":
+                from sklearn.impute import KNNImputer
+                f = KNNImputer(n_neighbors=5)
             else:
                 raise ValueError(f"Invalid strategy, found {strategy}")
         
@@ -537,6 +679,10 @@ class Processor():
         X_transformed.columns = feature_names
 
         return X_transformed
+    
+    def drop_columns(self, columns):
+        self.df = self.df.drop(columns = columns, axis = 1)
+
         
 class FeatureEngineering():
     """

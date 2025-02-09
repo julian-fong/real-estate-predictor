@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from matplotlib.dates import MonthLocator, DateFormatter
 from matplotlib.pyplot import legend
 import numpy as np
-
+import seaborn as sns
 #Data Exploration / Analysis
 
 def show_dtypes(df):
@@ -29,19 +29,19 @@ def show_missing_values(df):
         na = df[col].isna().sum()
         total = len(df[col])
 
-        na_dict[col] = f"Column {col} has a total of {na} missing values out of {total} with a percentage of {round(100*na/total,2)}%"
+        na_dict[col] = f"{round(100*na/total,2)}%"
 
     print(pd.Series(na_dict).sort_values(ascending = False))
 
-def show_cat_col_values(df, cols = None):
+def show_cat_col_values(df, columns = None):
     """ 
     df: DataFrame
     cols: list/Dataframe
 
     Displays every unique categorical for each categorical variable
     """
-    if cols:
-        for col in cols:
+    if columns:
+        for col in columns:
             ratios = []
             values = pd.DataFrame(df[col].value_counts())
             for value in values['count'].values:
@@ -49,7 +49,7 @@ def show_cat_col_values(df, cols = None):
                 ratios.append(value/total)
             
             values['Ratio'] = ratios
-
+            values['Percentage'] = values['Ratio']*100
             print(values.sort_values(by = 'Ratio', ascending = False))
             print("\n")
     else:
@@ -62,7 +62,7 @@ def show_cat_col_values(df, cols = None):
                 ratios.append(value/total)
 
             values['Ratio'] = ratios
-
+            values['Percentage'] = values['Ratio']*100
             print(values.sort_values(by = 'Ratio', ascending = False))
             print("\n")
 
@@ -85,11 +85,13 @@ def show_unique_values_per_column(df, path = None, columns = None):
         
     return new_df
 
-def show_corr(df):
+def show_corr(df, columns):
     f = plt.figure(figsize=(106, 106))
-    plt.matshow(df.select_dtypes(include = np.number).corr(), fignum=f.number)
-    plt.xticks(range(df.select_dtypes(['number']).shape[1]), df.select_dtypes(['number']).columns, fontsize=14, rotation=45)
-    plt.yticks(range(df.select_dtypes(['number']).shape[1]), df.select_dtypes(['number']).columns, fontsize=14)
+    if not columns:
+        columns = df.select_dtypes(include = np.number).columns
+    plt.matshow(df[columns].corr(), fignum=f.number)
+    plt.xticks(range(df[columns].shape[1]), df[columns].columns, fontsize=14, rotation=45)
+    plt.yticks(range(df[columns].shape[1]), df[columns].columns, fontsize=14)
     cb = plt.colorbar()
     cb.ax.tick_params(labelsize=14)
     plt.title('Correlation Matrix', fontsize=16)
@@ -105,7 +107,7 @@ def show_num_values_col(df, col):
     for value in df[col].value_counts().sort_index().index:
         print(value)
 
-def show_timeplots(df, by_, agg_dict, x_axis_name, y_axis_name, y = None, label = None):
+def plot_timeplots(df, by_, agg_dict, x_axis_name, y_axis_name, y = None, label = None):
     """
     df: main dataframw where the data will be parsed
     by_: time column in data series format i.e df['soldDate']
@@ -136,10 +138,14 @@ def show_timeplots(df, by_, agg_dict, x_axis_name, y_axis_name, y = None, label 
     plt.tight_layout()
     plt.show()
 
-def show_histogram(df, col):
-    pass 
+def plot_frequency_histogram(df, col, bins, xlabel = None, ylabel = None, weights = None, edgecolor = 'black'):
+    plt.hist(df[col], bins = bins, weights = weights, edgecolor = edgecolor)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(f"{col} Relative Frequency Histogram")
+    plt.show() 
 
-def show_scatterplot(df, col1, col2, label1 = None, label2 = None):
+def plot_scatterplot(df, col1, col2, label1 = None, label2 = None):
     plt.scatter(df[col1], df[col2], alpha = 0.5)
     if not label1:
         plt.xlabel(col1)
@@ -296,8 +302,31 @@ def remove_na_values_by_col(df: pd.DataFrame, strategy, columns = None, threshol
         raise ValueError(f"unexpected strategy {strategy}, available strategies are ['columns', 'rows', 'columns_threshold']")
     return df
 
-def replace_values(df: pd.DataFrame, column: str):
-    pass
+def replace_values(df: pd.DataFrame, column, value, replacement = np.nan):
+    """
+    Replaces values in a given column
+    
+    Parameters
+    ----------
+    
+    df : pd.DataFrame
+        input pandas dataframe
+        
+    strategy : str
+        Available strategies:
+            replace: replaces all occurences of `value` with the replacement value
+        
+    column : str
+        column name to replace values
+        
+    value : str
+        value to replace
+        
+    replacement : str
+        replacement value
+    """
+    df[column] = df[column].replace(value, replacement)
+    return df
 
 ## Standardizing Text
 
@@ -364,42 +393,6 @@ def clean_string(text, keep_hyphens=False, space_mode="underscore", errors = "ra
             raise e
 
     return text
-
-#Data Transformation
-
-def convert_col_dtype(df: pd.DataFrame, columns: list, convert_to_type: str, errors: str = "coerce"):
-    """
-    Eligible types:
-        numeric: pd.to_numerical
-        datetime: pd.to_datetime
-        str: series.as_type(str)
-    
-    Parameters
-    ----------
-    
-    df : pd.DataFrame
-    
-    columns : list
-    
-    errors : str
-        how to handle errors in. Possible values
-            'raise': If ‘raise’, then invalid parsing will raise an exception.
-            'coerce': If ‘coerce’, then invalid parsing will be set as NaN or NaT
-            'ignore': If ‘ignore’, then invalid parsing will return the input.
-    
-    """
-    if convert_to_type == "str":
-        for col in columns:
-            df[col] = df[col].as_type("str")
-    elif convert_to_type == "numeric":
-        for col in columns:
-            df[col] = pd.to_numeric(df[col], errors = errors)
-    elif convert_to_type == "datetime":
-        for col in columns:
-            df[col] = pd.to_datetime(df[col], errors = errors)      
-    else:
-        raise ValueError(f"Unexpected convert_to_type {convert_to_type}"
-                     "available types are ['numeric','datetime','str']")
         
 # Individual Predictors
 
@@ -500,12 +493,23 @@ def standardize_propertyType_text(df):
     
     return df
 
+#Reducing cardinality of categorical columns
+
+def reduce_cardinality(df, columns, threshold = 0.01):
+    minimum_observations = threshold * len(df)
+    
+    for col in columns:
+        value_counts = df[col].value_counts()
+        df[col] = df[col].apply(lambda x: x if value_counts[x] > minimum_observations else "Other")
+        
+    return df
+
 
 ## Data Analysis
 
 ## Outliers
 
-def removeOutliers(df, strategy = "all", columns = None):
+def removeOutliers(df, strategy = "all", columns = None, threshold = None, multiplier = None):
     """
     Removes outliers from the dataframe based on a 95% and 5% quantile
     
@@ -522,29 +526,47 @@ def removeOutliers(df, strategy = "all", columns = None):
     columns : list
         List of columns to apply outlier removal from
     """
+    if strategy == "columns":
+        if not columns:
+            raise ValueError("Columns must be specified when using the columns strategy")
+    if not multiplier:
+        multiplier = 3
+    if not threshold:
+        upper_threshold = 0.95
+        lower_threshold = 1-upper_threshold
+    else:
+        if isinstance(threshold, float) and threshold > 0 and threshold < 1:
+            upper_threshold = threshold
+            lower_threshold = 1-upper_threshold
+        else:
+            raise ValueError("parameter `threshold` must be a float between 0 and 1")
+        
     if strategy == "all":
         for col in df.select_dtypes(include=['number']).columns:
-            percentile90 = df[col].quantile(0.95)
-            percentile10 = df[col].quantile(0.05)
+            if col != "index":
+                percentile90 = df[col].quantile(upper_threshold)
+                percentile10 = df[col].quantile(lower_threshold)
 
-            iqr = percentile90 - percentile10
+                iqr = percentile90 - percentile10
 
-            upper_limit = percentile90 + 3 * iqr
-            lower_limit = percentile10 - 3 * iqr
+                upper_limit = percentile90 + multiplier * iqr
+                lower_limit = percentile10 - multiplier * iqr
 
-            if lower_limit != upper_limit:
-                df = df[df[col] < upper_limit]
-                df = df[df[col] > lower_limit]
+                if lower_limit != upper_limit:
+                    df = df[df[col] < upper_limit]
+                    df = df[df[col] > lower_limit]
+                
+                print(col, len(df))
 
     elif strategy == "columns":
         for col in columns:
-            percentile90 = df[col].quantile(0.95)
-            percentile10 = df[col].quantile(0.05)
+            percentile90 = df[col].quantile(upper_threshold)
+            percentile10 = df[col].quantile(lower_threshold)
 
             iqr = percentile90 - percentile10
 
-            upper_limit = percentile90 + 3 * iqr
-            lower_limit = percentile10 - 3 * iqr
+            upper_limit = percentile90 + multiplier * iqr
+            lower_limit = percentile10 - multiplier * iqr
 
             if lower_limit != upper_limit:
                 df = df[df[col] < upper_limit]

@@ -48,7 +48,18 @@ def create_bedbathRatio_column(df):
     """
     #bed bath ratio
     #change dtype of numBed and numBath to numeric while filling errors with np.NaN, divide them and fill any errors with NaN
-    df['bedbathRatio'] = df['numBedrooms'].div(df['numBathrooms'])
+    
+    if not isinstance(df['numBedrooms'][0], float):
+        _numBedrooms = pd.to_numeric(df['numBedrooms'], errors='coerce')
+    else:
+        _numBedrooms = df['numBedrooms']
+        
+    if not isinstance(df['numBathrooms'][0], float):
+        _numBathrooms = pd.to_numeric(df['numBathrooms'], errors='coerce')
+    else:
+        _numBathrooms = df['numBathrooms']
+    
+    df['bedbathRatio'] = _numBedrooms.div(_numBathrooms)
     return df
 
 ## Ammenities and Condo Ammenities
@@ -91,7 +102,7 @@ def helper_find_existence_of_ammenity(x: list, value, errors = 'coerce'):
     
     return False
 
-def create_ammenities_flag_columns(df, ammenities, list_of_ammenities = None):
+def create_ammenities_flag_columns(df, ammenities, drop_after = True):
     """
     Creates new flag columns based on a passed `list_of_ammenities`.
     eg. suppose `list_of_ammnenities` = ["Park", "School"]
@@ -103,11 +114,15 @@ def create_ammenities_flag_columns(df, ammenities, list_of_ammenities = None):
     
     Assumes the columns `ammenities` and `condo_ammenities` are already present in the dataframe.
     """
-    
+    if ammenities != "ammenities" and ammenities != "condo_ammenities":
+        raise ValueError("invalid ammenities passed, can only be `ammenities` or `condo_ammenities`")
     list_of_ammenities = helper_get_unique_ammenities(df, ammenities)
         
     for ammenity in list_of_ammenities:
         df[f"has{ammenity.capitalize()}"] = df[ammenities].apply(helper_find_existence_of_ammenity, args = (ammenity,))
+        
+    if drop_after:
+        df.drop(columns = [ammenities], inplace = True)
         
     return df
     

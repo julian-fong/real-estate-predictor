@@ -112,9 +112,14 @@ def test_apply_transformer():
     Processor_object_processor2.preprocessor.set_output(transform="pandas")
     column_transformer_processor.set_output(transform="pandas")
 
+    #using fit_transform
     X_transformed_object = Processor_object_processor1.fit_transform(test_df)
+    
+    #using fit and then transform
     Processor_object_processor2.fit(test_df)
     X_transformed_object2 = Processor_object_processor2.transform(test_df)
+    
+    #comparing with original sklearn processor
     X_transformed_orig = column_transformer_processor.fit_transform(test_df)
     
     #Check if the transformed dataframes are the same

@@ -82,21 +82,24 @@ def extract_raw_data_listings(raw_df: pd.DataFrame, inplace = True, verbose = Fa
     df = df.drop(columns=['details', 'address','condominium','map','nearby'])
     df = df.map(str)
     
-    #try to standardize the missing values in the dataframe
-    df = df.replace(MISSING_VALUES, np.nan)
-    
-    LISTING_EXPECTED_COLUMNS.remove('fees')
+    if 'fees' in LISTING_EXPECTED_COLUMNS:
+        LISTING_EXPECTED_COLUMNS.remove('fees')
     
     assert [col for col in df.columns] == LISTING_EXPECTED_COLUMNS
     
     datetime_cols = [col for col in LISTING_COLUMN_TO_DTYPE_MAPPING.keys() if LISTING_COLUMN_TO_DTYPE_MAPPING[col] == np.datetime64]
     numerical_cols = [col for col in LISTING_COLUMN_TO_DTYPE_MAPPING.keys() if LISTING_COLUMN_TO_DTYPE_MAPPING[col] == float]
     list_cols = [col for col in LISTING_COLUMN_TO_DTYPE_MAPPING.keys() if LISTING_COLUMN_TO_DTYPE_MAPPING[col] == list]
+    str_cols = [col for col in LISTING_COLUMN_TO_DTYPE_MAPPING.keys() if LISTING_COLUMN_TO_DTYPE_MAPPING[col] == str]
+    int_cols = [col for col in LISTING_COLUMN_TO_DTYPE_MAPPING.keys() if LISTING_COLUMN_TO_DTYPE_MAPPING[col] == int]
     #dict_cols = [col for col in LISTING_COLUMN_TO_DTYPE_MAPPING.keys() if LISTING_COLUMN_TO_DTYPE_MAPPING[col] == dict]
     
     convert_col_dtype(df, datetime_cols, "datetime")
     convert_col_dtype(df, numerical_cols, "numeric")
     convert_col_dtype(df, list_cols, "list")
+    convert_col_dtype(df, str_cols, "str")
+    convert_col_dtype(df, int_cols, "int")
+    
     if verbose:
         for col in df.columns:
             unique_types = set(type(value) for value in df[col].values)
@@ -108,6 +111,9 @@ def extract_raw_data_listings(raw_df: pd.DataFrame, inplace = True, verbose = Fa
             print(f"Column '{col}' contains the following data types: {unique_types} and ratios:")
             for dtype, ratio in type_counts.items():
                 print(f"  - {dtype.__name__}: {ratio:.2%}")
+                
+    #try to standardize the missing values in the dataframe
+    df = df.replace(MISSING_VALUES, np.nan)
                 
     return df
 
@@ -220,12 +226,20 @@ def convert_col_dtype(df: pd.DataFrame, columns: list, convert_to_type: str, err
         Only applicable currently to numeric and datetime types
     
     """
+    if not columns:
+        #if no columns are provided, don't raise an error
+        return
+    
     if convert_to_type == "str":
         for col in columns:
-            df[col] = df[col].as_type("str")
+            df[col] = df[col].astype("str")
     elif convert_to_type == "numeric":
         for col in columns:
             df[col] = pd.to_numeric(df[col], errors = errors)
+    elif convert_to_type == "int":
+        for col in columns:
+            #np.nan is not a valid value for Int32, will convert to pd.NA
+            df[col] = pd.to_numeric(df[col], errors = errors).astype('Int32', errors = "ignore")
     elif convert_to_type == "datetime":
         for col in columns:
             df[col] = pd.to_datetime(df[col], errors = errors)      
@@ -237,4 +251,7 @@ def convert_col_dtype(df: pd.DataFrame, columns: list, convert_to_type: str, err
             df[col] = df[col].apply(lambda x: ast.literal_eval(x))
     else:
         raise ValueError(f"Unexpected convert_to_type {convert_to_type}"
-                     "available types are ['numeric','datetime','str']")
+                     " available types are ['numeric','datetime','str', 'list', 'dict', 'int']")
+        
+def add_(a, b):
+    return a + b
