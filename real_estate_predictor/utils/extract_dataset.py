@@ -85,7 +85,10 @@ def extract_raw_data_listings(raw_df: pd.DataFrame, inplace = True, verbose = Fa
     if 'fees' in LISTING_EXPECTED_COLUMNS:
         LISTING_EXPECTED_COLUMNS.remove('fees')
     
-    assert [col for col in df.columns] == LISTING_EXPECTED_COLUMNS
+    assert all([True for col in LISTING_EXPECTED_COLUMNS if col in df.columns]), "some not found in dataset that are expected"
+    
+    #remove any extra columns that we don't need
+    df = df[LISTING_EXPECTED_COLUMNS]
     
     datetime_cols = [col for col in LISTING_COLUMN_TO_DTYPE_MAPPING.keys() if LISTING_COLUMN_TO_DTYPE_MAPPING[col] == np.datetime64]
     numerical_cols = [col for col in LISTING_COLUMN_TO_DTYPE_MAPPING.keys() if LISTING_COLUMN_TO_DTYPE_MAPPING[col] == float]

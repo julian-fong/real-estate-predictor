@@ -9,3 +9,6 @@ flake8
 requests
 isort
 seaborn
+xgboost
+lightgbm
+shap

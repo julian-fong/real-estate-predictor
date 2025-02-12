@@ -1,7 +1,9 @@
 from real_estate_predictor.utils.dataset_analysis import *
 from real_estate_predictor.utils.feature_engineering import *
 from real_estate_predictor.config.config import PREPROCESSING_PARAMETERS, FEATURE_ENGINEERING_PARAMETERS
-
+from pathlib import Path
+import pathlib
+import datetime as dt
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
@@ -141,7 +143,7 @@ class DataCleaner():
                     
     def filter_rows_by_threshold(self, columns, strategy, threshold, df = None):
         """
-        Filters out rows that meet the criteria of the threshold based on the strategy
+        Filters for rows that meet the criteria of the threshold based on the strategy
             Available strategies:
                 le - less than or equal to the threshold
                 ge - greater than or equal to the threshold
@@ -175,7 +177,7 @@ class DataCleaner():
 
     def filter_rows_by_value(self, df, columns, value, strategy):
         """
-        Filters out rows that meet the criteria of the value based on the strategy
+        Filters for rows that meet the criteria of the value based on the strategy
             Available strategies:
                 eq - equal to the value
                 ne - not equal to the value
@@ -267,8 +269,9 @@ class DataCleaner():
            
     def apply_transformer(self):
         pass
-                    
-    def save(self, path):
+    
+    @classmethod                
+    def save(self, path = None, filename = None):
         """
         Save the DataCleaner object to a path
         
@@ -278,9 +281,23 @@ class DataCleaner():
         path : str
             The path to save the DataCleaner object
         """
-        with open(path, "wb") as f:
-            pickle.dump(self, f)
+        #if path is not specified, put it in the storage/datasets folder
+        if not path:
+            path = pathlib.Path(__file__).parent.parent.absolute().joinpath('storage', 'processors')
+        else:
+            path = Path(path)
             
+        if not filename:
+            date = dt.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
+            filename = f"datacleaner_{date}.pkl"
+        else:
+            assert filename.endswith(".pkl"), "Filename must end with .pkl"
+        
+        path = str(path).replace("\\\\", "\\")+"\\"
+        with open(path+filename, "wb") as f:
+            pickle.dump(self, f)
+    
+    @classmethod      
     def load(self, path):
         """
         Load the DataCleaner object from a path
@@ -504,9 +521,6 @@ class Processor():
             if strategy == "most_frequent":
                 from sklearn.impute import SimpleImputer
                 f = SimpleImputer(strategy = "most_frequent")
-            if strategy == "knn":
-                from sklearn.impute import KNNImputer
-                f = KNNImputer(n_neighbors=5)
             else:
                 raise ValueError(f"Invalid strategy, found {strategy}")
         
@@ -549,7 +563,7 @@ class Processor():
             if strategy == "onehot":
                 #set sparse_output to False to return pandas dataframe
                 from sklearn.preprocessing import OneHotEncoder
-                f = OneHotEncoder(sparse_output=False)
+                f = OneHotEncoder(sparse_output=False, handle_unknown="ignore")
             elif strategy == "label":
                 from sklearn.preprocessing import LabelEncoder
                 f = LabelEncoder()
@@ -680,8 +694,51 @@ class Processor():
 
         return X_transformed
     
-    def drop_columns(self, columns):
-        self.df = self.df.drop(columns = columns, axis = 1)
+    def drop_columns(self, df, columns):
+        df = df.drop(columns = columns, axis = 1)
+        
+        return df
+
+    @classmethod                
+    def save(self, path = None, filename = None):
+        """
+        Save the Processor object to a path
+        
+        Parameters
+        ----------
+        
+        path : str
+            The path to save the DataCleaner object
+        """
+        #if path is not specified, put it in the storage/datasets folder
+        if not path:
+            path = pathlib.Path(__file__).parent.parent.absolute().joinpath('storage', 'processors')
+        else:
+            path = Path(path)
+            
+        if not filename:
+            date = dt.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
+            filename = f"processor_{date}.pkl"
+        else:
+            assert filename.endswith(".pkl"), "Filename must end with .pkl"
+        
+        path = str(path).replace("\\\\", "\\")+"\\"
+        with open(path+filename, "wb") as f:
+            pickle.dump(self, f)
+    
+    @classmethod      
+    def load(self, path):
+        """
+        Load the Processor object from a path
+        
+        Parameters
+        ----------
+        
+        path : str
+            The path to load the Processor object
+        """
+        with open(path, "rb") as f:
+            return pickle.load(f)
 
         
 class FeatureEngineering():
@@ -758,9 +815,44 @@ class FeatureEngineering():
                         
     def apply_transformer(self):
         pass
-class Trainer():
-    """
-    Class to train the model
-    """
     
-    pass
+    @classmethod                
+    def save(self, path = None, filename = None):
+        """
+        Save the FeatureEngineering object to a path
+        
+        Parameters
+        ----------
+        
+        path : str
+            The path to save the FeatureEngineering object
+        """
+        #if path is not specified, put it in the storage/datasets folder
+        if not path:
+            path = pathlib.Path(__file__).parent.parent.absolute().joinpath('storage', 'processors')
+        else:
+            path = Path(path)
+            
+        if not filename:
+            date = dt.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
+            filename = f"featureengineering_{date}.pkl"
+        else:
+            assert filename.endswith(".pkl"), "Filename must end with .pkl"
+        
+        path = str(path).replace("\\\\", "\\")+"\\"
+        with open(path+filename, "wb") as f:
+            pickle.dump(self, f)
+    
+    @classmethod      
+    def load(self, path):
+        """
+        Load the FeatureEngineering object from a path
+        
+        Parameters
+        ----------
+        
+        path : str
+            The path to load the Processor object
+        """
+        with open(path, "rb") as f:
+            return pickle.load(f)

@@ -9,8 +9,6 @@ from sklearn.impute import SimpleImputer
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 
-import numpy as np
-
 # need this function to compare arrays with nans since nans are not equal to themselves
 # check if arrays are equal ignoring np.nan
 def arrays_equal_ignore_nan(arr1, arr2):
