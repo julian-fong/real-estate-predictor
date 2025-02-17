@@ -37,9 +37,9 @@ class DataCleaner():
     
     def __init__(self, df):
         self.df = df
-        self.transformers = []
+        self.deferred_functions = []
         
-    def remove_duplicates(self, columns, ignore_index = True, strategy = "subset"):
+    def remove_duplicates(self, columns, ignore_index = True, strategy = "subset", defer = False):
         """
         Remove duplicates from the dataframe based on strategy
         
@@ -54,6 +54,9 @@ class DataCleaner():
             ignore_index: bool
                 If True, the index will be reset after removing duplicates
         """
+        if defer:
+            self.deferred_functions.append(lambda: self.remove_duplicates(columns, ignore_index, strategy))
+            return 
         
         if strategy == "all":
             self.df = self.df.drop_duplicates(ignore_index = ignore_index)
@@ -62,7 +65,7 @@ class DataCleaner():
             
         return self.df
         
-    def handle_missing_values(self, strategy, columns = None, threshold = None):
+    def handle_missing_values(self, strategy, columns = None, threshold = None, defer = False):
         """
         Removes missing values
         
@@ -91,11 +94,15 @@ class DataCleaner():
         
         self.df : pd.DataFrame
         """
+        if defer:
+            self.deferred_functions.append(lambda: self.handle_missing_values(strategy, columns, threshold, defer = False))
+            return
+        
         self.df = remove_na_values_by_col(self.df, strategy, columns, threshold)
             
         return self.df
     
-    def remove_outliers(self, strategy = "all", columns = None, threshold = None, multiplier = None):
+    def remove_outliers(self, strategy = "all", columns = None, threshold = None, multiplier = None, defer = False):
         """
         Remove outliers from the dataframe based on the targeted strategy
         
@@ -117,12 +124,15 @@ class DataCleaner():
         self.df : pd.DataFrame
         
         """
+        if defer:
+            self.deferred_functions.append(lambda: self.remove_outliers(strategy, columns, threshold, multiplier, defer = False))
+            return
             
         self.df = removeOutliers(self.df, strategy, columns, threshold, multiplier)
         
         return self.df
 
-    def standardize_text(self, columns = None):
+    def standardize_text(self, columns = None, defer = False):
         """
         Given a list of columns, standardize the text inside the columns
         
@@ -133,6 +143,10 @@ class DataCleaner():
             List of columns to standardize the text inside. If this is not given,
             it will automatically use eligible columns from the dataframe self.df
         """
+        if defer:
+            self.deferred_functions.append(lambda: self.standardize_text(columns, defer = False))
+            return
+        
         if not columns:
             columns = self.df.columns
             
@@ -141,7 +155,7 @@ class DataCleaner():
                 for f in PREPROCESSING_PARAMETERS[col]:
                     self.df = f(self.df)
                     
-    def filter_rows_by_threshold(self, columns, strategy, threshold, df = None):
+    def filter_rows_by_threshold(self, columns, strategy, threshold, df = None, defer = False):
         """
         Filters for rows that meet the criteria of the threshold based on the strategy
             Available strategies:
@@ -152,6 +166,10 @@ class DataCleaner():
                 
         Should be used to remove certain values that cannot be reached by standard methods
         """
+        if defer:
+            self.deferred_functions.append(lambda: self.filter_rows_by_threshold(columns, strategy, threshold, defer = False))
+            return
+        
         if not df:
             df = self.df
             
@@ -175,7 +193,7 @@ class DataCleaner():
             
         return df
 
-    def filter_rows_by_value(self, df, columns, value, strategy):
+    def filter_rows_by_value(self, df, columns, value, strategy, defer = False):
         """
         Filters for rows that meet the criteria of the value based on the strategy
             Available strategies:
@@ -200,6 +218,10 @@ class DataCleaner():
         
         Should be used to remove certain values that cannot be reached by standard methods
         """
+        if defer:
+            self.deferred_functions.append(lambda: self.filter_rows_by_value(df, columns, value, strategy, defer = False))
+            return
+        
         if not df:
             df = self.df
         
@@ -220,7 +242,7 @@ class DataCleaner():
         
         return df
     
-    def replace_values_via_mask(self, columns, strategy, threshold, replacement = np.nan, df = None):
+    def replace_values_via_mask(self, columns, strategy, threshold, replacement = np.nan, df = None, defer = False):
         """
         Replaces values with `replacement` that meet the criteria of the threshold based on the strategy
             Available strategies:
@@ -231,6 +253,10 @@ class DataCleaner():
                 
         Should be used to remove certain values that cannot be reached by standard methods
         """
+        if defer:
+            self.deferred_functions.append(lambda: self.replace_values_via_mask(df, columns, strategy, threshold, replacement, df, defer = False))
+            return
+        
         if not df:
             df = self.df
             
@@ -267,10 +293,18 @@ class DataCleaner():
             
         return df        
            
-    def apply_transformer(self):
-        pass
-    
-    @classmethod                
+    def apply(self, df = None):
+        if not df:
+            df = self.df
+            
+        if len(self.deferred_functions) == 0:
+            raise ValueError("No deferred functions to apply")
+        else:
+            for f in self.deferred_functions:
+                df = f()
+                
+        return df
+                 
     def save(self, path = None, filename = None):
         """
         Save the DataCleaner object to a path
@@ -281,6 +315,7 @@ class DataCleaner():
         path : str
             The path to save the DataCleaner object
         """
+        self.df = None
         #if path is not specified, put it in the storage/datasets folder
         if not path:
             path = pathlib.Path(__file__).parent.parent.absolute().joinpath('storage', 'processors')
@@ -339,6 +374,7 @@ class Processor():
         self.numerical_transformer = []
         self.categorical_imputer = []
         self.categorical_encoder = []
+        self.dropped_columns = []
         self.transformers = []
     
     def train_test_split_df(self, target: str, df = None):
@@ -694,12 +730,23 @@ class Processor():
 
         return X_transformed
     
-    def drop_columns(self, df, columns):
-        df = df.drop(columns = columns, axis = 1)
+    def drop_columns(self, df, columns, save_columns = False):
+        """
         
+        if save_columns is True, will save the list of columns that were dropped,
+        useful if you want to drop the same columns from another dataframe when loading
+        the processor.
+        """
+        if save_columns:
+            self.dropped_columns = columns
+        if not all([True if col in df.columns else False for col in columns]):
+            drop_columns = [col for col in columns if col in df.columns]
+            raise Warning(f"some columns in {columns} are not found in dataframe, these columns will be ignored")
+        else:
+            drop_columns = columns
+        df = df.drop(columns = drop_columns, axis = 1)
         return df
-
-    @classmethod                
+               
     def save(self, path = None, filename = None):
         """
         Save the Processor object to a path
@@ -710,6 +757,7 @@ class Processor():
         path : str
             The path to save the DataCleaner object
         """
+        self.df = None
         #if path is not specified, put it in the storage/datasets folder
         if not path:
             path = pathlib.Path(__file__).parent.parent.absolute().joinpath('storage', 'processors')
@@ -757,17 +805,25 @@ class FeatureEngineering():
         self.features_applied = []
         self.column_cache = {}
         self.transformer = []
+        self.passed_columns = None
     
-    def create_features_old(self, columns = None, ignore_features = None):
-        if not columns:
-            columns = self.df.columns
+    def create_features_old(self, columns, ignore_features = None, defer = False):
+        if defer:
+            self.deferred_functions.append(lambda: self.create_features_old(columns, ignore_features, feature, defer = False))
+            return
+
+        if self.passed_columns:
+            raise Warning("Columns have already been passed once, overriding previous set columns")
+        
+        self.passed_columns = columns 
         
         if ignore_features:
             if not isinstance(ignore_features, list):
                 raise ValueError("ignore_columns must be a list")
         
-        _seen_columns = []
-        
+        if not ignore_features:
+            ignore_features = []
+            
         for feature in FEATURE_ENGINEERING_PARAMETERS.keys():
             if feature in columns and feature not in ignore_features:
                 column_dependencies, f = FEATURE_ENGINEERING_PARAMETERS[feature]
@@ -779,7 +835,11 @@ class FeatureEngineering():
                     self.features_applied.append((feature, f))
     
     # TODO: Implement a way to check if the feature is already in the cache        
-    def create_features(self, columns = None, ignore_features = None, feature = None):
+    def create_features(self, columns = None, ignore_features = None, feature = None, defer = False):
+        if defer:
+            self.deferred_functions.append(lambda: self.create_features(columns, ignore_features, feature, defer = False))
+            return
+        
         if not columns:
             columns = self.df.columns
             
@@ -813,10 +873,18 @@ class FeatureEngineering():
         # TODO: Figure out a way to attempt to create missing column dependencies if the dependency is missing
         # and is inside the FEATURE_ENGINEERING_PARAMETERS dictionary
                         
-    def apply_transformer(self):
-        pass
-    
-    @classmethod                
+    def apply(self, df = None):
+        if not df:
+            df = self.df
+            
+        if len(self.deferred_functions) == 0:
+            raise ValueError("No deferred functions to apply")
+        else:
+            for f in self.deferred_functions:
+                df = f()
+                
+        return df
+                  
     def save(self, path = None, filename = None):
         """
         Save the FeatureEngineering object to a path
@@ -827,6 +895,7 @@ class FeatureEngineering():
         path : str
             The path to save the FeatureEngineering object
         """
+        self.df = None
         #if path is not specified, put it in the storage/datasets folder
         if not path:
             path = pathlib.Path(__file__).parent.parent.absolute().joinpath('storage', 'processors')

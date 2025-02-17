@@ -5,6 +5,7 @@ real_estate_predictor/storage/datasets/*.csv
 real_estate_predictor/storage/datasets/processed/*.csv
 real_estate_predictor/storage/processors/*.pkl
 real_estate_predictor/storage/models/*.pkl
+real_estate_predictor/storage/production/*.pkl
 # Do not ignore the datasets directory itself
 !real_estate_predictor/storage/datasets/
 

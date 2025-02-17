@@ -208,6 +208,9 @@ def XGBoostRegressor(BaseModel):
             self._model = pickle.load(f)
     
     def save_model(self, model_path = None, filename = None, override = False):
+        """
+        Saves the xgboost model into a file
+        """
         #if we have nothing, try to override using self.model_path
         if not filename and not model_path:
             if override:

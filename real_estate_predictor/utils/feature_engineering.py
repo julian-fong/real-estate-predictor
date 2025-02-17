@@ -102,7 +102,7 @@ def helper_find_existence_of_ammenity(x: list, value, errors = 'coerce'):
     
     return False
 
-def create_ammenities_flag_columns(df, ammenities, drop_after = True):
+def create_ammenities_flag_columns(df, ammenities = None, drop_after = True):
     """
     Creates new flag columns based on a passed `list_of_ammenities`.
     eg. suppose `list_of_ammnenities` = ["Park", "School"]
@@ -114,15 +114,40 @@ def create_ammenities_flag_columns(df, ammenities, drop_after = True):
     
     Assumes the columns `ammenities` and `condo_ammenities` are already present in the dataframe.
     """
-    if ammenities != "ammenities" and ammenities != "condo_ammenities":
-        raise ValueError("invalid ammenities passed, can only be `ammenities` or `condo_ammenities`")
-    list_of_ammenities = helper_get_unique_ammenities(df, ammenities)
+    # if ammenities != "ammenities" and ammenities != "condo_ammenities":
+    #     raise ValueError("invalid ammenities passed, can only be `ammenities` or `condo_ammenities`")
+    
+    if not ammenities:
+        #first check to see if either column is present
+        available_ammenity_columns = []
+        if "ammenities" in df.columns:
+            available_ammenity_columns.append("ammenities")
+        if "condo_ammenities" in df.columns:
+            available_ammenity_columns.append("condo_ammenities")
         
-    for ammenity in list_of_ammenities:
-        df[f"has{ammenity.capitalize()}"] = df[ammenities].apply(helper_find_existence_of_ammenity, args = (ammenity,)).astype(bool)
+        if not available_ammenity_columns:
+            raise ValueError("no ammenities column found in the dataframe")    
+            
+        for type_of_ammenity in available_ammenity_columns:
+            list_of_ammenities = helper_get_unique_ammenities(df, type_of_ammenity)
+           
+            for ammenity in list_of_ammenities:
+                df[f"has{ammenity.capitalize()}"] = df[type_of_ammenity].apply(helper_find_existence_of_ammenity, args = (ammenity,)).astype(bool)
         
-    if drop_after:
-        df.drop(columns = [ammenities], inplace = True)
+            if drop_after:
+                df.drop(columns = [type_of_ammenity], inplace = True)
+    
+    else:
+        if ammenities != "ammenities" and ammenities != "condo_ammenities":
+            raise ValueError("invalid ammenities passed, can only be `ammenities` or `condo_ammenities`")
+        
+        list_of_ammenities = helper_get_unique_ammenities(df, ammenities)
+        
+        for ammenity in list_of_ammenities:
+            df[f"has{ammenity.capitalize()}"] = df[ammenities].apply(helper_find_existence_of_ammenity, args = (ammenity,)).astype(bool)
+            
+        if drop_after:
+            df.drop(columns = [ammenities], inplace = True)
         
     return df
     

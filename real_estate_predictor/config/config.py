@@ -647,13 +647,93 @@ PREPROCESSING_PARAMETERS = {
 
 ## new_feature_col : ([col1, col2, col3], feature_engineering_func)
 
+#for now, please add the columns you want IN THE ORDER of the FEATURE_ENGINEERING_PARAMETERS keys
+#i.e if you want to add the column "ppsqft", you need to add "sqft_avg" in the create_features function first to avoid errors
 FEATURE_ENGINEERING_PARAMETERS = {
+    "sqft_avg": (["sqft"], create_sqft_avg_column),
+    "ppsqft": (["listPrice", "sqft_avg"], create_ppsqft_column),
+    "bedbathRatio": (["numBedrooms", "numBathrooms"], create_bedbathRatio_column),
+    "has_ammenities_flags": (["ammenities"], create_ammenities_flag_columns),
+    "numAmmenities": (["ammenities"], create_num_ammenities_column),
+    "numCondoAmmenities": (["condo_ammenities"], create_num_ammenities_column),
+    "postal_code_split_2": (["zip"], create_split_postalcode_column),
+    "postal_code_split_3": (["zip"], create_split_postalcode_column),
+    "daysOnMarket": (["listDate", "soldDate"], create_dom_column), 
+    "previous_months_ppsqft": (
+        [
+            'avg_soldPrice_currentL1M',
+            'med_soldPrice_currentL1M',
+            'avg_listPrice_currentL1M',
+            'med_listPrice_currentL1M',
+            'avg_soldPrice_currentL3M',
+            'med_soldPrice_currentL3M',
+            'avg_listPrice_currentL3M',
+            'med_listPrice_currentL3M',
+            'avg_soldPrice_currentL6M',
+            'avg_soldPrice_currentL6M',
+            'avg_listPrice_currentL6M',
+            'avg_listPrice_currentL6M',
+            'sqft_avg'
+        ],
+        create_previous_month_ppsqft_columns
+    ),
+    "difference_bymonth_columns": (
+        [
+            'avg_soldPrice_currentL1M',
+            'avg_soldPrice_currentL3M',
+            'avg_listPrice_currentL1M',
+            'avg_listPrice_currentL3M',
+            'med_soldPrice_currentL1M',
+            'med_soldPrice_currentL3M',
+            'med_listPrice_currentL1M',
+            'med_listPrice_currentL3M',
+            'count_soldPrice_currentL1M',
+            'count_soldPrice_currentL3M',
+            'count_listPrice_currentL1M',
+            'count_listPrice_currentL3M',
+            'avg_soldPrice_currentL6M',
+            'avg_listPrice_currentL6M',
+            'med_soldPrice_currentL6M',
+            'med_listPrice_currentL6M',
+            'count_soldPrice_currentL6M',
+            'count_listPrice_currentL6M',
+        ],
+        create_difference_bymonth_columns
+    ),
+    "ratio_bymonth_columns": (
+        [
+            'avg_soldPrice_currentL1M',
+            'avg_soldPrice_currentL3M',
+            'avg_listPrice_currentL1M',
+            'avg_listPrice_currentL3M',
+            'med_soldPrice_currentL1M',
+            'med_soldPrice_currentL3M',
+            'med_listPrice_currentL1M',
+            'med_listPrice_currentL3M',
+            'count_soldPrice_currentL1M',
+            'count_soldPrice_currentL3M',
+            'count_listPrice_currentL1M',
+            'count_listPrice_currentL3M',
+            'avg_soldPrice_currentL6M',
+            'avg_listPrice_currentL6M',
+            'med_soldPrice_currentL6M',
+            'med_listPrice_currentL6M',
+            'count_soldPrice_currentL6M',
+            'count_listPrice_currentL6M',
+        ],
+        create_ratio_bymonth_columns
+    ),
+}
+
+
+
+FEATURE_ENGINEERING_PARAMETERS_old = {
     "sqft" : ([], None),
     "sqft_avg": (["sqft"], create_sqft_avg_column),
     "ppsqft": (["listPrice", "sqft_avg"], create_ppsqft_column),
     "bedbathRatio": (["numBedrooms", "numBathrooms"], create_bedbathRatio_column),
     "has_ammenities_flags": (["ammenities"], create_ammenities_flag_columns),
-    "has_condo_ammenities_flags": (["condo_ammenities"], create_ammenities_flag_columns),
+    #"has_condo_ammenities_flags": (["condo_ammenities"], create_ammenities_flag_columns),
     "numAmmenities": (["ammenities"], create_num_ammenities_column),
     "numCondoAmmenities": (["condo_ammenities"], create_num_ammenities_column),
     "postal_code_split_2": (["zip"], create_split_postalcode_column),
@@ -727,6 +807,21 @@ FEATURE_ENGINEERING_PARAMETERS = {
     "count_listPrice_ratio_1M_3M": (["count_listPrice_currentL1M"], create_ratio_bymonth_columns),
     "count_listPrice_ratio_3M_6M": (["count_listPrice_currentL3M"], create_ratio_bymonth_columns),
 } 
+
+FEATURE_ENGINEERING_COLUMNS = {
+    #mapping is pre_req column : [function_for_new_column, {new_col_name: existence_of_col_as_pre_req}]
+    "sqft" : ([create_sqft_avg_column], {"sqft_avg": True}),
+    "sqft_avg": (create_ppsqft_column, {"ppsqft": False}),
+    "ppsqft": (["listPrice", "sqft_avg"], create_ppsqft_column),
+    "bedbathRatio": (["numBedrooms", "numBathrooms"], create_bedbathRatio_column),
+    "has_ammenities_flags": (["ammenities"], create_ammenities_flag_columns),
+    "has_condo_ammenities_flags": (["condo_ammenities"], create_ammenities_flag_columns),
+    "numAmmenities": (["ammenities"], create_num_ammenities_column),
+    "numCondoAmmenities": (["condo_ammenities"], create_num_ammenities_column),
+    "postal_code_split_2": (["zip"], create_split_postalcode_column),
+    "postal_code_split_3": (["zip"], create_split_postalcode_column),
+    "daysOnMarket": (["listDate", "soldDate"], create_dom_column),
+    }
 
 TEST_FEATURE_ENGINEERING_PARAMETERS_1= {
     "listPrice": ([], None),
