@@ -1,5 +1,6 @@
 from real_estate_predictor.utils.dataset_analysis import *
 from real_estate_predictor.utils.feature_engineering import *
+from real_estate_predictor.utils.functionlogger import FunctionLogger
 from real_estate_predictor.config.config import PREPROCESSING_PARAMETERS, FEATURE_ENGINEERING_PARAMETERS
 from pathlib import Path
 import pathlib
@@ -8,7 +9,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 import pickle
-class DataCleaner():
+import warnings
+class DataCleaner(FunctionLogger):
     """
     Class to clean the data
     
@@ -37,9 +39,10 @@ class DataCleaner():
     
     def __init__(self, df):
         self.df = df
-        self.deferred_functions = []
-        
-    def remove_duplicates(self, columns, ignore_index = True, strategy = "subset", defer = False):
+        super().__init__()
+    
+    @FunctionLogger.log_function_call
+    def remove_duplicates(self, columns, ignore_index = True, strategy = "subset", df = None, defer = False):
         """
         Remove duplicates from the dataframe based on strategy
         
@@ -54,18 +57,20 @@ class DataCleaner():
             ignore_index: bool
                 If True, the index will be reset after removing duplicates
         """
-        if defer:
-            self.deferred_functions.append(lambda: self.remove_duplicates(columns, ignore_index, strategy))
-            return 
+        if not df:
+            df = self.df
         
         if strategy == "all":
-            self.df = self.df.drop_duplicates(ignore_index = ignore_index)
+            df = df.drop_duplicates(ignore_index = ignore_index)
         else:
-            self.df = self.df.drop_duplicates(subset = columns, ignore_index = ignore_index)
+            df= df.drop_duplicates(subset = columns, ignore_index = ignore_index)
             
-        return self.df
+        self.set_df(df)
         
-    def handle_missing_values(self, strategy, columns = None, threshold = None, defer = False):
+        return df
+    
+    @FunctionLogger.log_function_call
+    def handle_missing_values(self, strategy, columns = None, threshold = None, df = None, defer = False):
         """
         Removes missing values
         
@@ -94,15 +99,17 @@ class DataCleaner():
         
         self.df : pd.DataFrame
         """
-        if defer:
-            self.deferred_functions.append(lambda: self.handle_missing_values(strategy, columns, threshold, defer = False))
-            return
+        if not df:
+            df = self.df
         
-        self.df = remove_na_values_by_col(self.df, strategy, columns, threshold)
+        df = remove_na_values_by_col(df, strategy, columns, threshold)
+        
+        self.set_df(df)
             
-        return self.df
+        return df
     
-    def remove_outliers(self, strategy = "all", columns = None, threshold = None, multiplier = None, defer = False):
+    @FunctionLogger.log_function_call
+    def remove_outliers(self, strategy = "all", columns = None, threshold = None, multiplier = None, df = None, defer = False):
         """
         Remove outliers from the dataframe based on the targeted strategy
         
@@ -124,15 +131,17 @@ class DataCleaner():
         self.df : pd.DataFrame
         
         """
-        if defer:
-            self.deferred_functions.append(lambda: self.remove_outliers(strategy, columns, threshold, multiplier, defer = False))
-            return
+        if not df:
+            df = self.df
             
-        self.df = removeOutliers(self.df, strategy, columns, threshold, multiplier)
+        df = removeOutliers(df, strategy, columns, threshold, multiplier)
         
-        return self.df
+        self.set_df(df)
+        
+        return df
 
-    def standardize_text(self, columns = None, defer = False):
+    @FunctionLogger.log_function_call
+    def standardize_text(self, columns = None, defer = False, df = None):
         """
         Given a list of columns, standardize the text inside the columns
         
@@ -143,9 +152,8 @@ class DataCleaner():
             List of columns to standardize the text inside. If this is not given,
             it will automatically use eligible columns from the dataframe self.df
         """
-        if defer:
-            self.deferred_functions.append(lambda: self.standardize_text(columns, defer = False))
-            return
+        if not df:
+            df = self.df
         
         if not columns:
             columns = self.df.columns
@@ -153,8 +161,13 @@ class DataCleaner():
         for col in columns:
             if col in PREPROCESSING_PARAMETERS.keys():
                 for f in PREPROCESSING_PARAMETERS[col]:
-                    self.df = f(self.df)
+                    df = f(df)
                     
+        self.set_df(df)
+        
+        return df
+    
+    @FunctionLogger.log_function_call
     def filter_rows_by_threshold(self, columns, strategy, threshold, df = None, defer = False):
         """
         Filters for rows that meet the criteria of the threshold based on the strategy
@@ -166,10 +179,6 @@ class DataCleaner():
                 
         Should be used to remove certain values that cannot be reached by standard methods
         """
-        if defer:
-            self.deferred_functions.append(lambda: self.filter_rows_by_threshold(columns, strategy, threshold, defer = False))
-            return
-        
         if not df:
             df = self.df
             
@@ -191,8 +200,11 @@ class DataCleaner():
             else:
                 raise ValueError(f"Invalid strategy, found {strategy}")
             
+        self.set_df(df)
+            
         return df
 
+    @FunctionLogger.log_function_call
     def filter_rows_by_value(self, df, columns, value, strategy, defer = False):
         """
         Filters for rows that meet the criteria of the value based on the strategy
@@ -218,10 +230,6 @@ class DataCleaner():
         
         Should be used to remove certain values that cannot be reached by standard methods
         """
-        if defer:
-            self.deferred_functions.append(lambda: self.filter_rows_by_value(df, columns, value, strategy, defer = False))
-            return
-        
         if not df:
             df = self.df
         
@@ -239,9 +247,12 @@ class DataCleaner():
                 df = df[~df[column].isin(value)]
             else:
                 raise ValueError(f"Invalid strategy, found {strategy}")
+            
+        self.set_df(df)
         
         return df
-    
+
+    @FunctionLogger.log_function_call    
     def replace_values_via_mask(self, columns, strategy, threshold, replacement = np.nan, df = None, defer = False):
         """
         Replaces values with `replacement` that meet the criteria of the threshold based on the strategy
@@ -253,10 +264,6 @@ class DataCleaner():
                 
         Should be used to remove certain values that cannot be reached by standard methods
         """
-        if defer:
-            self.deferred_functions.append(lambda: self.replace_values_via_mask(df, columns, strategy, threshold, replacement, df, defer = False))
-            return
-        
         if not df:
             df = self.df
             
@@ -280,34 +287,43 @@ class DataCleaner():
                 df[column] = df[column].mask(df[column] > threshold, replacement)
             else:
                 raise ValueError(f"Invalid strategy, found {strategy}")
+            
+        self.set_df(df)
         
         return df
-    
-    def replace_value(df: pd.DataFrame, columns, value, replacement = np.nan):
-        
+
+    @FunctionLogger.log_function_call   
+    def replace_value(self, columns, value, replacement, df: pd.DataFrame = None, defer = False):
+        if not df:
+            df = self.df
         if isinstance(columns, str):
             columns = [columns]
             
         for column in columns:
             df = replace_values(df, column, value, replacement = replacement)
             
-        return df        
-           
-    def apply(self, df = None):
-        if not df:
-            df = self.df
+        self.set_df(df)
             
-        if len(self.deferred_functions) == 0:
-            raise ValueError("No deferred functions to apply")
-        else:
-            for f in self.deferred_functions:
-                df = f()
-                
-        return df
-                 
+        return df        
+    
+    def remove_logged_function(self, i):
+        """
+        Removes the logged function from the list via an index parameter
+        """
+        self.function_logs.pop(i)
+    
+    def set_df(self, df):
+        self.df = df
+        
+    def get_df(self, df):
+        return self.df
+       
     def save(self, path = None, filename = None):
         """
-        Save the DataCleaner object to a path
+        Save the DataCleaner object to a path. Note that the save function 
+        will remove the dataframe from the object to avoid saving the entire dataframe
+        When loading, you will need to assign the dataframe to the object
+        in order to use deferred functions or logged functions
         
         Parameters
         ----------
@@ -688,6 +704,8 @@ class Processor():
         self.preprocessor.set_output(transform="pandas")
         self.preprocessor.fit(X)
         
+        self.feature_names_ = X.columns
+        
     def transform(self, X):
         if not self.preprocessor:
             raise ValueError("ColumnTransformer not initialized, please run `apply_column_transformer`")
@@ -712,6 +730,7 @@ class Processor():
     def fit_transform(self, X):
         if not self.preprocessor:
             raise ValueError("ColumnTransformer not initialized, please run `apply_column_transformer`")
+        self.feature_names_ = X.columns
         
         feature_names = []
         self.preprocessor.set_output(transform="pandas")
@@ -741,11 +760,17 @@ class Processor():
             self.dropped_columns = columns
         if not all([True if col in df.columns else False for col in columns]):
             drop_columns = [col for col in columns if col in df.columns]
-            raise Warning(f"some columns in {columns} are not found in dataframe, these columns will be ignored")
+            warnings.warn(f"some columns in {columns} are not found in dataframe, these columns will be ignored")
         else:
             drop_columns = columns
         df = df.drop(columns = drop_columns, axis = 1)
         return df
+    
+    def set_df(self, df):  
+        self.df = df
+        
+    def get_df(self):
+        return self.df
                
     def save(self, path = None, filename = None):
         """
@@ -789,7 +814,7 @@ class Processor():
             return pickle.load(f)
 
         
-class FeatureEngineering():
+class FeatureEngineering(FunctionLogger):
     """
     Given a list of columns, standardize the text inside the columns
     
@@ -802,20 +827,23 @@ class FeatureEngineering():
     """
     def __init__(self, df):
         self.df = df
-        self.features_applied = []
         self.column_cache = {}
         self.transformer = []
         self.passed_columns = None
     
-    def create_features_old(self, columns, ignore_features = None, defer = False):
-        if defer:
-            self.deferred_functions.append(lambda: self.create_features_old(columns, ignore_features, feature, defer = False))
-            return
-
+    def create_features_old(self, columns = None, ignore_features = None):
+        """
+        use columns = None only if we are applying the same feature engineering steps to new data
+        i.e use self.passed_columns
+        """
         if self.passed_columns:
-            raise Warning("Columns have already been passed once, overriding previous set columns")
+            warnings.warn("Columns have already been passed once, overriding previous set columns")
         
-        self.passed_columns = columns 
+        if not columns:
+            if not self.passed_columns:
+                raise ValueError("No columns passed via argument `columns`")
+            else:
+                columns = self.passed_columns
         
         if ignore_features:
             if not isinstance(ignore_features, list):
@@ -829,15 +857,16 @@ class FeatureEngineering():
                 column_dependencies, f = FEATURE_ENGINEERING_PARAMETERS[feature]
                 
                 if not all([True if col in self.df.columns else False for col in column_dependencies]):
-                    pass
+                    warnings.warn(f"Not all column dependencies in {column_dependencies} for feature {feature} not found, skipping")
                 else:
                     self.df = f(self.df)
-                    self.features_applied.append((feature, f))
+        
+        self.passed_columns = columns
     
     # TODO: Implement a way to check if the feature is already in the cache        
     def create_features(self, columns = None, ignore_features = None, feature = None, defer = False):
         if defer:
-            self.deferred_functions.append(lambda: self.create_features(columns, ignore_features, feature, defer = False))
+            self.deferred_functions.append(self.create_features(columns, ignore_features, feature, defer = False))
             return
         
         if not columns:
@@ -884,6 +913,12 @@ class FeatureEngineering():
                 df = f()
                 
         return df
+    
+    def set_df(self, df):
+        self.df = df
+    
+    def get_df(self):
+        return self.df
                   
     def save(self, path = None, filename = None):
         """

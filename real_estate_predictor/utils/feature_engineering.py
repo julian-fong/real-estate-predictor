@@ -204,8 +204,8 @@ def create_dom_column(df):
     #calculate DOM
     # df['soldDate_pd'] = pd.to_datetime(df['soldDate'])
     # df['listDate_pd'] = pd.to_datetime(df['listDate'])
-    df['daysOnMarket'] = df['soldDate'] - df['listDate']
-    df['daysOnMarket'] = df['daysOnMarket'] / np.timedelta64(1, 'D')
+    df['daysOnMarket'] = df['soldDate'].sub(df['listDate'], fill_value = np.nan)
+    df['daysOnMarket'] = df['daysOnMarket'].div(np.timedelta64(1, 'D'), fill_value = np.nan)
 
     return df
 

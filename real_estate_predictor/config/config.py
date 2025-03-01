@@ -1,6 +1,9 @@
 import numpy as np
 from real_estate_predictor.utils.dataset_analysis import *
 from real_estate_predictor.utils.feature_engineering import *
+
+#
+
 #Configuration parameters for generate_dataset
 
 #Global api config for Repliers
@@ -653,8 +656,8 @@ FEATURE_ENGINEERING_PARAMETERS = {
     "sqft_avg": (["sqft"], create_sqft_avg_column),
     "ppsqft": (["listPrice", "sqft_avg"], create_ppsqft_column),
     "bedbathRatio": (["numBedrooms", "numBathrooms"], create_bedbathRatio_column),
-    "has_ammenities_flags": (["ammenities"], create_ammenities_flag_columns),
     "numAmmenities": (["ammenities"], create_num_ammenities_column),
+    "has_ammenities_flags": (["ammenities"], create_ammenities_flag_columns),
     "numCondoAmmenities": (["condo_ammenities"], create_num_ammenities_column),
     "postal_code_split_2": (["zip"], create_split_postalcode_column),
     "postal_code_split_3": (["zip"], create_split_postalcode_column),
