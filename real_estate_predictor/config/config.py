@@ -1,8 +1,18 @@
 import numpy as np
 from real_estate_predictor.utils.dataset_analysis import *
 from real_estate_predictor.utils.feature_engineering import *
+import pathlib
 
-#
+#CONFIG files for data pipeline modules
+
+DATACLEANER_FILE = pathlib.Path(__file__).parent.parent.absolute().joinpath('storage', 'processors', 'datacleaner_2025-02-28T19-02-26.pkl')
+FEATURE_ENGINEERING_FILE = pathlib.Path(__file__).parent.parent.absolute().joinpath('storage', 'processors', 'featureengineering_2025-02-28T19-02-26.pkl')
+PREPROCESSOR_FILE = pathlib.Path(__file__).parent.parent.absolute().joinpath('storage', 'processors', 'processor_2025-02-28T19-02-26.pkl')
+
+
+#CONFIG file for model path
+
+MODEL_FILE = pathlib.Path(__file__).parent.parent.absolute().joinpath('storage', 'production', 'model.pkl')
 
 #Configuration parameters for generate_dataset
 

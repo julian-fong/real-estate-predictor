@@ -255,6 +255,3 @@ def convert_col_dtype(df: pd.DataFrame, columns: list, convert_to_type: str, err
     else:
         raise ValueError(f"Unexpected convert_to_type {convert_to_type}"
                      " available types are ['numeric','datetime','str', 'list', 'dict', 'int']")
-        
-def add_(a, b):
-    return a + b
