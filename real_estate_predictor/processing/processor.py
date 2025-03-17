@@ -724,13 +724,11 @@ class Processor():
             else:
                 feature_names += self.preprocessor.named_transformers_[processor].feature_names_in_.tolist()
         
-        #in the case one of the string columns is np.nan, need to set it to "-1" to avoid errors
-        #happens in prod where np.nan will convert the column to float dtype, need to convert back to object
-        if len(X) == 1:
-            for col in categorical_columns_in:
-                if X[col].isnull().sum() > 0:
-                    X[col] = X[col].fillna("-1")
-                    X[col] = X[col].astype(str)
+        # issue happens in prod where a single np.nan will convert the column to float dtype, 
+        # need to convert back to object for our input categorical columns
+        for col in categorical_columns_in:
+            if X[col].dtype == "float":
+                X[col] = X[col].astype(str)
                 
         X_transformed = self.preprocessor.transform(X)
         X_transformed.columns = feature_names
