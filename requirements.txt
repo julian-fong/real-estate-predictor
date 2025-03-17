@@ -12,3 +12,4 @@ seaborn
 xgboost
 lightgbm
 shap
+fastapi
