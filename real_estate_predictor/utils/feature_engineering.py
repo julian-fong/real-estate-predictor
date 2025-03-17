@@ -47,7 +47,7 @@ def create_bedbathRatio_column(df):
     Assumes the existence of the columns `numBedrooms` and `numBathrooms` in the dataframe of type float.
     """
     #bed bath ratio
-    #change dtype of numBed and numBath to numeric while filling errors with np.NaN, divide them and fill any errors with NaN
+    #change dtype of numBed and numBath to numeric while filling errors with np.nan, divide them and fill any errors with NaN
     
     if not isinstance(df['numBedrooms'][0], float):
         _numBedrooms = pd.to_numeric(df['numBedrooms'], errors='coerce')
@@ -275,19 +275,19 @@ def create_ratio_bymonth_columns(df):
         `count_soldPrice_currentL*M` where * = 1, 3, 6
         `count_listPrice_currentL*M` where * = 1, 3, 6
     """
-    df['avg_soldPrice_ratio_1M_3M'] = df['avg_soldPrice_currentL1M'].div(df['avg_soldPrice_currentL3M'], fill_value = np.NaN).replace([np.inf, -np.inf], np.nan)
-    df['avg_soldPrice_ratio_3M_6M'] = df['avg_soldPrice_currentL3M'].div(df['avg_soldPrice_currentL6M'], fill_value = np.NaN).replace([np.inf, -np.inf], np.nan)
-    df['avg_listPrice_ratio_1M_3M'] = df['avg_listPrice_currentL1M'].div(df['avg_soldPrice_currentL3M'], fill_value = np.NaN).replace([np.inf, -np.inf], np.nan)
-    df['avg_listPrice_ratio_3M_6M'] = df['avg_listPrice_currentL3M'].div(df['avg_soldPrice_currentL6M'], fill_value = np.NaN).replace([np.inf, -np.inf], np.nan)
+    df['avg_soldPrice_ratio_1M_3M'] = df['avg_soldPrice_currentL1M'].div(df['avg_soldPrice_currentL3M'], fill_value = np.nan).replace([np.inf, -np.inf], np.nan)
+    df['avg_soldPrice_ratio_3M_6M'] = df['avg_soldPrice_currentL3M'].div(df['avg_soldPrice_currentL6M'], fill_value = np.nan).replace([np.inf, -np.inf], np.nan)
+    df['avg_listPrice_ratio_1M_3M'] = df['avg_listPrice_currentL1M'].div(df['avg_soldPrice_currentL3M'], fill_value = np.nan).replace([np.inf, -np.inf], np.nan)
+    df['avg_listPrice_ratio_3M_6M'] = df['avg_listPrice_currentL3M'].div(df['avg_soldPrice_currentL6M'], fill_value = np.nan).replace([np.inf, -np.inf], np.nan)
 
-    df['med_soldPrice_ratio_1M_3M'] = df['med_soldPrice_currentL1M'].div(df['med_soldPrice_currentL3M'], fill_value = np.NaN).replace([np.inf, -np.inf], np.nan)
-    df['med_soldPrice_ratio_3M_6M'] = df['med_soldPrice_currentL3M'].div(df['med_soldPrice_currentL6M'], fill_value = np.NaN).replace([np.inf, -np.inf], np.nan)
-    df['med_listPrice_ratio_1M_3M'] = df['med_listPrice_currentL1M'].div(df['med_listPrice_currentL3M'], fill_value = np.NaN).replace([np.inf, -np.inf], np.nan)
-    df['med_listPrice_ratio_3M_6M'] = df['med_listPrice_currentL3M'].div(df['med_listPrice_currentL6M'], fill_value = np.NaN).replace([np.inf, -np.inf], np.nan)
+    df['med_soldPrice_ratio_1M_3M'] = df['med_soldPrice_currentL1M'].div(df['med_soldPrice_currentL3M'], fill_value = np.nan).replace([np.inf, -np.inf], np.nan)
+    df['med_soldPrice_ratio_3M_6M'] = df['med_soldPrice_currentL3M'].div(df['med_soldPrice_currentL6M'], fill_value = np.nan).replace([np.inf, -np.inf], np.nan)
+    df['med_listPrice_ratio_1M_3M'] = df['med_listPrice_currentL1M'].div(df['med_listPrice_currentL3M'], fill_value = np.nan).replace([np.inf, -np.inf], np.nan)
+    df['med_listPrice_ratio_3M_6M'] = df['med_listPrice_currentL3M'].div(df['med_listPrice_currentL6M'], fill_value = np.nan).replace([np.inf, -np.inf], np.nan)
 
-    df['count_soldPrice_ratio_1M_3M'] = df['count_soldPrice_currentL1M'].div(df['count_soldPrice_currentL3M'], fill_value = np.NaN).replace([np.inf, -np.inf], np.nan)
-    df['count_soldPrice_ratio_3M_6M'] = df['count_soldPrice_currentL3M'].div(df['count_soldPrice_currentL6M'], fill_value = np.NaN).replace([np.inf, -np.inf], np.nan)
-    df['count_listPrice_ratio_1M_3M'] = df['count_listPrice_currentL1M'].div(df['count_listPrice_currentL3M'], fill_value = np.NaN).replace([np.inf, -np.inf], np.nan)
-    df['count_listPrice_ratio_3M_6M'] = df['count_listPrice_currentL3M'].div(df['count_listPrice_currentL6M'], fill_value = np.NaN).replace([np.inf, -np.inf], np.nan)
+    df['count_soldPrice_ratio_1M_3M'] = df['count_soldPrice_currentL1M'].div(df['count_soldPrice_currentL3M'], fill_value = np.nan).replace([np.inf, -np.inf], np.nan)
+    df['count_soldPrice_ratio_3M_6M'] = df['count_soldPrice_currentL3M'].div(df['count_soldPrice_currentL6M'], fill_value = np.nan).replace([np.inf, -np.inf], np.nan)
+    df['count_listPrice_ratio_1M_3M'] = df['count_listPrice_currentL1M'].div(df['count_listPrice_currentL3M'], fill_value = np.nan).replace([np.inf, -np.inf], np.nan)
+    df['count_listPrice_ratio_3M_6M'] = df['count_listPrice_currentL3M'].div(df['count_listPrice_currentL6M'], fill_value = np.nan).replace([np.inf, -np.inf], np.nan)
 
     return df

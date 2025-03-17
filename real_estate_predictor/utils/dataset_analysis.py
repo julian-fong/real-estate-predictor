@@ -373,7 +373,7 @@ def clean_string(text, keep_hyphens=False, space_mode="underscore", errors = "ra
     errors : str
         how to handle encountered errors. Possible values:
             'raise': If `raise`, then invalid parsing will raise an exception.
-            'coerce': If `coerce`, then invalid parsing will be set as np.NaN
+            'coerce': If `coerce`, then invalid parsing will be set as np.nan
             'ignore': If `ignore`, then invalid parsing will return the input.
     
     Returns

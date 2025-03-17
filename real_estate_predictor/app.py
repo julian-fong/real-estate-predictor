@@ -12,4 +12,3 @@ async def predict_listing(mlsNumber):
     mlsNumber, data = extract_input(mlsNumber)
     prediction = predict(data)[0].item()
     return {"mlsNumber": mlsNumber, "prediction": prediction}
-
