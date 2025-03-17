@@ -8,7 +8,7 @@ key = os.environ['REPLIERS_KEY']
 from real_estate_predictor.utils.validate_input import process_input
 
 
-from real_estate_predictor.config import MODEL_FILE
+from real_estate_predictor.config.config import MODEL_FILE
 model_path = MODEL_FILE
 model = pickle.load(open(model_path, 'rb'))
 
@@ -19,9 +19,9 @@ def extract_input(mlsNumber: str):
     data = r.json()
     return mlsNumber, data
 
-def predict(mlsNumber, data):
+def predict(data):
     df = process_input(data)
     prediction = model.predict(df) 
     
-    return mlsNumber, prediction
+    return prediction
     

@@ -60,7 +60,7 @@ class LinearModel(BaseModel):
     def save_model(self, model_path):
         pass
     
-def XGBoostRegressor(BaseModel):
+class XGBoostRegressor(BaseModel):
     """
     Class to initialize the XGBoost model and fit the model to the dataset
     """
@@ -78,21 +78,18 @@ def XGBoostRegressor(BaseModel):
         self._model = self.model if self.model else None
         if isinstance(self._model, str):
             self.model_path = deepcopy(self._model)
-            self._model = load_model(self._model)
+            self._model = self.load_model(self._model)
         else:
             self.model_path = None
         
         if not self._model:
             if not kwargs:
-                raise ValueError("No parameters specified for XGBoost model and no model passed")
+                self._model = XGBRegressor()
             self._model = XGBRegressor(**kwargs)
             
         self.param_grid = param_grid
         self.params = kwargs
-        
-    def set_model_params(self, **params):
-        self.params = params
-        self._model = XGBRegressor(**params)    
+        self.dataset_path = None 
     
     def fit(self, X_train, y_train):
         self.columns = X_train.columns
@@ -201,7 +198,20 @@ def XGBoostRegressor(BaseModel):
         
         else:
             raise ValueError("Invalid strategy, please use one of the available strategies")
+
+    def set_model_params(self, **params):
+        self.params = params
+        self._model = XGBRegressor(**params)
+        
+    def get_model_params(self):
+        return self.params
     
+    def set_dataset_path(self, path):
+        self.dataset_path = path
+        
+    def get_dataset_path(self):
+        return self.dataset_path  
+
     def load_model(self, model_path):
         self.model_path = model_path
         with open(model_path, 'rb') as f:
@@ -236,9 +246,7 @@ def XGBoostRegressor(BaseModel):
         path = str(path).replace("\\\\", "\\")+"\\"
         with open(path+filename, "wb") as f:
             pickle.dump(self, f)
-                
-    
-    @classmethod                
+                               
     def save(self, path = None, filename = None):
         """
         Save the XBBoostRegressor object to a path
@@ -282,7 +290,7 @@ def XGBoostRegressor(BaseModel):
         with open(path, "rb") as f:
             return pickle.load(f)
     
-def XGBoostClassifier(BaseModel):
+class XGBoostClassifier(BaseModel):
     """
     Class to initialize the XGBoost model and fit the model to the dataset
     """

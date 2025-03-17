@@ -393,7 +393,7 @@ class Processor():
         self.dropped_columns = []
         self.transformers = []
     
-    def train_test_split_df(self, target: str, df = None):
+    def train_test_split_df(self, target: str = None, df = None):
         """
         Splits the dataframe into X and y
         
@@ -408,7 +408,7 @@ class Processor():
             If not passed, will use the initialized dataframe
         """
         if not target:
-            target = self.target
+            target = self.target_column
             
         if not df:
             df = self.df
@@ -711,17 +711,26 @@ class Processor():
             raise ValueError("ColumnTransformer not initialized, please run `apply_column_transformer`")
 
         feature_names = []
+        categorical_columns_in = []
         for processor in self.preprocessor.named_transformers_.keys():
             if isinstance(self.preprocessor.named_transformers_[processor], Pipeline):
                 #get all the names of the transformers
                 categorical_names = [t[0] for t in self.preprocessor.named_transformers_[processor].steps]
                 if "categorical_encoder" in categorical_names:
                     feature_names += self.preprocessor.named_transformers_[processor].get_feature_names_out().tolist()
+                    categorical_columns_in += self.preprocessor.named_transformers_[processor].feature_names_in_.tolist()
                 else:
                     feature_names += self.preprocessor.named_transformers_[processor].feature_names_in_.tolist()
             else:
                 feature_names += self.preprocessor.named_transformers_[processor].feature_names_in_.tolist()
         
+        #in the case one of the string columns is np.nan, need to set it to "-1" to avoid errors
+        #happens in prod where np.nan will convert the column to float dtype, need to convert back to object
+        for col in categorical_columns_in:
+            if X[col].isnull().sum() > 0:
+                X[col] = X[col].fillna("-1")
+                X[col] = X[col].astype(str)
+                
         X_transformed = self.preprocessor.transform(X)
         X_transformed.columns = feature_names
         

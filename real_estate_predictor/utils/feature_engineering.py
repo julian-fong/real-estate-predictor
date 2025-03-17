@@ -29,7 +29,7 @@ def create_sqft_avg_column(df):
     """
     Assumes the existence of a column named `sqft` in the dataframe.
     """
-    df['sqft_avg'] = df['sqft'].apply(helper_create_avg_sqft)
+    df['sqft_avg'] = pd.to_numeric(df['sqft'].apply(helper_create_avg_sqft), errors = 'coerce')
 
     return df
 
@@ -220,20 +220,20 @@ def create_previous_month_ppsqft_columns(df):
         `med_listPrice_currentL*M` where * = 1, 3, 6 
         `sqft_avg` in the dataframe
     """
-    df['avg_soldPrice_ppsqft_currentL1M'] = df['avg_soldPrice_currentL1M']/df['sqft_avg']
-    df['med_soldPrice_ppsqft_currentL1M'] = df['med_soldPrice_currentL1M']/df['sqft_avg']
-    df['avg_listPrice_ppsqft_currentL1M'] = df['avg_listPrice_currentL1M']/df['sqft_avg']
-    df['med_listPrice_ppsqft_currentL1M'] = df['med_listPrice_currentL1M']/df['sqft_avg']
+    df['avg_soldPrice_ppsqft_currentL1M'] = pd.to_numeric(df['avg_soldPrice_currentL1M'].div(df['sqft_avg']).replace([np.inf, -np.inf], np.nan), errors = "coerce")
+    df['med_soldPrice_ppsqft_currentL1M'] = pd.to_numeric(df['med_soldPrice_currentL1M'].div(df['sqft_avg']).replace([np.inf, -np.inf], np.nan), errors = "coerce")
+    df['avg_listPrice_ppsqft_currentL1M'] = pd.to_numeric(df['avg_listPrice_currentL1M'].div(df['sqft_avg']).replace([np.inf, -np.inf], np.nan), errors = "coerce")
+    df['med_listPrice_ppsqft_currentL1M'] = pd.to_numeric(df['med_listPrice_currentL1M'].div(df['sqft_avg']).replace([np.inf, -np.inf], np.nan), errors = "coerce")
 
-    df['avg_soldPrice_ppsqft_currentL3M'] = df['avg_soldPrice_currentL3M']/df['sqft_avg']
-    df['med_soldPrice_ppsqft_currentL3M'] = df['med_soldPrice_currentL3M']/df['sqft_avg']
-    df['avg_listPrice_ppsqft_currentL3M'] = df['avg_listPrice_currentL3M']/df['sqft_avg']
-    df['med_listPrice_ppsqft_currentL3M'] = df['med_listPrice_currentL3M']/df['sqft_avg']
+    df['avg_soldPrice_ppsqft_currentL3M'] = pd.to_numeric(df['avg_soldPrice_currentL3M'].div(df['sqft_avg']).replace([np.inf, -np.inf], np.nan), errors = "coerce")
+    df['med_soldPrice_ppsqft_currentL3M'] = pd.to_numeric(df['med_soldPrice_currentL3M'].div(df['sqft_avg']).replace([np.inf, -np.inf], np.nan), errors = "coerce")
+    df['avg_listPrice_ppsqft_currentL3M'] = pd.to_numeric(df['avg_listPrice_currentL3M'].div(df['sqft_avg']).replace([np.inf, -np.inf], np.nan), errors = "coerce")
+    df['med_listPrice_ppsqft_currentL3M'] = pd.to_numeric(df['med_listPrice_currentL3M'].div(df['sqft_avg']).replace([np.inf, -np.inf], np.nan), errors = "coerce")
 
-    df['avg_soldPrice_ppsqft_currentL6M'] = df['avg_soldPrice_currentL6M']/df['sqft_avg']
-    df['med_soldPrice_ppsqft_currentL6M'] = df['avg_soldPrice_currentL6M']/df['sqft_avg']
-    df['avg_listPrice_ppsqft_currentL6M'] = df['avg_listPrice_currentL6M']/df['sqft_avg']
-    df['med_listPrice_ppsqft_currentL6M'] = df['avg_listPrice_currentL6M']/df['sqft_avg']
+    df['avg_soldPrice_ppsqft_currentL6M'] = pd.to_numeric(df['avg_soldPrice_currentL6M'].div(df['sqft_avg']).replace([np.inf, -np.inf], np.nan), errors = "coerce")
+    df['med_soldPrice_ppsqft_currentL6M'] = pd.to_numeric(df['avg_soldPrice_currentL6M'].div(df['sqft_avg']).replace([np.inf, -np.inf], np.nan), errors = "coerce")
+    df['avg_listPrice_ppsqft_currentL6M'] = pd.to_numeric(df['avg_listPrice_currentL6M'].div(df['sqft_avg']).replace([np.inf, -np.inf], np.nan), errors = "coerce")
+    df['med_listPrice_ppsqft_currentL6M'] = pd.to_numeric(df['avg_listPrice_currentL6M'].div(df['sqft_avg']).replace([np.inf, -np.inf], np.nan), errors = "coerce")
 
     return df
 

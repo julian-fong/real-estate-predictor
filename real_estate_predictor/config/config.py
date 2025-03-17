@@ -8,7 +8,7 @@ import pathlib
 DATACLEANER_FILE = pathlib.Path(__file__).parent.parent.absolute().joinpath('storage', 'processors', 'datacleaner_2025-02-28T19-02-26.pkl')
 FEATURE_ENGINEERING_FILE = pathlib.Path(__file__).parent.parent.absolute().joinpath('storage', 'processors', 'featureengineering_2025-02-28T19-02-26.pkl')
 PREPROCESSOR_FILE = pathlib.Path(__file__).parent.parent.absolute().joinpath('storage', 'processors', 'processor_2025-02-28T19-02-26.pkl')
-
+MODEL_MODULE_FILE = pathlib.Path(__file__).parent.parent.absolute().joinpath('storage', 'models', 'model_module_2025-02-28T19-02-26.pkl')
 
 #CONFIG file for model path
 
