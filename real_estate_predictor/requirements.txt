@@ -1,0 +1,15 @@
+pandas
+numpy
+scikit-learn
+mlflow
+pytest
+black
+lint
+flake8
+requests
+isort
+seaborn
+xgboost
+lightgbm
+shap
+fastapi
