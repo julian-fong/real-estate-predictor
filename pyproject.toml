@@ -44,6 +44,13 @@ dependencies = [
     "pandas >= 1.1.0",
     "scikit-learn >= 1.1.5",
     "mlflow",
+    "requests",
+    "seaborn",
+    "xgboost == 2.1.4",
+    "lightgbm",
+    "shap",
+    "fastapi",
+    "uvicorn",
 ]
 
 [project.optional-dependencies]

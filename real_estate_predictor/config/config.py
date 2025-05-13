@@ -12,7 +12,7 @@ MODEL_MODULE_FILE = pathlib.Path(__file__).parent.parent.absolute().joinpath('st
 
 #CONFIG file for model path
 
-MODEL_FILE = pathlib.Path(__file__).parent.parent.absolute().joinpath('storage', 'production', 'model.pkl')
+SALE_MODEL_FILE = pathlib.Path(__file__).parent.parent.absolute().joinpath('storage', 'production', 'model.pkl')
 
 #Configuration parameters for generate_dataset
 

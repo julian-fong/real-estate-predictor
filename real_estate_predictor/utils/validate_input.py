@@ -22,8 +22,8 @@ cleaner = DataCleaner.load(datacleaner_path)
 feature_path = config.FEATURE_ENGINEERING_FILE
 feature = FeatureEngineering.load(feature_path)
 
-model_path = config.MODEL_FILE
-model = pickle.load(open(model_path, 'rb'))
+sale_model_path = config.SALE_MODEL_FILE
+sale_model = pickle.load(open(sale_model_path, 'rb'))
 
 def transform_listings_input(data):
     """
@@ -213,7 +213,7 @@ def transform_input(data):
     
     return pd.concat([listings_data, neighbourhood_data], axis=1)
 
-def process_input(data):
+def process_input(data, model):
     """
     Assumes data is of type dict containing a single observation, will
     obtain the listings and neighbourhood data, and process the data

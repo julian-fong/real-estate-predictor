@@ -74,9 +74,11 @@ class FunctionLogger:
                 print(df.shape)
             else:
                 print(f"Function {func_name} not found!")
-
-            self.function_logs.pop(-1)
             
         return df
+    
+    def remove_function_log(self, i: int):
+        """Remove a function log entry by index."""
+        self.function_logs.pop(i)
      
      

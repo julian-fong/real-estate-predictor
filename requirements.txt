@@ -6,10 +6,11 @@ pytest
 black
 lint
 flake8
-requests
 isort
+requests
 seaborn
 xgboost
 lightgbm
 shap
 fastapi
+pyyaml

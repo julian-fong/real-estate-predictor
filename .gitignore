@@ -6,6 +6,12 @@ real_estate_predictor/storage/datasets/processed/*.csv
 real_estate_predictor/storage/processors/*.pkl
 real_estate_predictor/storage/models/*.pkl
 real_estate_predictor/storage/production/*.pkl
+!real_estate_predictor/storage/production/sample_lease_model.pkl
+!real_estate_predictor/storage/production/sample_sale_model.pkl
+
+real_estate_predictor/config/*.yaml
+!real_estate_predictor/config/sample_lease_config.yaml
+
 # Do not ignore the datasets directory itself
 !real_estate_predictor/storage/datasets/
 

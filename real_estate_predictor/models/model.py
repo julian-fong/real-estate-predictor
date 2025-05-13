@@ -201,7 +201,7 @@ class XGBoostRegressor(BaseModel):
 
     def set_model_params(self, **params):
         self.params = params
-        self._model = XGBRegressor(**params)
+        self._model = XGBRegressor().set_params(**params)
         
     def get_model_params(self):
         return self.params

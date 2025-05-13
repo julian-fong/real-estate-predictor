@@ -8,9 +8,9 @@ key = os.environ['REPLIERS_KEY']
 from real_estate_predictor.utils.validate_input import process_input
 
 
-from real_estate_predictor.config.config import MODEL_FILE
-model_path = MODEL_FILE
-model = pickle.load(open(model_path, 'rb'))
+from real_estate_predictor.config.config import SALE_MODEL_FILE
+sale_model_path = SALE_MODEL_FILE
+sale_model = pickle.load(open(sale_model_path, 'rb'))
 
 def extract_input(mlsNumber: str):
     url = f"https://api.repliers.io/listings/{mlsNumber}"
@@ -19,8 +19,12 @@ def extract_input(mlsNumber: str):
     data = r.json()
     return mlsNumber, data
 
-def predict(data):
-    df = process_input(data)
+def predict(data, type):
+    if type == 'sale':
+        model = sale_model
+    else:
+        model = lease_model
+    df = process_input(data, model)
     prediction = model.predict(df) 
     
     return prediction

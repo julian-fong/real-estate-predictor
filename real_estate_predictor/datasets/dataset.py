@@ -37,7 +37,7 @@ class Dataset():
     def __init__(self):
         pass
         
-    def get_listings_dataset(self, start_date, end_date, verbose = False):
+    def get_listings_dataset(self, start_date, end_date, save = False, verbose = False):
         self.listings_start_date = start_date
         self.listings_end_date = end_date
         
@@ -45,7 +45,7 @@ class Dataset():
             start_date = self.listings_start_date, 
             end_date = self.listings_end_date, 
             page_num = 1, 
-            payload = LISTING_PARAMETERS, 
+            payload = LISTING_PARAMETERS,
             verbose = verbose
         )
         
@@ -63,11 +63,14 @@ class Dataset():
             if verbose:
                 print(f"Length of the listings dataset is: {len(listing_df)}")
         listing_df = listing_df.reset_index(drop = True)
-        self.listings_df = listing_df
         
-        return self.listings_df
+        if save:
+            self.save_raw_df(listing_df, "csv", path = None, is_listings_dataset = True)
+        else:
+            self.listings_df = listing_df
+            return self.listings_df
     
-    def get_neighbourhood_dataset(self, start_date, end_date, neighborhoods = None, verbose = False):
+    def get_neighbourhood_dataset(self, start_date, end_date, neighborhoods = None, save = False,verbose = False):
         self.neighbourhood_start_date = start_date
         self.neighbourhood_end_date = end_date
         self.neighborhoods = neighborhoods
@@ -93,17 +96,18 @@ class Dataset():
                     neighborhood_data = extract_neighborhood_data(data, location, bed, type, verbose)
                     
                     if isinstance(neighborhood_data, pd.DataFrame) and len(neighborhood_data) > 0:
-                        df_stats = pd.concat([df_stats, neighborhood_data], axis = 0)
-                    
+                        df_stats = pd.concat([df_stats, neighborhood_data], axis = 0)    
                         
                     if verbose:
                         print(f"Length of the stats dataset is: {len(df_stats)}")
 
         df_stats = df_stats.rename(columns = {"key": "neighborhood_key"})
         df_stats = df_stats.reset_index(drop = True)
-        
-        self.neighborhoods_df = df_stats
-        return self.neighborhoods_df
+        if save:
+            self.save_raw_df(df_stats, "csv", path = None, is_listings_dataset = False)
+        else:
+            self.neighborhoods_df = df_stats
+            return self.neighborhoods_df
         
     
     def save_raw_df(self, df, format, path = None, is_listings_dataset = True):
