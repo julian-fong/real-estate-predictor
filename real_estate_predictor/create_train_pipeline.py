@@ -3,11 +3,9 @@ import pathlib
 from copy import deepcopy
 
 import pandas as pd
-from real_estate_predictor.utils.extract_dataset import *
-from real_estate_predictor.utils.feature_engineering import *
-from real_estate_predictor.utils.dataset_analysis import *
-from real_estate_predictor.processing.processor import *
-from real_estate_predictor.models.model import *
+from real_estate_predictor.utils.extract_dataset import extract_raw_data_listings
+from real_estate_predictor.processing.processor import DataCleaner, FeatureEngineering, Processor
+from real_estate_predictor.models.model import XGBoostRegressor
 from real_estate_predictor.utils.merge_datasets import merge_neighborhood_previous_columns
 from real_estate_predictor.utils.pandas import pandas_read_filepath
 
@@ -77,6 +75,8 @@ def run_preprocessor(df: pd.DataFrame, config: dict, save = bool) -> tuple:
     Returns:
         tuple: Tuple containing the preprocessed features and target variables.
     """
+    preprocessor = Processor(df)
+    
     for key in config.keys():
         assert key in dir(preprocessor), f"Function Name {key} not found in Preprocessor class"
         
@@ -84,8 +84,6 @@ def run_preprocessor(df: pd.DataFrame, config: dict, save = bool) -> tuple:
     assert "target" in _config.keys(), "The config file must contain a 'target' key."
     target = _config["target"]
     assert target in df.columns, f"The target column '{target}' is not present in the DataFrame."
-    
-    preprocessor = Processor(df)
     
     if "train_test_split_df" in _config.keys():
         _config.pop("train_test_split_df")
@@ -115,11 +113,9 @@ def run_preprocessor(df: pd.DataFrame, config: dict, save = bool) -> tuple:
 def run_train_pipeline(config = None, save = False):
     if not config:
         config = str(pathlib.Path.cwd().joinpath("config", "sample_lease_config.yaml"))
-        with open(config, "r") as file:
-            data = yaml.safe_load(file)
-    else:
-        with open(config, "r") as file:
-            data = yaml.safe_load(file)
+        
+    with open(config, "r", encoding="utf-8") as file:
+        data = yaml.safe_load(file)
             
     raw_df = pandas_read_filepath(data["listings_filepath"])
     df = extract_raw_data_listings(raw_df)
@@ -147,7 +143,7 @@ def run_train_pipeline(config = None, save = False):
     if not data["Preprocessor"]:
         raise ValueError("The config file must contain a 'Preprocessor' key.")
     else:
-        X_train, y_train, X_test, y_test = run_preprocessor(df, data["Preprocessor"], save = save)
+        X_train, y_train, _, _ = run_preprocessor(df, data["Preprocessor"], save = save)
         
     # load and training the model
     
@@ -174,5 +170,5 @@ def run_train_pipeline(config = None, save = False):
         model.save_model()
         
 if __name__ == "__main__":
-    config = str(pathlib.Path.cwd().joinpath("config", "sample_lease_config.yaml"))
-    run_train_pipeline(config, save = True)
+    pipeline_config = str(pathlib.Path.cwd().joinpath("config", "sample_lease_config.yaml"))
+    run_train_pipeline(pipeline_config, save = True)
