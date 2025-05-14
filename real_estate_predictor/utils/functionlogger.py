@@ -1,4 +1,3 @@
-import pickle
 import functools
 import pandas as pd
 
@@ -62,7 +61,7 @@ class FunctionLogger:
 
         return df
 
-    def execute_logged_calls(self, clear_logged_calls=False):
+    def execute_logged_calls(self):
         """Execute all logged function calls in sequence."""
         df = getattr(self, "df", None)
         if not isinstance(df, pd.DataFrame):

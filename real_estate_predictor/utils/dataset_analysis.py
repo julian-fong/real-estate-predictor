@@ -1,9 +1,6 @@
 """Main Module for methods to handle data cleaning, data analysis, and data transformation"""
 
-import datetime as dt
-import requests
 import pandas as pd
-import os
 import re
 
 pd.set_option("display.max_rows", 500)
@@ -117,7 +114,7 @@ def show_num_values_col(df, col):
         print(value)
 
 
-def plot_timeplots(df, by_, agg_dict, x_axis_name, y_axis_name, y=None, label=None):
+def plot_timeplots(df, by_, agg_dict, x_axis_name, y_axis_name, y=None):
     """
     df: main dataframw where the data will be parsed
     by_: time column in data series format i.e df['soldDate']
@@ -172,15 +169,6 @@ def plot_scatterplot(df, col1, col2, label1=None, label2=None):
         plt.ylabel(label2)
 
     plt.show()
-
-
-def show_boxplot(df, col):
-    pass
-
-
-def show_barplot(df, col):
-    pass
-
 
 def show_pairplot(df, pairplot_cols, class_col):
     sns.pairplot(df[pairplot_cols], hue=class_col)
@@ -249,25 +237,6 @@ def remove_duplicates(df: pd.DataFrame, columns=None, inplace=False, ignore_inde
 
 
 ## Handling Missing/Bad Values
-
-
-def handle_missing_values(df: pd.DataFrame, strategy="remove", columns=None):
-    """
-    Main method to handle missing values inside a dataframe
-
-    Parameters
-    ----------
-
-    df : pd.DataFrame
-        pandas Dataframe that is to be inputted
-
-    strategy : str
-        Possible values:
-
-
-    """
-    pass
-
 
 def helper_calculate_missing_values_percentage_by_col(df: pd.DataFrame, column):
     """
@@ -452,7 +421,7 @@ def helper_standardize_postal_code(x: str):
     # convert from ### ### to ######
     try:
         x = x.replace(" ", "")
-    except:
+    except ValueError:
         x = np.nan
         return x
 
@@ -507,9 +476,9 @@ def standardize_ammenities_text(df):
     Assumes the columns `ammenities` and `condo_ammenities` are in the dataframe
     """
 
-    df["ammenities"] = df["ammenities"].apply(lambda x: helper_clean_ammenities_list(x))
+    df["ammenities"] = df["ammenities"].apply(helper_clean_ammenities_list)
     df["condo_ammenities"] = df["condo_ammenities"].apply(
-        lambda x: helper_clean_ammenities_list(x)
+        helper_clean_ammenities_list
     )
 
     return df

@@ -1,6 +1,4 @@
-import pandas as pd
-
-
+# helper functions to merge datasets
 def helper_construct_neighbourhood_key_column(df):
     """
     Assumes the existence of the keys `numBedrooms`, `type`, `neighborhood`, `listDate` in the dataframe.

@@ -1,11 +1,5 @@
-import datetime as dt
-import requests
 import pandas as pd
-import os
-import re
 import numpy as np
-from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
 import ast
 
 # Feature Engineering
@@ -23,7 +17,7 @@ def helper_create_avg_sqft(x):
                 # pattern = r"\d+"
                 # matches = re.findall(pattern, x)
                 # return int(matches[0])
-    except:
+    except Exception as e:
         return np.nan
 
 
@@ -79,7 +73,7 @@ def convert_pd_convert_literal_eval_to_list(df, column):
     """
     Assumes that the values in the columns are all of type string
     """
-    df[column] = df[column].apply(lambda x: ast.literal_eval(x))
+    df[column] = df[column].apply(ast.literal_eval)
     return df[column]
 
 
@@ -103,7 +97,7 @@ def helper_get_unique_ammenities(df, column):
     return ammenities
 
 
-def helper_find_existence_of_ammenity(x: list, value, errors="coerce"):
+def helper_find_existence_of_ammenity(x: list, value):
     """
     Given a list of ammenities of format ["item1", "item2", ...]
     check to see if `value` exists in the list
@@ -185,7 +179,7 @@ def helper_calculate_num_ammenities(x):
             if item != "":
                 count += 1
         return count
-    except:
+    except Exception as e:
         return np.nan
 
 
@@ -209,7 +203,7 @@ def helper_split_postal_code(x, num_chars=2):
 
     try:
         x = x[:num_chars]
-    except:
+    except Exception as e:
         return np.nan
 
     return x

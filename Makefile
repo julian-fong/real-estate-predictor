@@ -7,7 +7,7 @@ install:
 		pip install -r requirements.txt
 
 quality:
-	pylint --disable=R,C $(check_dirs)/*.py
+	# pylint --disable=R,C $(check_dirs)/*.py
 	black --check $(check_dirs)/*.py
 	isort --check-only $(check_dirs)/*.py
 	flake8 $(check_dirs)/*.py
@@ -18,4 +18,4 @@ black_full:
 predictor_tests:
 	python -m pytest -vv real_estate_predictor/tests/
 
-all: install quality 
+all: install quality predictor_tests

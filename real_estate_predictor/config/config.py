@@ -1,6 +1,6 @@
 import numpy as np
-from real_estate_predictor.utils.dataset_analysis import *
-from real_estate_predictor.utils.feature_engineering import *
+from real_estate_predictor.utils.dataset_analysis import standardize_ammenities_text,standardize_postal_code,standardize_locations_text, standardize_style_text, standardize_propertyType_text  
+from real_estate_predictor.utils.feature_engineering import create_sqft_avg_column, create_ppsqft_column, create_bedbathRatio_column, create_num_ammenities_column, create_ammenities_flag_columns, create_split_postalcode_column, create_dom_column, create_previous_month_ppsqft_columns, create_difference_bymonth_columns, create_ratio_bymonth_columns
 import pathlib
 
 # CONFIG files for data pipeline modules
@@ -604,7 +604,6 @@ LISTING_HIERARCHY = {
         "numDrivewaySpaces": None,
         "description": None,
         "extras": None,
-        "numParkingSpaces": None,
     },
     "condominium": {"ammenities": None, "fees": None},
     "nearby": {"ammenities": None},

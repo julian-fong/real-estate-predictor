@@ -9,7 +9,6 @@ import pandas as pd
 
 # for function subtract_months
 import datetime as dt
-from dateutil.relativedelta import relativedelta
 
 from pathlib import Path
 
@@ -28,9 +27,8 @@ def retrieve_repliers_listing_request(
     url = f"https://api.repliers.io/listings?&pageNum={page_num}&minSoldDate={start_date}&maxSoldDate={end_date}"
     if not include_listings:
         url += "&listings=False"
-    payload = payload
     headers = {"repliers-api-key": key}
-    r = requests.request("GET", url, params=payload, headers=headers)
+    r = requests.request("GET", url, params=payload, headers=headers, timeout=10)
     if r.status_code != 200:
         print(f"{r.status_code} error returned from repliers: {r.json()[0]['msg']}")
     data = r.json()
@@ -48,12 +46,12 @@ def retrieve_repliers_neighbourhood_request(
     start_date: str,
     end_date: str,
     payload: dict,
-    type: str,
+    listing_type: str,
     neighbourhood: str,
     numBedroom: int,
     verbose=False,
 ):
-    if type == "lease":
+    if listing_type == "lease":
         lastStatus = "Lsd"
     else:
         lastStatus = "Sld"
@@ -64,7 +62,7 @@ def retrieve_repliers_neighbourhood_request(
     url = (
         f"https://api.repliers.io/listings?minSoldDate={start_date}&maxSoldDate={end_date}"
         f"&minBeds={numBedroom}&maxBeds={numBedroom}"
-        f"&minListDate={start_date}&maxListDate={end_date}&type={type}"
+        f"&minListDate={start_date}&maxListDate={end_date}&type={listing_type}"
         f"&neighborhood={neighbourhood}&lastStatus={lastStatus}"
     )
     payload = payload
@@ -75,7 +73,7 @@ def retrieve_repliers_neighbourhood_request(
         end_time = time.time()
         print(f"url: {r.url}")
         print(
-            f"data of {neighbourhood, numBedroom, type} took {end_time - start_time} seconds with a response of {r}"
+            f"data of {neighbourhood, numBedroom, listing_type} took {end_time - start_time} seconds with a response of {r}"
         )
         if r.status_code != 200:
             print(r.json())
@@ -85,15 +83,15 @@ def retrieve_repliers_neighbourhood_request(
 
 def save_raw_dataset(
     df: pd.DataFrame,
-    format: str,
+    save_format: str,
     path: str = None,
     is_listings_dataset=True,
 ):
     df.reset_index(drop=True)
     if is_listings_dataset:
-        type = "listing"
+        dataset_type = "listing"
     else:
-        type = "neighbourhood"
+        dataset_type = "neighbourhood"
 
     # if path is not specified, put it in the storage/datasets folder
     if not path:
@@ -108,23 +106,23 @@ def save_raw_dataset(
 
     # create the file name
     date = dt.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
-    file_name = f"{type}_dataset_{date}"
+    file_name = f"{dataset_type}_dataset_{date}"
 
-    if format == "json":
+    if save_format == "json":
         file_name += ".json"
         full_path = path + file_name
         df.to_json(full_path, index=False)
-    elif format == "csv":
+    elif save_format == "csv":
         file_name += ".csv"
         full_path = path + file_name
         df.to_csv(full_path, index=False)
     else:
-        raise ValueError(f"Unknown format {format}")
+        raise ValueError(f"Unknown save_format {save_format}")
 
 
 def save_dataset(
     df: pd.DataFrame,
-    format: str,
+    save_format: str,
     path: str = None,
     file_name: str = None,
 ):
@@ -147,13 +145,13 @@ def save_dataset(
     else:
         file_name = f"dataset_{date}"
 
-    if format == "json":
+    if save_format == "json":
         file_name += ".json"
         full_path = path + file_name
         df.to_json(full_path, index=False)
-    elif format == "csv":
+    elif save_format == "csv":
         file_name += ".csv"
         full_path = path + file_name
         df.to_csv(full_path, index=False)
     else:
-        raise ValueError(f"Unknown format {format}")
+        raise ValueError(f"Unknown save_format {save_format}")

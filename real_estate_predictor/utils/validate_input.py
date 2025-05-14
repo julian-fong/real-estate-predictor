@@ -11,23 +11,17 @@ from real_estate_predictor.utils.extract_dataset import (
     extract_raw_data_listings,
     subtract_months,
 )
-from real_estate_predictor.utils.extract_dataset import *
-from real_estate_predictor.utils.feature_engineering import *
-from real_estate_predictor.utils.dataset_analysis import *
-from real_estate_predictor.processing.processor import *
-from real_estate_predictor.config import *
+from real_estate_predictor.processing.processor import DataCleaner, FeatureEngineering, Processor
+from real_estate_predictor.config import PREPROCESSOR_FILE, DATACLEANER_FILE, FEATURE_ENGINEERING_FILE
 
-processor_path = config.PREPROCESSOR_FILE
+processor_path = PREPROCESSOR_FILE
 processor = Processor.load(processor_path)
 
-datacleaner_path = config.DATACLEANER_FILE
+datacleaner_path = DATACLEANER_FILE
 cleaner = DataCleaner.load(datacleaner_path)
 
-feature_path = config.FEATURE_ENGINEERING_FILE
+feature_path = FEATURE_ENGINEERING_FILE
 feature = FeatureEngineering.load(feature_path)
-
-sale_model_path = config.SALE_MODEL_FILE
-sale_model = pickle.load(open(sale_model_path, "rb"))
 
 
 def transform_listings_input(data):
@@ -54,8 +48,8 @@ def transform_neighborhood_input(data):
     start_date = subtract_months(end_date_ym, 6) + "-01"
     numBedroom = data["details"]["numBedrooms"]
 
-    type = data["type"]
-    if type.lower() == "lease":
+    listing_type = data["type"]
+    if listing_type.lower() == "lease":
         lastStatus = "Lsd"
     else:
         lastStatus = "Sld"
@@ -70,7 +64,7 @@ def transform_neighborhood_input(data):
     url = (
         f"https://api.repliers.io/listings?minSoldDate={start_date}&maxSoldDate={end_date}"
         f"&minBeds={numBedroom}&maxBeds={numBedroom}"
-        f"&minListDate={start_date}&maxListDate={end_date}&type={type}"
+        f"&minListDate={start_date}&maxListDate={end_date}&type={listing_type}"
         f"&neighborhood={neighbourhood}&lastStatus={lastStatus}"
     )
 
@@ -83,7 +77,7 @@ def transform_neighborhood_input(data):
     }
 
     headers = {"repliers-api-key": key}
-    r = requests.request("GET", url, params=NEIGHBOURHOOD_PARAMETERS, headers=headers)
+    r = requests.request("GET", url, params=NEIGHBOURHOOD_PARAMETERS, headers=headers, timeout=10)
     n_data = r.json()
 
     mapping = {
