@@ -1,6 +1,6 @@
 .PHONY: all install quality predictor_tests
 
-check_dirs := real_estate_predictor
+check_dirs := real_estate_predictor real_estate_predictor/config real_estate_predictor/datasets real_estate_predictor/models real_estate_predictor/processing real_estate_predictor/tests real_estate_predictor/utils 
 
 install:
 	pip install --upgrade pip &&\
