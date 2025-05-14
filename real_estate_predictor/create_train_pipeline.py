@@ -7,6 +7,7 @@ from real_estate_predictor.utils.extract_dataset import *
 from real_estate_predictor.utils.feature_engineering import *
 from real_estate_predictor.utils.dataset_analysis import *
 from real_estate_predictor.processing.processor import *
+from real_estate_predictor.models.model import *
 from real_estate_predictor.utils.merge_datasets import merge_neighborhood_previous_columns
 from real_estate_predictor.utils.pandas import pandas_read_filepath
 
@@ -121,7 +122,6 @@ def run_train_pipeline(config = None, save = False):
             data = yaml.safe_load(file)
             
     raw_df = pandas_read_filepath(data["listings_filepath"])
-    neighbourhoods_df = pandas_read_filepath(data["neighbourhoods_filepath"])
     df = extract_raw_data_listings(raw_df)
     
     if "type" not in data.keys():
@@ -130,8 +130,10 @@ def run_train_pipeline(config = None, save = False):
     type = data["type"]
     df = df[df["type"] == type]
     
-    #merge the listings with the neighbourhoods
-    df = merge_neighborhood_previous_columns(df, neighbourhoods_df)
+    if "neighbourhoods_filepath" in data.keys():
+        neighbourhoods_df = pandas_read_filepath(data["neighbourhoods_filepath"])
+        #merge the listings with the neighbourhoods
+        df = merge_neighborhood_previous_columns(df, neighbourhoods_df)
     
     # check and clean the data
     if "DataCleaner" in data.keys():
@@ -147,5 +149,30 @@ def run_train_pipeline(config = None, save = False):
     else:
         X_train, y_train, X_test, y_test = run_preprocessor(df, data["Preprocessor"], save = save)
         
+    # load and training the model
     
+    if "model_type" not in data.keys():
+        raise ValueError("The config file must contain a 'model_type' key.")
     
+    model_type = data["model_type"]
+    if model_type in ["XGBoostRegressor", "XGBRegressor"]:
+        if "model" in data.keys():
+            params = data["model"]
+        if "param_grid" in data.keys():
+            param_grid = data["param_grid"]
+        else:
+            param_grid = None
+            
+        model = XGBoostRegressor(param_grid=param_grid)
+        model.set_model_params(**params)
+    else:
+        raise ValueError(f"Model type '{model_type}' is not supported.")
+    
+    model.fit(X_train, y_train)
+    
+    if save:
+        model.save_model()
+        
+if __name__ == "__main__":
+    config = str(pathlib.Path.cwd().joinpath("config", "sample_lease_config.yaml"))
+    run_train_pipeline(config, save = True)
