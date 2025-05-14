@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 def pandas_read_filepath(file_path: str) -> pd.DataFrame:
     """
     Reads a CSV file and returns a pandas DataFrame.
@@ -12,12 +13,14 @@ def pandas_read_filepath(file_path: str) -> pd.DataFrame:
     Returns:
         pd.DataFrame: The DataFrame containing the data from the file.
     """
-    if file_path.endswith('.csv'):
+    if file_path.endswith(".csv"):
         df = pd.read_csv(file_path)
-    elif file_path.endswith('.json'):
+    elif file_path.endswith(".json"):
         df = pd.read_json(file_path)
-    elif file_path.endswith('.parquet'):
+    elif file_path.endswith(".parquet"):
         df = pd.read_parquet(file_path)
     else:
-        raise ValueError("Unsupported file format. Please provide a csv, json, or parquet file.")
+        raise ValueError(
+            "Unsupported file format. Please provide a csv, json, or parquet file."
+        )
     return df
