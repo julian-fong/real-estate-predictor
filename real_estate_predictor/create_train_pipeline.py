@@ -90,7 +90,7 @@ def run_preprocessor(df: pd.DataFrame, config: dict, save = bool) -> tuple:
     X, y = preprocessor.train_test_split_df(target)
     
     if "train_test_split" in _config.keys():
-        X_train, X_test, y_train, y_test = preprocessor.train_test_split(_config["train_test_split"])
+        X_train, X_test, y_train, y_test = preprocessor.train_test_split(X, y, **_config["train_test_split"])
         _config.pop("train_test_split")
     else:
         X_train, X_test, y_train, y_test = preprocessor.train_test_split(X, y)
@@ -123,8 +123,8 @@ def run_train_pipeline(config = None, save = False):
     if "type" not in data.keys():
         raise ValueError("The config file must contain a 'type' key.")
     
-    type = data["type"]
-    df = df[df["type"] == type]
+    listing_type = data["type"]
+    df = df[df["type"] == listing_type]
     
     if "neighbourhoods_filepath" in data.keys():
         neighbourhoods_df = pandas_read_filepath(data["neighbourhoods_filepath"])
@@ -151,19 +151,21 @@ def run_train_pipeline(config = None, save = False):
         raise ValueError("The config file must contain a 'model_type' key.")
     
     model_type = data["model_type"]
-    if model_type in ["XGBoostRegressor", "XGBRegressor"]:
-        if "model" in data.keys():
-            params = data["model"]
-        if "param_grid" in data.keys():
-            param_grid = data["param_grid"]
-        else:
-            param_grid = None
-            
-        model = XGBoostRegressor(param_grid=param_grid)
-        model.set_model_params(**params)
-    else:
+    if model_type not in ["XGBoostRegressor", "XGBRegressor"]:
         raise ValueError(f"Model type '{model_type}' is not supported.")
     
+    if "param_grid" in data.keys():
+        param_grid = data["param_grid"]
+    else:
+        param_grid = None
+        
+    #initialize the model
+    model = XGBoostRegressor(param_grid=param_grid)
+    
+    if "model" in data.keys():
+        params = data["model"]
+        model.set_model_params(**params)
+        
     model.fit(X_train, y_train)
     
     if save:

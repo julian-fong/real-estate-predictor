@@ -8,7 +8,7 @@ async def root():
     return {"msg": "please use the predict endpoint to generate predictions"}
 
 @app.get("/predict/sale/{mlsNumber}")
-async def predict_listing(mlsNumber):
+async def predict_listing(mlsNumber, listing_type: str):
     mlsNumber, data = extract_input(mlsNumber)
-    prediction = predict(data)[0].item()
+    prediction = predict(data, listing_type)[0].item()
     return {"mlsNumber": mlsNumber, "prediction": prediction}

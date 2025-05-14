@@ -21,8 +21,8 @@ def extract_input(mlsNumber: str):
     data = r.json()
     return mlsNumber, data
 
-def predict(data, model_type):
-    if model_type == 'sale':
+def predict(data, listing_type):
+    if listing_type == 'sale':
         model = sale_model
     else:
         model = lease_model
