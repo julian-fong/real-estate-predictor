@@ -1,13 +1,13 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 import pytest
-from real_estate_predictor.processing.processor import Processor
-from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import Normalizer
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.impute import SimpleImputer
 from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import Normalizer, OneHotEncoder, StandardScaler
+
+from real_estate_predictor.processing.processor import Processor
+
 
 # need this function to compare arrays with nans since nans are not equal to themselves
 # check if arrays are equal ignoring np.nan

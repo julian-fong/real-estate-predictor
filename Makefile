@@ -12,8 +12,15 @@ quality:
 	isort --check-only $(check_dirs)/*.py
 	flake8 $(check_dirs)/*.py
 
+# individual quality checks
 black_full: 
 	black $(check_dirs)/*.py
+
+isort_full:
+	isort $(check_dirs)/*.py
+
+flake8_full:
+	flake8 --ignore=E501,W503 $(check_dirs)/*.py
 
 predictor_tests:
 	python -m pytest -vv real_estate_predictor/tests/

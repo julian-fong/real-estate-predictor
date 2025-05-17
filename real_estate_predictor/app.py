@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from real_estate_predictor.predict import predict, extract_input
+
+from real_estate_predictor.predict import extract_input, predict
 
 app = FastAPI()
 

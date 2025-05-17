@@ -1,18 +1,21 @@
-import pandas as pd
-import numpy as np
-import requests
 import os
 import pickle
+
+import numpy as np
+import pandas as pd
+import requests
 
 key = os.environ["REPLIERS_KEY"]
 
 
+from real_estate_predictor.config import (DATACLEANER_FILE,
+                                          FEATURE_ENGINEERING_FILE,
+                                          PREPROCESSOR_FILE)
+from real_estate_predictor.processing.processor import (DataCleaner,
+                                                        FeatureEngineering,
+                                                        Processor)
 from real_estate_predictor.utils.extract_dataset import (
-    extract_raw_data_listings,
-    subtract_months,
-)
-from real_estate_predictor.processing.processor import DataCleaner, FeatureEngineering, Processor
-from real_estate_predictor.config import PREPROCESSOR_FILE, DATACLEANER_FILE, FEATURE_ENGINEERING_FILE
+    extract_raw_data_listings, subtract_months)
 
 processor_path = PREPROCESSOR_FILE
 processor = Processor.load(processor_path)
@@ -77,7 +80,9 @@ def transform_neighborhood_input(data):
     }
 
     headers = {"repliers-api-key": key}
-    r = requests.request("GET", url, params=NEIGHBOURHOOD_PARAMETERS, headers=headers, timeout=10)
+    r = requests.request(
+        "GET", url, params=NEIGHBOURHOOD_PARAMETERS, headers=headers, timeout=10
+    )
     n_data = r.json()
 
     mapping = {

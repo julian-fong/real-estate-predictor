@@ -1,14 +1,13 @@
-import requests
 import os
 import pickle
 
+import requests
+
 key = os.environ["REPLIERS_KEY"]
 
+from real_estate_predictor.config.config import (LEASE_MODEL_FILE,
+                                                 SALE_MODEL_FILE)
 from real_estate_predictor.utils.validate_input import process_input
-
-
-from real_estate_predictor.config.config import SALE_MODEL_FILE
-from real_estate_predictor.config.config import LEASE_MODEL_FILE
 
 sale_model_path = SALE_MODEL_FILE
 sale_model = pickle.load(open(sale_model_path, "rb"))

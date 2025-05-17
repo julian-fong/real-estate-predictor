@@ -1,18 +1,17 @@
-import yaml
 import pathlib
 from copy import deepcopy
 
 import pandas as pd
-from real_estate_predictor.utils.extract_dataset import extract_raw_data_listings
-from real_estate_predictor.processing.processor import (
-    DataCleaner,
-    FeatureEngineering,
-    Processor,
-)
+import yaml
+
 from real_estate_predictor.models.model import XGBoostRegressor
-from real_estate_predictor.utils.merge_datasets import (
-    merge_neighborhood_previous_columns,
-)
+from real_estate_predictor.processing.processor import (DataCleaner,
+                                                        FeatureEngineering,
+                                                        Processor)
+from real_estate_predictor.utils.extract_dataset import \
+    extract_raw_data_listings
+from real_estate_predictor.utils.merge_datasets import \
+    merge_neighborhood_previous_columns
 from real_estate_predictor.utils.pandas import pandas_read_filepath
 
 

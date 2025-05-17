@@ -1,8 +1,9 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 import pytest
-from real_estate_predictor.models.model import *
 from sklearn.model_selection import train_test_split
+
+from real_estate_predictor.models.model import *
 
 data = {
     "listPrice": [

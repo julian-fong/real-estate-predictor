@@ -1,14 +1,12 @@
+import ast
 from datetime import datetime as dt
+
+import numpy as np
 import pandas as pd
 from dateutil.relativedelta import relativedelta
-import numpy as np
-import ast
 
 from real_estate_predictor.config.config import (
-    LISTING_COLUMN_TO_DTYPE_MAPPING,
-    LISTING_EXPECTED_COLUMNS,
-)
-
+    LISTING_COLUMN_TO_DTYPE_MAPPING, LISTING_EXPECTED_COLUMNS)
 
 MISSING_VALUES = [
     "",

@@ -1,17 +1,16 @@
-from copy import deepcopy
-from pathlib import Path
+import datetime as dt
 import pathlib
 import pickle
-import datetime as dt
-import pandas as pd
-import numpy as np
+from copy import deepcopy
+from pathlib import Path
 
-from sklearn.model_selection import GridSearchCV
+import numpy as np
+import pandas as pd
+import shap
+from sklearn import metrics
 from sklearn.feature_selection import SelectFromModel
 from sklearn.model_selection import GridSearchCV
-from sklearn import metrics
-from xgboost import XGBRegressor, XGBClassifier, plot_importance
-import shap
+from xgboost import XGBClassifier, XGBRegressor, plot_importance
 
 
 class BaseModel:

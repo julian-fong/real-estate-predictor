@@ -1,16 +1,16 @@
 import os
-import time
 import pathlib
+import time
+
 import requests
 
 key = os.environ["REPLIERS_KEY"]
 
-import pandas as pd
-
 # for function subtract_months
 import datetime as dt
-
 from pathlib import Path
+
+import pandas as pd
 
 
 def retrieve_repliers_listing_request(

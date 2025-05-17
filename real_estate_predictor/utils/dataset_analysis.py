@@ -1,16 +1,17 @@
 """Main Module for methods to handle data cleaning, data analysis, and data transformation"""
 
-import pandas as pd
 import re
+
+import pandas as pd
 
 pd.set_option("display.max_rows", 500)
 pd.set_option("display.max_columns", 500)
 
 import matplotlib.pyplot as plt
-from matplotlib.dates import MonthLocator, DateFormatter
-from matplotlib.pyplot import legend
 import numpy as np
 import seaborn as sns
+from matplotlib.dates import DateFormatter, MonthLocator
+from matplotlib.pyplot import legend
 
 # Data Exploration / Analysis
 
@@ -170,6 +171,7 @@ def plot_scatterplot(df, col1, col2, label1=None, label2=None):
 
     plt.show()
 
+
 def show_pairplot(df, pairplot_cols, class_col):
     sns.pairplot(df[pairplot_cols], hue=class_col)
 
@@ -237,6 +239,7 @@ def remove_duplicates(df: pd.DataFrame, columns=None, inplace=False, ignore_inde
 
 
 ## Handling Missing/Bad Values
+
 
 def helper_calculate_missing_values_percentage_by_col(df: pd.DataFrame, column):
     """
@@ -477,9 +480,7 @@ def standardize_ammenities_text(df):
     """
 
     df["ammenities"] = df["ammenities"].apply(helper_clean_ammenities_list)
-    df["condo_ammenities"] = df["condo_ammenities"].apply(
-        helper_clean_ammenities_list
-    )
+    df["condo_ammenities"] = df["condo_ammenities"].apply(helper_clean_ammenities_list)
 
     return df
 
