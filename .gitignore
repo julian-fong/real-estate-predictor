@@ -12,6 +12,7 @@ real_estate_predictor/tests/config.yaml
 
 real_estate_predictor/config/*.yaml
 !real_estate_predictor/config/sample_lease_config.yaml
+!real_estate_predictor/config/sample_sale_config.yaml
 
 # Do not ignore the datasets directory itself
 !real_estate_predictor/storage/datasets/

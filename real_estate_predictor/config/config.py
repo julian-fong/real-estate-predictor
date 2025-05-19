@@ -41,12 +41,12 @@ MODEL_MODULE_FILE = (
 SALE_MODEL_FILE = (
     pathlib.Path(__file__)
     .parent.parent.absolute()
-    .joinpath("storage", "production", "model.pkl")
+    .joinpath("storage", "production", "sale_model.pkl")
 )
 LEASE_MODEL_FILE = (
     pathlib.Path(__file__)
     .parent.parent.absolute()
-    .joinpath("storage", "production", "model.pkl")
+    .joinpath("storage", "production", "lease_model.pkl")
 )
 
 # Configuration parameters for generate_dataset

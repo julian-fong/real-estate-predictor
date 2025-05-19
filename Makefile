@@ -23,6 +23,7 @@ flake8_full:
 	flake8 --ignore=E501,W503 $(check_dirs)/*.py
 
 predictor_tests:
-	python -m pytest -vv real_estate_predictor/tests/
+	# python -m pytest -vv real_estate_predictor/tests/
+	pytest --cov=real_estate_predictor --cov-report=term --cov-report=xml tests/
 
 all: install quality predictor_tests

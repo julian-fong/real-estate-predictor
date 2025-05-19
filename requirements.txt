@@ -3,6 +3,7 @@ numpy
 scikit-learn
 mlflow
 pytest
+pytest-cov
 black
 lint
 flake8

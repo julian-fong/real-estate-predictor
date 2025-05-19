@@ -1,0 +1,114 @@
+DataCleaner:
+  filter_rows_by_threshold:
+    columns:
+    - listPrice
+    - soldPrice
+    strategy: gt
+    threshold: 90000
+  handle_missing_values:
+    columns:
+    - numDrivewaySpaces
+    strategy: columns
+  remove_outliers:
+    columns:
+    - listPrice
+    - soldPrice
+    - numRooms
+    - numBedrooms
+    - numBathrooms
+    - numRooms
+    - numKitchens
+    - numParkingSpaces
+    - numGarageSpaces
+    strategy: columns
+  replace_values_via_mask:
+    columns:
+    - numBedrooms
+    - numBathrooms
+    - numRooms
+    - numKitchens
+    - numParkingSpaces
+    - numGarageSpaces
+    strategy: lt
+    threshold: 0
+FeatureEngineering:
+  create_features_old:
+    columns:
+    - numAmmenities
+    - numCondoAmmenities
+    - has_ammenities_flags
+    - sqft_avg
+    - ppsqft
+    - postal_code_split_2
+    - daysOnMarket
+    - bedbathRatio
+    - previous_months_ppsqft
+    - difference_bymonth_columns
+    - ratio_bymonth_columns
+Processor:
+  drop_columns:
+    columns:
+    - listPrice
+    - zip
+    - description
+    - type
+    - extras
+    - listDate
+    - soldDate
+    - sqft
+    - neighborhood
+    save_columns: true
+  encode_categorical:
+    columns:
+    - postal_code_split_2
+    - class
+    - style
+    - area
+    - district
+    - city
+    - propertyType
+    strategy: onehot
+  target: soldPrice
+  train_test_split_df:
+    target: soldPrice
+  transform_numerical:
+    columns:
+    - avg_soldPrice_current
+    - med_soldPrice_current
+    - avg_listPrice_current
+    - med_listPrice_current
+    - avg_soldPrice_currentL1M
+    - med_soldPrice_currentL1M
+    - avg_listPrice_currentL1M
+    - med_listPrice_currentL1M
+    - avg_soldPrice_currentL3M
+    - med_soldPrice_currentL3M
+    - avg_listPrice_currentL3M
+    - med_listPrice_currentL3M
+    - avg_soldPrice_currentL6M
+    - med_soldPrice_currentL6M
+    - avg_listPrice_currentL6M
+    - med_listPrice_currentL6M
+    strategy: default
+SelectFromModel:
+  max_features: 40
+  threshold: -np.inf
+grid_search:
+  cv: 5
+  scoring: neg_mean_squared_error
+listings_filepath: enter_listings_filepath_here
+model:
+  learning_rate: 0.05
+  max_depth: 5
+  n_estimators: 100
+model_type: XGBRegressor
+neighbourhoods_filepath: enter_neighbourhoods_filepath_here
+param_grid:
+  learning_rate:
+  - 0.01
+  max_depth:
+  - 3
+  - 5
+  n_estimators:
+  - 100
+type: Lease
