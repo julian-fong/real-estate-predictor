@@ -15,7 +15,7 @@ from real_estate_predictor.utils.merge_datasets import \
 from real_estate_predictor.utils.pandas import pandas_read_filepath
 
 
-def run_datacleaner(df: pd.DataFrame, config: dict, save=bool) -> pd.DataFrame:
+def run_datacleaner(df: pd.DataFrame, config: dict, save=False) -> pd.DataFrame:
     """
     Cleans the dataset based on the provided configuration.
 
@@ -44,7 +44,7 @@ def run_datacleaner(df: pd.DataFrame, config: dict, save=bool) -> pd.DataFrame:
     return df
 
 
-def run_feature_engineering(df: pd.DataFrame, config: dict, save=bool) -> pd.DataFrame:
+def run_feature_engineering(df: pd.DataFrame, config: dict, save=False) -> pd.DataFrame:
     """
     Performs feature engineering on the dataset based on the provided configuration.
 
@@ -65,15 +65,15 @@ def run_feature_engineering(df: pd.DataFrame, config: dict, save=bool) -> pd.Dat
 
     for key, value in config.items():
         f = getattr(feature_engineer, key)
-        df = f(**value)
-
+        f(**value)
+        
     if save:
         feature_engineer.save()
 
     return df
 
 
-def run_preprocessor(df: pd.DataFrame, config: dict, save=bool) -> tuple:
+def run_preprocessor(df: pd.DataFrame, config: dict, save=False) -> tuple:
     """
     Preprocesses the dataset based on the provided configuration.
 
@@ -87,21 +87,28 @@ def run_preprocessor(df: pd.DataFrame, config: dict, save=bool) -> tuple:
         tuple: Tuple containing the preprocessed features and target variables.
     """
     preprocessor = Processor(df)
-
-    for key in config.keys():
+    
+    _config = deepcopy(config)
+    assert "target" in _config.keys(), "The config file must contain a 'target' key."
+    target = _config["target"]
+    _config.pop("target")
+    
+    for key in _config.keys():
         assert key in dir(
             preprocessor
         ), f"Function Name {key} not found in Preprocessor class"
 
-    _config = deepcopy(config)
-    assert "target" in _config.keys(), "The config file must contain a 'target' key."
-    target = _config["target"]
     assert (
         target in df.columns
     ), f"The target column '{target}' is not present in the DataFrame."
 
     if "train_test_split_df" in _config.keys():
         _config.pop("train_test_split_df")
+        
+    if "drop_columns" in _config.keys():
+        preprocessor.drop_columns(**_config["drop_columns"])
+        _config.pop("drop_columns")
+        
     X, y = preprocessor.train_test_split_df(target)
 
     if "train_test_split" in _config.keys():
@@ -154,14 +161,14 @@ def run_train_pipeline(config=None, save=False):
         df = run_datacleaner(df, data["DataCleaner"], save=save)
 
     # check and feature engineer the data
-    if "FeatureEngineer" in data.keys():
-        df = run_feature_engineering(df, data["FeatureEngineer"], save=save)
+    if "FeatureEngineering" in data.keys():
+        df = run_feature_engineering(df, data["FeatureEngineering"], save=save)
 
     # check for a Preprocessor
-    if not data["Preprocessor"]:
-        raise ValueError("The config file must contain a 'Preprocessor' key.")
+    if not data["Processor"]:
+        raise ValueError("The config file must contain a 'Processor' key.")
     else:
-        X_train, y_train, _, _ = run_preprocessor(df, data["Preprocessor"], save=save)
+        X_train, y_train, _, _ = run_preprocessor(df, data["Processor"], save=save)
 
     # load and training the model
 
@@ -187,7 +194,7 @@ def run_train_pipeline(config=None, save=False):
     model.fit(X_train, y_train)
 
     if save:
-        model.save_model()
+        model.save_model(override = True)
 
 
 if __name__ == "__main__":

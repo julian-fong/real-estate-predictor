@@ -244,16 +244,13 @@ class XGBoostRegressor(BaseModel):
         # if we have nothing, try to override using self.model_path
         if not filename and not model_path:
             if override:
-                if not self.model_path:
-                    raise ValueError(
-                        "No model path specified in the signture and no model path attribute was set"
-                    )
-                final_path = self.model_path
-                with open(final_path, "wb") as f:
-                    pickle.dump(self._model, f)
+                if self.model_path:
+                    final_path = self.model_path
+                    with open(final_path, "wb") as f:
+                        pickle.dump(self._model, f)
             else:
                 raise ValueError(
-                    "Parameter override is set to False, please set to true to override previous model"
+                    "Parameter `override` is set to False, please set to true to `override` previous model"
                 )
 
         if not model_path:
@@ -264,6 +261,8 @@ class XGBoostRegressor(BaseModel):
             )
         else:
             path = Path(path)
+            
+        self.model_path = path
 
         if not filename:
             date = dt.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")

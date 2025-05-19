@@ -856,24 +856,25 @@ class Processor:
 
         return X_transformed
 
-    def drop_columns(self, df, columns, save_columns=False):
+    def drop_columns(self, columns, save_columns=False):
         """
 
         if save_columns is True, will save the list of columns that were dropped,
         useful if you want to drop the same columns from another dataframe when loading
         the processor.
         """
+            
         if save_columns:
             self.dropped_columns = columns
-        if not all([True if col in df.columns else False for col in columns]):
-            drop_columns = [col for col in columns if col in df.columns]
+        if not all([True if col in self.df.columns else False for col in columns]):
+            drop_columns = [col for col in columns if col in self.df.columns]
             warnings.warn(
                 f"some columns in {columns} are not found in dataframe, these columns will be ignored"
             )
         else:
             drop_columns = columns
-        df = df.drop(columns=drop_columns, axis=1)
-        return df
+        self.df = self.df.drop(columns=drop_columns, axis=1)
+
 
     def set_df(self, df):
         self.df = df

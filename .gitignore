@@ -6,6 +6,7 @@ real_estate_predictor/storage/datasets/processed/*.csv
 real_estate_predictor/storage/processors/*.pkl
 real_estate_predictor/storage/models/*.pkl
 real_estate_predictor/storage/production/*.pkl
+real_estate_predictor/tests/config.yaml
 !real_estate_predictor/storage/production/sample_lease_model.pkl
 !real_estate_predictor/storage/production/sample_sale_model.pkl
 
