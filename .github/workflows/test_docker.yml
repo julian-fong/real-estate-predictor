@@ -21,9 +21,15 @@ jobs:
           run: docker build -t fast_api_app .
         
         - name: Run Docker container
-          run: docker run -e REPLIERS_KEY=${{ secrets.REPLIERS_KEY }} -d -p 8000:8000 fast_api_app
+          run: docker run -e REPLIERS_KEY=${{ secrets.REPLIERS_KEY }} -d -p 8000:8000 --name rep-container fast_api_app
 
-        - name: Wait for container initialization then run health check
+        - name: Wait for container initialization
           run: |
-            sleep 10
+            sleep 5
+        - name : Show initial logs
+          run: |
+            docker ps -a
+            docker logs rep-container
+        - name: Run health check
+          run: |
             curl -f http://localhost:8000/health || exit 1
