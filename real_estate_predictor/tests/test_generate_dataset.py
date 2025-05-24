@@ -1,4 +1,5 @@
 """Test file for repliers generate_dataset."""
+
 import os
 
 import pytest
@@ -13,6 +14,7 @@ from real_estate_predictor.utils.generate_dataset import (
 )
 
 key = os.getenv("REPLIERS_KEY")
+
 
 @pytest.fixture
 def repliers_request():

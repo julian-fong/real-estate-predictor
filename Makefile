@@ -9,7 +9,6 @@ install:
 quality:
 	# pylint --disable=R,C $(check_dirs)/*.py
 	black --check $(check_dirs)/*.py
-	# isort --check-only $(check_dirs)/*.py
 	flake8 $(check_dirs)/*.py
 
 # individual quality checks

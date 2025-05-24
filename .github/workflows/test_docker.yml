@@ -10,9 +10,6 @@ on:
 jobs:
     test_docker_container:
         runs-on: ${{ matrix.os }}
-        defaults:
-          run:
-            shell: bash
         strategy:
             matrix:
                 os: [ubuntu-latest, windows-latest]
@@ -22,6 +19,7 @@ jobs:
         
         - name: Build Docker image
           run: docker build -t fast_api_app .
+          shell: bash
         
         - name: Run Docker container
           run: docker run -e REPLIERS_KEY=${{ secrets.REPLIERS_KEY }} -d -p 8000:8000 --name rep-container fast_api_app
