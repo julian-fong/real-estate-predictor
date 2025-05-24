@@ -1,7 +1,23 @@
+
 # Ignore all JSON and CSV files in the datasets directory
 real_estate_predictor/storage/datasets/*.json
 real_estate_predictor/storage/datasets/*.csv
 real_estate_predictor/storage/datasets/processed/*.csv
+real_estate_predictor/storage/processors/*.pkl
+real_estate_predictor/storage/models/*.pkl
+real_estate_predictor/storage/production/*.pkl
+real_estate_predictor/tests/config.yaml
+!real_estate_predictor/storage/production/sample_lease_model.pkl
+!real_estate_predictor/storage/production/sample_sale_model.pkl
+
+!real_estate_predictor/storage/processors/processor_2025-05-19T09-32-17.pkl
+!real_estate_predictor/storage/processors/datacleaner_2025-05-19T09-31-57.pkl
+!real_estate_predictor/storage/processors/featureengineering_2025-05-19T09-32-11.pkl
+
+real_estate_predictor/config/*.yaml
+!real_estate_predictor/config/sample_lease_config.yaml
+!real_estate_predictor/config/sample_sale_config.yaml
+
 # Do not ignore the datasets directory itself
 !real_estate_predictor/storage/datasets/
 
