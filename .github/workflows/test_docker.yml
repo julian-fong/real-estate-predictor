@@ -10,6 +10,9 @@ on:
 jobs:
     test_docker_container:
         runs-on: ${{ matrix.os }}
+        defaults:
+          run:
+            shell: bash
         strategy:
             matrix:
                 os: [ubuntu-latest, windows-latest]
@@ -22,7 +25,6 @@ jobs:
         
         - name: Run Docker container
           run: docker run -e REPLIERS_KEY=${{ secrets.REPLIERS_KEY }} -d -p 8000:8000 --name rep-container fast_api_app
-
         - name: Wait for container initialization
           run: |
             sleep 5
