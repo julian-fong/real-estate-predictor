@@ -3,10 +3,14 @@ import os
 
 import pytest
 
-from real_estate_predictor.config.config import (LISTING_PARAMETERS,
-                                                 NEIGHBOURHOOD_PARAMETERS)
+from real_estate_predictor.config.config import (
+    LISTING_PARAMETERS,
+    NEIGHBOURHOOD_PARAMETERS,
+)
 from real_estate_predictor.utils.generate_dataset import (
-    retrieve_repliers_listing_request, retrieve_repliers_neighbourhood_request)
+    retrieve_repliers_listing_request,
+    retrieve_repliers_neighbourhood_request,
+)
 
 key = os.getenv("REPLIERS_KEY")
 

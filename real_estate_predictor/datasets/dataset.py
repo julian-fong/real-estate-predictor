@@ -2,16 +2,20 @@ import time
 
 import pandas as pd
 
-from real_estate_predictor.config.config import (LISTING_PARAMETERS,
-                                                 NEIGHBOURHOOD_NUMBEDROOMS,
-                                                 NEIGHBOURHOOD_PARAMETERS,
-                                                 NEIGHBOURHOOD_TYPES,
-                                                 NEIGHBOURHOODS)
-from real_estate_predictor.utils.extract_dataset import \
-    extract_neighborhood_data
+from real_estate_predictor.config.config import (
+    LISTING_PARAMETERS,
+    NEIGHBOURHOOD_NUMBEDROOMS,
+    NEIGHBOURHOOD_PARAMETERS,
+    NEIGHBOURHOOD_TYPES,
+    NEIGHBOURHOODS,
+)
+from real_estate_predictor.utils.extract_dataset import extract_neighborhood_data
 from real_estate_predictor.utils.generate_dataset import (
-    retrieve_repliers_listing_request, retrieve_repliers_neighbourhood_request,
-    save_dataset, save_raw_dataset)
+    retrieve_repliers_listing_request,
+    retrieve_repliers_neighbourhood_request,
+    save_dataset,
+    save_raw_dataset,
+)
 
 
 class Dataset:

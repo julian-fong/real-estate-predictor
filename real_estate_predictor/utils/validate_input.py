@@ -7,14 +7,20 @@ import pandas as pd
 import requests
 from xgboost import XGBClassifier, XGBRegressor
 
-from real_estate_predictor.config import (DATACLEANER_FILE,
-                                          FEATURE_ENGINEERING_FILE,
-                                          PREPROCESSOR_FILE)
-from real_estate_predictor.processing.processor import (DataCleaner,
-                                                        FeatureEngineering,
-                                                        Processor)
+from real_estate_predictor.config import (
+    DATACLEANER_FILE,
+    FEATURE_ENGINEERING_FILE,
+    PREPROCESSOR_FILE,
+)
+from real_estate_predictor.processing.processor import (
+    DataCleaner,
+    FeatureEngineering,
+    Processor,
+)
 from real_estate_predictor.utils.extract_dataset import (
-    extract_raw_data_listings, subtract_months)
+    extract_raw_data_listings,
+    subtract_months,
+)
 
 plt = platform.system()
 if plt == "Windows":

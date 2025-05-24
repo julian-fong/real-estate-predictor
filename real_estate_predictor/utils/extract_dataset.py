@@ -6,7 +6,9 @@ import pandas as pd
 from dateutil.relativedelta import relativedelta
 
 from real_estate_predictor.config.config import (
-    LISTING_COLUMN_TO_DTYPE_MAPPING, LISTING_EXPECTED_COLUMNS)
+    LISTING_COLUMN_TO_DTYPE_MAPPING,
+    LISTING_EXPECTED_COLUMNS,
+)
 
 MISSING_VALUES = [
     "",

@@ -1,13 +1,13 @@
 import os
 import pathlib
 import pickle
+
 # Ensure compatibility with different operating systems when using pathlib
 import platform
 
 import requests
 
-from real_estate_predictor.config.config import (LEASE_MODEL_FILE,
-                                                 SALE_MODEL_FILE)
+from real_estate_predictor.config.config import LEASE_MODEL_FILE, SALE_MODEL_FILE
 from real_estate_predictor.utils.validate_input import process_input
 
 key = os.environ["REPLIERS_KEY"]

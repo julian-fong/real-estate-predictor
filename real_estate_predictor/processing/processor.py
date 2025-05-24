@@ -11,11 +11,17 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 
 from real_estate_predictor.config.config import (
-    FEATURE_ENGINEERING_PARAMETERS, PREPROCESSING_PARAMETERS)
+    FEATURE_ENGINEERING_PARAMETERS,
+    PREPROCESSING_PARAMETERS,
+)
 from real_estate_predictor.utils.dataset_analysis import (
-    remove_na_values_by_col, removeOutliers, replace_values)
-from real_estate_predictor.utils.feature_engineering import \
-    TEST_FEATURE_ENGINEERING_PARAMETERS_1
+    remove_na_values_by_col,
+    removeOutliers,
+    replace_values,
+)
+
+# from real_estate_predictor.utils.feature_engineering import \
+#     TEST_FEATURE_ENGINEERING_PARAMETERS_1
 from real_estate_predictor.utils.functionlogger import FunctionLogger
 
 
@@ -990,29 +996,29 @@ class FeatureEngineering(FunctionLogger):
         self.passed_columns = columns
 
     # TODO: Implement a way to check if the feature is already in the cache
-    def create_features(
-        self, columns=None, ignore_features=None, feature=None, defer=False
-    ):
-        if defer:
-            self.deferred_functions.append(
-                self.create_features(columns, ignore_features, feature, defer=False)
-            )
-            return
+    # def create_features(
+    #     self, columns=None, ignore_features=None, feature=None, defer=False
+    # ):
+    #     if defer:
+    #         self.deferred_functions.append(
+    #             self.create_features(columns, ignore_features, feature, defer=False)
+    #         )
+    #         return
 
-        if not columns:
-            columns = self.df.columns
+    #     if not columns:
+    #         columns = self.df.columns
 
-        for feature in TEST_FEATURE_ENGINEERING_PARAMETERS_1:
-            is_feature_in_cache = self._check_feature_in_cache(
-                feature, self.column_cache
-            )
+    #     for feature in TEST_FEATURE_ENGINEERING_PARAMETERS_1:
+    #         is_feature_in_cache = self._check_feature_in_cache(
+    #             feature, self.column_cache
+    #         )
 
-            if not is_feature_in_cache:
-                for col in TEST_FEATURE_ENGINEERING_PARAMETERS_1[feature][0]:
-                    if not col:
-                        self.column_cache[feature] = True
-                    else:
-                        self.create_features()
+    #         if not is_feature_in_cache:
+    #             for col in TEST_FEATURE_ENGINEERING_PARAMETERS_1[feature][0]:
+    #                 if not col:
+    #                     self.column_cache[feature] = True
+    #                 else:
+    #                     self.create_features()
 
     def _check_feature_in_cache(self, feature, column_cache):
         """
