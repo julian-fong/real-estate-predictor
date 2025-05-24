@@ -18,8 +18,8 @@ jobs:
           uses: actions/checkout@v2
         
         - name: Build Docker image
-          run: docker build -t fast_api_app .
           shell: bash
+          run: docker build -t fast_api_app .
         
         - name: Run Docker container
           run: docker run -e REPLIERS_KEY=${{ secrets.REPLIERS_KEY }} -d -p 8000:8000 --name rep-container fast_api_app
