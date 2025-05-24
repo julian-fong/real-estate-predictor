@@ -5,12 +5,14 @@ import requests
 
 key = os.environ["REPLIERS_KEY"]
 
-from real_estate_predictor.config.config import (LEASE_MODEL_FILE,
-                                                 SALE_MODEL_FILE)
-from real_estate_predictor.utils.validate_input import process_input
 import pathlib
 # Ensure compatibility with different operating systems when using pathlib
 import platform
+
+from real_estate_predictor.config.config import (LEASE_MODEL_FILE,
+                                                 SALE_MODEL_FILE)
+from real_estate_predictor.utils.validate_input import process_input
+
 plt = platform.system()
 if plt == 'Windows': 
     pathlib.PosixPath = pathlib.WindowsPath

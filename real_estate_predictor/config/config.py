@@ -623,7 +623,7 @@ LISTING_HIERARCHY = {
     },
 }
 
-# Configuration parameters for manipulate_dataset
+# Configuration parameters for extract_dataset.py
 
 LISTING_EXPECTED_COLUMNS = [
     "class",

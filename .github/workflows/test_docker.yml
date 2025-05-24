@@ -33,3 +33,7 @@ jobs:
         - name: Run health check
           run: |
             curl -f http://localhost:8000/health || exit 1
+        - name: cleanup
+          run: |
+            docker stop rep-container
+            docker rm -f rep-container
