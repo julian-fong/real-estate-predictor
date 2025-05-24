@@ -1,13 +1,11 @@
 import os
-import pickle
+import pathlib
+import platform
 
 import numpy as np
 import pandas as pd
 import requests
 from xgboost import XGBClassifier, XGBRegressor
-
-key = os.environ["REPLIERS_KEY"]
-
 
 from real_estate_predictor.config import (DATACLEANER_FILE,
                                           FEATURE_ENGINEERING_FILE,
@@ -17,6 +15,14 @@ from real_estate_predictor.processing.processor import (DataCleaner,
                                                         Processor)
 from real_estate_predictor.utils.extract_dataset import (
     extract_raw_data_listings, subtract_months)
+
+plt = platform.system()
+if plt == "Windows":
+    pathlib.PosixPath = pathlib.WindowsPath
+elif plt == "Linux":
+    pathlib.WindowsPath = pathlib.PosixPath
+
+key = os.environ["REPLIERS_KEY"]
 
 processor_path = PREPROCESSOR_FILE
 processor = Processor.load(processor_path)

@@ -40,7 +40,7 @@ def merge_neighborhood_previous_columns(df, other_df, key="key", drop_key_after=
         If True, the key column will be dropped from the resulting dataframe.
     """
 
-    if not key in df.columns:
+    if key not in df.columns:
         df = helper_construct_neighbourhood_key_column(df)
 
     df = df.merge(other_df, on=key, how="left")

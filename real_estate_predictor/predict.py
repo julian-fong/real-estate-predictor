@@ -1,22 +1,21 @@
 import os
-import pickle
-
-import requests
-
-key = os.environ["REPLIERS_KEY"]
-
 import pathlib
+import pickle
 # Ensure compatibility with different operating systems when using pathlib
 import platform
+
+import requests
 
 from real_estate_predictor.config.config import (LEASE_MODEL_FILE,
                                                  SALE_MODEL_FILE)
 from real_estate_predictor.utils.validate_input import process_input
 
+key = os.environ["REPLIERS_KEY"]
+
 plt = platform.system()
-if plt == 'Windows': 
+if plt == "Windows":
     pathlib.PosixPath = pathlib.WindowsPath
-elif plt == 'Linux':
+elif plt == "Linux":
     pathlib.WindowsPath = pathlib.PosixPath
 
 sale_model_path = SALE_MODEL_FILE

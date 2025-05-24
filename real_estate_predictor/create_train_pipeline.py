@@ -66,7 +66,6 @@ def run_feature_engineering(df: pd.DataFrame, config: dict, save=False) -> pd.Da
     for key, value in config.items():
         f = getattr(feature_engineer, key)
         f(**value)
-        
     if save:
         feature_engineer.save()
 
@@ -87,12 +86,10 @@ def run_preprocessor(df: pd.DataFrame, config: dict, save=False) -> tuple:
         tuple: Tuple containing the preprocessed features and target variables.
     """
     preprocessor = Processor(df)
-    
     _config = deepcopy(config)
     assert "target" in _config.keys(), "The config file must contain a 'target' key."
     target = _config["target"]
     _config.pop("target")
-    
     for key in _config.keys():
         assert key in dir(
             preprocessor
@@ -104,13 +101,11 @@ def run_preprocessor(df: pd.DataFrame, config: dict, save=False) -> tuple:
 
     if "train_test_split_df" in _config.keys():
         _config.pop("train_test_split_df")
-        
     if "drop_columns" in _config.keys():
         preprocessor.drop_columns(**_config["drop_columns"])
         _config.pop("drop_columns")
-        
-    X, y = preprocessor.train_test_split_df(target)
 
+    X, y = preprocessor.train_test_split_df(target)
     if "train_test_split" in _config.keys():
         X_train, X_test, y_train, y_test = preprocessor.train_test_split(
             X, y, **_config["train_test_split"]
@@ -194,7 +189,7 @@ def run_train_pipeline(config=None, save=False):
     model.fit(X_train, y_train)
 
     if save:
-        model.save_model(override = True)
+        model.save_model(override=True)
 
 
 if __name__ == "__main__":

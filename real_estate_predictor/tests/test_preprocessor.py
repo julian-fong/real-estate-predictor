@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import pytest
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
@@ -179,7 +178,7 @@ data = {
 test_df = pd.DataFrame(data)
 
 
-##Test Cases
+# Test Cases
 
 
 def test_apply_transformer():

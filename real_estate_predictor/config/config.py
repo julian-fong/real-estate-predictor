@@ -691,9 +691,9 @@ LISTING_COLUMN_TO_DTYPE_MAPPING = {
 
 # Configuration parameters for Processor
 
-## Each key in the dictionary is a column name and the value is a list of functions to apply to the column
+# Each key in the dictionary is a column name and the value is a list of functions to apply to the column
 
-## col : [func1, func2, func3]
+# col : [func1, func2, func3]
 
 PREPROCESSING_PARAMETERS = {
     "ammenities": [standardize_ammenities_text],
@@ -709,9 +709,9 @@ PREPROCESSING_PARAMETERS = {
 
 # Configuration parameters for FeatureEngineering
 
-## Each key in the dictionary is a new feature name and the value is a tuple containing a pre-requisite set of features that need to be in the column to generate the new feature, along with that function name
+# Each key in the dictionary is a new feature name and the value is a tuple containing a pre-requisite set of features that need to be in the column to generate the new feature, along with that function name
 
-## new_feature_col : ([col1, col2, col3], feature_engineering_func)
+# new_feature_col : ([col1, col2, col3], feature_engineering_func)
 
 # for now, please add the columns you want IN THE ORDER of the FEATURE_ENGINEERING_PARAMETERS keys
 # i.e if you want to add the column "ppsqft", you need to add "sqft_avg" in the create_features function first to avoid errors
@@ -1012,6 +1012,6 @@ TEST_FEATURE_ENGINEERING_PARAMETERS_2 = {
     "sqft_avg": (["sqft"], create_sqft_avg_column),
 }
 
-## Configuration Parameters for Pipeline
+# Configuration Parameters for Pipeline
 
 CONFIGURATION_PARAMETERS = {}

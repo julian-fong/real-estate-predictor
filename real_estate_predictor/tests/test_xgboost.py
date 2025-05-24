@@ -1,9 +1,8 @@
 import numpy as np
 import pandas as pd
-import pytest
 from sklearn.model_selection import train_test_split
 
-from real_estate_predictor.models.model import *
+from real_estate_predictor.models.model import BaseModel, XGBoostRegressor
 
 data = {
     "listPrice": [

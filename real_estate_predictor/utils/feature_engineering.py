@@ -5,7 +5,7 @@ import pandas as pd
 
 # Feature Engineering
 
-## Sqft
+# Sqft
 
 
 def helper_create_avg_sqft(x):
@@ -18,7 +18,7 @@ def helper_create_avg_sqft(x):
                 # pattern = r"\d+"
                 # matches = re.findall(pattern, x)
                 # return int(matches[0])
-    except Exception as e:
+    except Exception:
         return np.nan
 
 
@@ -41,7 +41,7 @@ def create_ppsqft_column(df):
     return df
 
 
-## Bed and Bath
+# Bed and Bath
 
 
 def create_bedbathRatio_column(df):
@@ -67,7 +67,7 @@ def create_bedbathRatio_column(df):
     return df
 
 
-## Ammenities and Condo Ammenities
+# Ammenities and Condo Ammenities
 
 
 def convert_pd_convert_literal_eval_to_list(df, column):
@@ -180,7 +180,7 @@ def helper_calculate_num_ammenities(x):
             if item != "":
                 count += 1
         return count
-    except Exception as e:
+    except Exception:
         return np.nan
 
 
@@ -197,14 +197,14 @@ def create_num_ammenities_column(df):
     return df
 
 
-## Postal Code
+# Postal Code
 
 
 def helper_split_postal_code(x, num_chars=2):
 
     try:
         x = x[:num_chars]
-    except Exception as e:
+    except Exception:
         return np.nan
 
     return x
@@ -224,7 +224,7 @@ def create_split_postalcode_column(df, num_chars=2):
     return df
 
 
-## Datetime
+# Datetime
 
 
 def create_dom_column(df):
@@ -242,7 +242,7 @@ def create_dom_column(df):
     return df
 
 
-## neighbourhoods dataset
+# neighbourhoods dataset
 
 
 def create_previous_month_ppsqft_columns(df):

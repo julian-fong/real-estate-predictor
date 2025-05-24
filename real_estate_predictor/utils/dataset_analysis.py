@@ -2,13 +2,9 @@
 
 import re
 
-import pandas as pd
-
-pd.set_option("display.max_rows", 500)
-pd.set_option("display.max_columns", 500)
-
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import seaborn as sns
 from matplotlib.dates import DateFormatter, MonthLocator
 from matplotlib.pyplot import legend
@@ -220,7 +216,7 @@ def kde_plots(df, cols):
 
 # Data cleaning
 
-## Removing Duplicates
+# Removing Duplicates
 
 
 def remove_duplicates(df: pd.DataFrame, columns=None, inplace=False, ignore_index=True):
@@ -238,7 +234,7 @@ def remove_duplicates(df: pd.DataFrame, columns=None, inplace=False, ignore_inde
         )
 
 
-## Handling Missing/Bad Values
+# Handling Missing/Bad Values
 
 
 def helper_calculate_missing_values_percentage_by_col(df: pd.DataFrame, column):
@@ -340,7 +336,7 @@ def replace_values(df: pd.DataFrame, column, value, replacement=np.nan):
     return df
 
 
-## Standardizing Text
+# Standardizing Text
 
 
 def replace_special_text(text, keep_hyphens=False, space_mode="underscore"):
@@ -417,7 +413,7 @@ def clean_string(text, keep_hyphens=False, space_mode="underscore", errors="rais
 
 # Individual Predictors
 
-## Postal Code
+# Postal Code
 
 
 def helper_standardize_postal_code(x: str):
@@ -452,7 +448,7 @@ def standardize_postal_code(df: pd.DataFrame, col: str = "zip"):
     return df
 
 
-## Ammenities / Condo Ammenities
+# Ammenities / Condo Ammenities
 
 
 def helper_clean_ammenities_list(x: list):
@@ -551,9 +547,9 @@ def reduce_cardinality(df, columns, threshold=0.01):
     return df
 
 
-## Data Analysis
+# Data Analysis
 
-## Outliers
+# Outliers
 
 
 def removeOutliers(df, strategy="all", columns=None, threshold=None, multiplier=None):

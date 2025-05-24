@@ -4,14 +4,18 @@ import pickle
 import warnings
 from pathlib import Path
 
+import numpy as np
+import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 
 from real_estate_predictor.config.config import (
     FEATURE_ENGINEERING_PARAMETERS, PREPROCESSING_PARAMETERS)
-from real_estate_predictor.utils.dataset_analysis import *
-from real_estate_predictor.utils.feature_engineering import *
+from real_estate_predictor.utils.dataset_analysis import (
+    remove_na_values_by_col, removeOutliers, replace_values)
+from real_estate_predictor.utils.feature_engineering import \
+    TEST_FEATURE_ENGINEERING_PARAMETERS_1
 from real_estate_predictor.utils.functionlogger import FunctionLogger
 
 
@@ -507,7 +511,7 @@ class Processor:
             else:
                 try:
                     strategy = str(f).split("(")[0]
-                except:
+                except Exception:
                     strategy = "CustomFunction"
         else:
             if strategy == "mean":
@@ -560,7 +564,7 @@ class Processor:
             else:
                 try:
                     strategy = str(f).split("(")[0]
-                except:
+                except Exception:
                     strategy = "CustomFunction"
         else:
             if strategy == "default":
@@ -613,7 +617,7 @@ class Processor:
             else:
                 try:
                     strategy = str(f).split("(")[0]
-                except:
+                except Exception:
                     strategy = "CustomFunction"
         else:
             if strategy == "most_frequent":
@@ -654,7 +658,7 @@ class Processor:
             else:
                 try:
                     strategy = str(f).split("(")[0]
-                except:
+                except Exception:
                     strategy = "CustomFunction"
         else:
             if strategy == "onehot":
@@ -863,7 +867,6 @@ class Processor:
         useful if you want to drop the same columns from another dataframe when loading
         the processor.
         """
-            
         if save_columns:
             self.dropped_columns = columns
         if not all([True if col in self.df.columns else False for col in columns]):
@@ -874,7 +877,6 @@ class Processor:
         else:
             drop_columns = columns
         self.df = self.df.drop(columns=drop_columns, axis=1)
-
 
     def set_df(self, df):
         self.df = df

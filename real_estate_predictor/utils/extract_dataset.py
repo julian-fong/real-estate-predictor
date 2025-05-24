@@ -168,7 +168,7 @@ def extract_raw_data_listings(
     return df
 
 
-### Neighborhood dataset
+# Neighborhood dataset
 
 
 def extract_neighborhood_data(data: dict, location, bed, type, verbose=False):
@@ -183,13 +183,13 @@ def extract_neighborhood_data(data: dict, location, bed, type, verbose=False):
     daysOnMarket_mth_stats = data["statistics"]["daysOnMarket"][
         "mth"
     ]  # gives avg, count and med
-    closed_mth_stats = data["statistics"]["closed"]["mth"]
+    # closed_mth_stats = data["statistics"]["closed"]["mth"]
 
     soldPrice_mth_stats_df = pd.DataFrame(soldPrice_mth_stats)
     listPrice_mth_stats_df = pd.DataFrame(listPrice_mth_stats)
     available_mth_stats_df = pd.DataFrame([available_mth_stats], index=["count"])
     daysOnMarket_mth_stats_df = pd.DataFrame(daysOnMarket_mth_stats)
-    closed_mth_stats_df = pd.DataFrame(closed_mth_stats)
+    # closed_mth_stats_df = pd.DataFrame(closed_mth_stats)
 
     for index in soldPrice_mth_stats_df.index:
         soldPrice_mth_stats_df = soldPrice_mth_stats_df.rename(
@@ -279,7 +279,7 @@ def extract_neighborhood_data(data: dict, location, bed, type, verbose=False):
         )
 
         return merged_final_df
-    except:
+    except Exception:
         if verbose:
             print(f"unable to get data for {(location, bed, type)}")
         return None
@@ -329,7 +329,7 @@ def subtract_months(col, num_months=1):
     return new_date
 
 
-## Helper functions
+# Helper functions
 
 
 def convert_col_dtype(

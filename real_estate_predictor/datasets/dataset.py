@@ -3,7 +3,6 @@ import time
 import pandas as pd
 
 from real_estate_predictor.config.config import (LISTING_PARAMETERS,
-                                                 NEIGHBOURHOOD_KEYS,
                                                  NEIGHBOURHOOD_NUMBEDROOMS,
                                                  NEIGHBOURHOOD_PARAMETERS,
                                                  NEIGHBOURHOOD_TYPES,

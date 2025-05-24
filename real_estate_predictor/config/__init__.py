@@ -1,4 +1,5 @@
-from .config import (DATACLEANER_FILE, FEATURE_ENGINEERING_FILE,
-                     LISTING_PARAMETERS, NEIGHBOURHOOD_KEYS,
-                     NEIGHBOURHOOD_PARAMETERS, NEIGHBOURHOODS,
-                     PREPROCESSOR_FILE)
+from .config import FEATURE_ENGINEERING_FILE  # noqa: F401
+from .config import NEIGHBOURHOOD_KEYS  # noqa: F401
+from .config import NEIGHBOURHOODS  # noqa: F401
+from .config import (DATACLEANER_FILE, LISTING_PARAMETERS,  # noqa: F401
+                     NEIGHBOURHOOD_PARAMETERS, PREPROCESSOR_FILE)
