@@ -38,12 +38,12 @@ MODEL_MODULE_FILE = (
 
 # CONFIG file for model path
 
-SALE_MODEL_FILE = (
+SALE_MODEL_FILE = str(
     pathlib.Path(__file__)
     .parent.parent.absolute()
     .joinpath("storage", "production", "sale_model.pkl")
 )
-LEASE_MODEL_FILE = (
+LEASE_MODEL_FILE = str(
     pathlib.Path(__file__)
     .parent.parent.absolute()
     .joinpath("storage", "production", "lease_model.pkl")

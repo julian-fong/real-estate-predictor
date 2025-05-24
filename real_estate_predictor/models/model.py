@@ -276,7 +276,7 @@ class XGBoostRegressor(BaseModel):
 
     def save(self, path=None, filename=None):
         """
-        Save the XBBoostRegressor object to a path
+        Save the XGBoostRegressor object to a path
 
         Parameters
         ----------
@@ -310,7 +310,7 @@ class XGBoostRegressor(BaseModel):
     @classmethod
     def load(self, path):
         """
-        Load the XBBoostRegressor object from a path
+        Load the XGBoostRegressor object from a path
 
         Parameters
         ----------

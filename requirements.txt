@@ -13,5 +13,6 @@ seaborn
 xgboost
 lightgbm
 shap
-fastapi
 pyyaml
+fastapi
+uvicorn[standard]

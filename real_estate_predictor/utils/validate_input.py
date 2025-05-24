@@ -4,6 +4,7 @@ import pickle
 import numpy as np
 import pandas as pd
 import requests
+from xgboost import XGBClassifier, XGBRegressor
 
 key = os.environ["REPLIERS_KEY"]
 
@@ -265,7 +266,10 @@ def process_input(data, model):
     to be passed into the model
     """
     df = transform_input(data)
-    model_cols = model.get_booster().feature_names
+    if isinstance(model, XGBClassifier) or isinstance(model, XGBRegressor):
+        model_cols = model.get_booster().feature_names
+    else:
+        model_cols = model._model.get_booster().feature_names
 
     # fix the dtype of soldDate if its not the correct datetime format since its NaT
     df = fix_nat_dtype(df)

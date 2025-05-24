@@ -8,12 +8,22 @@ key = os.environ["REPLIERS_KEY"]
 from real_estate_predictor.config.config import (LEASE_MODEL_FILE,
                                                  SALE_MODEL_FILE)
 from real_estate_predictor.utils.validate_input import process_input
+import pathlib
+# Ensure compatibility with different operating systems when using pathlib
+import platform
+plt = platform.system()
+if plt == 'Windows': 
+    pathlib.PosixPath = pathlib.WindowsPath
+elif plt == 'Linux':
+    pathlib.WindowsPath = pathlib.PosixPath
 
 sale_model_path = SALE_MODEL_FILE
-sale_model = pickle.load(open(sale_model_path, "rb"))
+with open(sale_model_path, "rb") as f:
+    sale_model = pickle.load(f)
 
 lease_model_path = LEASE_MODEL_FILE
-lease_model = pickle.load(open(sale_model_path, "rb"))
+with open(lease_model_path, "rb") as f:
+    lease_model = pickle.load(f)
 
 
 def extract_input(mlsNumber: str):

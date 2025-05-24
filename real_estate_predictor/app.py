@@ -9,9 +9,18 @@ app = FastAPI()
 async def root():
     return {"msg": "please use the predict endpoint to generate predictions"}
 
-
 @app.get("/predict/sale/{mlsNumber}")
-async def predict_listing(mlsNumber, listing_type: str):
+async def predict_listing(mlsNumber, listing_type = "sale"):
     mlsNumber, data = extract_input(mlsNumber)
     prediction = predict(data, listing_type)[0].item()
     return {"mlsNumber": mlsNumber, "prediction": prediction}
+
+@app.get("/predict/lease/{mlsNumber}")
+async def predict_listing(mlsNumber, listing_type = "lease"):
+    mlsNumber, data = extract_input(mlsNumber)
+    prediction = predict(data, listing_type)[0].item()
+    return {"mlsNumber": mlsNumber, "prediction": prediction}
+
+@app.get("/health")
+async def health():
+    return {"status": "200 OK"}
