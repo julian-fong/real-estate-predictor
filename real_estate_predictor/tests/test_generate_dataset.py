@@ -14,7 +14,6 @@ from real_estate_predictor.utils.generate_dataset import (
 
 key = os.getenv("REPLIERS_KEY")
 
-
 @pytest.fixture
 def repliers_request():
     start_date = "2024-01-01"
