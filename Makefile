@@ -24,6 +24,6 @@ flake8_full:
 
 predictor_tests:
 	# python -m pytest -vv real_estate_predictor/tests/
-	pytest --cov=real_estate_predictor --cov-report=term --cov-report=xml tests/
+	pytest --cov=real_estate_predictor --cov-report=term --cov-report=xml real_estate_predictor/tests/
 
 all: install quality predictor_tests
