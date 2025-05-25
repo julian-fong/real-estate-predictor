@@ -10,13 +10,11 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "MIT" }
 
-# Optional but recommended fields
 authors = [
     { name="Julian Fong", email="julian.fong@landpower.ca"},
 ]
 
 
-# Classifiers from the PyPI Trove classifier list
 classifiers = [
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
