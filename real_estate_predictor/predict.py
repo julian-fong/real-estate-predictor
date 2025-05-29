@@ -44,3 +44,14 @@ def predict(data, listing_type):
     prediction = model.predict(df)
 
     return prediction
+
+def predict_sale_listing(mlsNumber, listing_type="sale"):
+    mlsNumber, data = extract_input(mlsNumber)
+    prediction = predict(data, listing_type)[0].item()
+    return {"mlsNumber": mlsNumber, "prediction": prediction}
+
+
+def predict_lease_listing(mlsNumber, listing_type="lease"):
+    mlsNumber, data = extract_input(mlsNumber)
+    prediction = predict(data, listing_type)[0].item()
+    return {"mlsNumber": mlsNumber, "prediction": prediction}

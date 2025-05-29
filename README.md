@@ -6,7 +6,7 @@ The Real Estate Predictor is a library designed to estimate property prices usin
 
 ## ⚠️ Important
 
-This project is also built using the **Repliers** API. To utilize the dataset modules to extract live GTA listings data, or to do predictions via the sample models in this library, you will need a key to do so. More information about Repliers can be found [here](https://repliers.com/).
+This project is also built using the **Repliers** API. To utilize the dataset modules to extract live GTA listings data, or to do predictions via the sample models in this library, you will need an API key to do so. More information about Repliers can be found [here](https://repliers.com/).
 
 ## Installation
 
@@ -26,16 +26,18 @@ pip install git+https://github.com/julian-fong/real-estate-predictor.git
 
 ## Features
 
-Data Cleaning: Handles missing values, removing bad/invalid values via `pandas`
+- Dataset Extraction: Handles retrival of raw data via api endpoints, extracting features from raw data into dataframe format.
 
-Feature Engineering: Creates new features using existing predictors via `pandas`
+- Data Cleaning: Handles missing values, removing bad/invalid values via `pandas`
 
-Data Preprocessing: Scaling numerical predictors, encodes categorical variables, and splits the dataset into training, validation, and test sets via `sklearn`.
+- Feature Engineering: Creates new features using existing predictors via `pandas`
 
-Model Training: Implements regression models like Linear Regression, and XGBoost.
+- Data Preprocessing: Scaling numerical predictors, encodes categorical variables, and splits the dataset into training, validation, and test sets via `sklearn`.
 
-Model Evaluation: Provides metrics such as RMSE, MAE, and R² to assess model performance.
+- Model Training: Implements regression models like Linear Regression, and XGBoost.
 
-Docker Support: Includes a Dockerfile for containerized deployment.
+- Model Evaluation: Provides metrics such as RMSE, MAE, and R² to assess model performance.
 
-Continuous Integration: Configured with GitHub Actions for automated testing and deployment.
+- Docker Support: Includes a Dockerfile for containerized deployment.
+
+- Continuous Integration: Configured with GitHub Actions for automated testing and deployment.
