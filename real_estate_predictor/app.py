@@ -1,12 +1,10 @@
 from fastapi import FastAPI
-
+from fastapi.middleware.cors import CORSMiddleware
 from real_estate_predictor.predict import extract_input, predict
 
 app = FastAPI()
 
 # fastapi dev app.py
-
-from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
@@ -14,7 +12,8 @@ origins = [
     "http://localhost",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
-    "http://landpower.ca",
+    "https://landpower.ca",
+    "https://www.landpower.ca",
 ]
 
 app.add_middleware(
