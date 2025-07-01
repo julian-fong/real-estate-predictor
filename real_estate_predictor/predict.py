@@ -45,6 +45,7 @@ def predict(data, listing_type):
 
     return prediction
 
+
 def predict_sale_listing(mlsNumber, listing_type="sale"):
     mlsNumber, data = extract_input(mlsNumber)
     prediction = predict(data, listing_type)[0].item()
