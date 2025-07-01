@@ -6,7 +6,7 @@ mlsNumber = "N12174739"
 
 
 def test_sale_listing_prediction():
-    """Test sale listing prediction."""
+    """Test sale predictions using the `predict_sale_listing` function."""
 
     prediction = predict_sale_listing(mlsNumber)
     assert isinstance(prediction, dict)
@@ -16,6 +16,10 @@ def test_sale_listing_prediction():
 
 
 def test_predict_with_sale():
+    mlsNumber = "N12174739"
     mlsNumber, data = extract_input(mlsNumber)
     prediction = predict(data, "sale")[0].item()
-    return {"mlsNumber": mlsNumber, "prediction": prediction}
+    result = {"mlsNumber": mlsNumber, "prediction": prediction}
+    assert "mlsNumber" in result
+    assert "prediction" in result
+    assert result["mlsNumber"] == mlsNumber
